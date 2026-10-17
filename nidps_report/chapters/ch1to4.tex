@@ -1,0 +1,1687 @@
+\chapter{Introduction}\label{chap:1}
+
+\noindent Computer networks are used to connect devices, share data and access online services, but this connectivity also creates opportunities for malicious activity. A \textbf{network intrusion} occurs when an unauthorized user or program attempts to access, misuse, disrupt or damage a network or the devices connected to it. Intrusions may originate from outside the network, such as an attacker scanning for open ports or trying to gain access through weak credentials, or from inside the network through a compromised device or malicious user.
+
+\noindent Network intrusions can take many forms. Some attacks focus on gaining unauthorized access, such as brute-force attacks, while others attempt to disrupt services through Denial-of-Service attacks. Attackers may also intercept or manipulate network communication through spoofing, move between devices after gaining access, transfer sensitive data outside the network, or communicate with compromised devices through command-and-control channels. Because these attacks behave differently, relying on a single detection method is often not enough.
+
+\noindent Intrusion Detection and Prevention Systems are used to monitor network traffic and identify such malicious behaviour. Traditional systems commonly use predefined signatures or rules to recognize known attacks. These methods can be effective when an attack pattern is already known, but they may struggle with new attacks or variations that do not match an existing signature. Machine learning offers another approach by learning patterns in network traffic and identifying suspicious or abnormal behaviour. However, its effectiveness can depend heavily on the data used to train the model and the environment in which it is deployed.
+
+\noindent Another challenge is that much of modern network communication is encrypted. While encryption protects user privacy, it also limits the amount of traffic content that can be directly inspected. This makes network security systems increasingly dependent on other information, such as traffic patterns, flow behaviour and connection metadata. These challenges create a need for intrusion detection systems that can combine multiple detection techniques and remain practical for real network environments.
+
+\noindent The aim of this project is to develop a \textbf{Network Intrusion Detection and Prevention System (NIDPS)} for small networks. The project combines different detection approaches so that known attacks, abnormal behaviour and suspicious network activity can be identified and acted upon. The system is designed to operate on a Linux-based device placed directly in the network path, while also considering practical issues such as encrypted traffic, limited hardware resources and reliability.
+
+\noindent The remainder of this report is organised as follows. \textbf{Chapter~\ref{chap:2}} presents the project scope, goals and objectives. \textbf{Chapter~\ref{chap:3}} reviews existing research and related work in network intrusion detection and machine learning. \textbf{Chapter~\ref{chap:4}} presents the Software Requirements Specification (SRS) of the proposed system. \textbf{Chapter~\ref{chap:5}} explains the proposed approach and methodology used for detection, prevention and evaluation. \textbf{Chapter~\ref{chap:6}} describes the high-level and low-level design of the system.
+
+\section{Purpose of this Document}\label{sec:1.1}
+
+\noindent The purpose of this document is to present the design, development and evaluation of our Final Year Project, a \textbf{Network Intrusion Detection and Prevention System (NIDPS)} for small networks. The project aims to provide a practical security solution that can monitor network traffic, detect malicious or abnormal activity and respond to identified threats using a combination of signature-based detection and machine learning.
+
+\noindent The main objective is to evaluate whether this hybrid approach can provide effective protection while remaining suitable for limited hardware. The research also examines how well machine learning models trained on public intrusion detection datasets perform when tested on different datasets and on real deployment traffic.
+
+\noindent The main research questions focus on whether combining multiple detection techniques improves the detection of known and abnormal activity, whether the models can generalize across different network environments, and whether the complete system can operate efficiently without significantly affecting normal network performance.
+
+\noindent This report covers the project scope, related research, software requirements, methodology and system design.
+
+\section{Intended Audience}\label{sec:1.2}
+
+\noindent This report is primarily intended for the \textbf{Final Year Project evaluation panel, project advisor, faculty members and other academic reviewers} who will assess the technical quality, design, implementation and evaluation of the project.
+
+\noindent It may also be useful for \textbf{students, researchers and developers working in network security, intrusion detection or machine learning}, as it documents the proposed NIDPS architecture, detection methods, evaluation approach and practical deployment considerations.
+
+\noindent The report is written with enough technical detail to explain the system clearly while keeping the discussion understandable for readers with a general background in computer science and cyber security.
+
+\section{Definitions, Acronyms, and Abbreviations}\label{sec:1.3}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.260\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.740\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Definitions, acronyms and abbreviations.}\label{tab:1.1}\\
+\hline
+\textbf{Term} & \textbf{Definition} \\ \hline
+\endfirsthead
+\hline
+\textbf{Term} & \textbf{Definition} \\ \hline
+\endhead
+\textbf{NIDPS} & Network Intrusion Detection and Prevention System \\ \hline
+\textbf{IDS} & Intrusion Detection System \\ \hline
+\textbf{IPS} & Intrusion Prevention System \\ \hline
+\textbf{ML} & Machine Learning \\ \hline
+\textbf{RF} & Random Forest \\ \hline
+\textbf{XGBoost} & Extreme Gradient Boosting \\ \hline
+\textbf{IoT} & Internet of Things \\ \hline
+\textbf{C2} & Command and Control \\ \hline
+\textbf{DoS} & Denial of Service \\ \hline
+\textbf{DDoS} & Distributed Denial of Service \\ \hline
+\textbf{TLS} & Transport Layer Security \\ \hline
+\textbf{JA3} & TLS client fingerprint generated from properties of the ClientHello message \\ \hline
+\textbf{JA3S} & TLS server fingerprint generated from properties of the ServerHello message \\ \hline
+\textbf{ARP} & Address Resolution Protocol \\ \hline
+\textbf{DNS} & Domain Name System \\ \hline
+\textbf{DHCP} & Dynamic Host Configuration Protocol \\ \hline
+\textbf{NAT} & Network Address Translation \\ \hline
+\textbf{IP} & Internet Protocol \\ \hline
+\textbf{TCP} & Transmission Control Protocol \\ \hline
+\textbf{UDP} & User Datagram Protocol \\ \hline
+\textbf{ISP} & Internet Service Provider \\ \hline
+\textbf{AP} & Access Point \\ \hline
+\textbf{PCAP} & Packet Capture file containing recorded network traffic \\ \hline
+\textbf{NFQUEUE} & Linux Netfilter queue used to pass packets from the kernel to a user-space application for inspection \\ \hline
+\textbf{iptables} & Linux firewall utility used to configure packet filtering and traffic-control rules \\ \hline
+\textbf{ipset} & Linux utility used to maintain sets of IP addresses for efficient firewall matching and blocking \\ \hline
+\textbf{Suricata} & Open-source network IDS/IPS used for signature-based traffic inspection \\ \hline
+\textbf{Isolation Forest} & Unsupervised machine learning algorithm used to detect abnormal or unusual network traffic \\ \hline
+\textbf{Flow} & A group of related packets identified using network properties such as source and destination addresses, ports and protocol \\ \hline
+\textbf{Signature-Based Detection} & Detection of attacks by matching network activity against predefined rules or known attack patterns \\ \hline
+\textbf{Anomaly Detection} & Detection of activity that differs significantly from established normal network behaviour \\ \hline
+\textbf{Zero-Day Attack} & An attack that exploits a previously unknown or unaddressed vulnerability or behaviour \\ \hline
+\textbf{API} & Application Programming Interface \\ \hline
+\textbf{F1-Score} & Evaluation metric that combines precision and recall into a single value \\ \hline
+\textbf{False Positive} & Legitimate network activity that is incorrectly identified as malicious \\ \hline
+\textbf{Fail-Open} & Failure mode in which network traffic is allowed to continue when a security component becomes unavailable \\ \hline
+\textbf{Fail-Closed} & Failure mode in which network traffic is blocked when a security component becomes unavailable \\ \hline
+\end{longtable}
+}
+
+\section{Conclusion}\label{sec:1.4}
+
+\noindent The proposed NIDPS aims to improve the security of small networks by combining multiple intrusion detection techniques within a single system. The project focuses on detecting both known and abnormal network activity while also considering practical issues such as encrypted traffic, limited hardware resources and system reliability. Chapter~\ref{chap:1} introduced the background, purpose and overall direction of the project. The following chapters discuss the related research, software requirements, proposed methodology and system design.
+
+\chapter{Project Vision}\label{chap:2}
+
+\noindent This chapter explains the overall vision of the proposed Network Intrusion Detection and Prevention System. It describes what the system is intended to do, the problem it addresses, the goals of the project, its scope, major constraints, relevant stakeholders, and the broader value of the proposed solution. Since this project includes both research and development, it focuses on building a working NIDPS as well as evaluating how well the selected intrusion detection techniques perform in different network environments.
+
+\section{Problem Domain Overview}\label{sec:2.1}
+
+\noindent Our system implements a detection pipeline with three layers to tackle diverse attack vectors. The first layer uses Suricata with the Emerging Threats ruleset to capture known malicious activity via fixed signatures. The second layer uses an Isolation Forest model to flag baseline traffic anomalies that lack pre-existing rules. The third layer applies Random Forest or XGBoost classifiers to categorize flagged events into specific threat types. Instead of relying on a single indicator, the system aggregates findings across all three layers before taking action, either allowing the connection, logging an alert, or initiating a block.
+
+\noindent To protect user privacy and minimize processing overhead, the system avoids decrypting packet payloads. Instead, it evaluates connection behavior through flow statistics and TLS parameters, specifically JA3 and JA3S fingerprinting. When malicious activity is confirmed, an automated response module updates local firewall configurations using iptables and ipset to block the origin host immediately. A web-based management interface provides administrators with system telemetry, security logs, and a list of currently blocked endpoints.
+
+\noindent The research component focuses on model adaptability across changing network conditions. Machine learning models often suffer performance degradation when deployed outside their initial training data. To evaluate cross-environment resilience, we test our models on benchmark datasets as well as live traffic captured directly from our access point deployment.
+
+\section{Problem Statement}\label{sec:2.2}
+
+\noindent Existing intrusion detection approaches have their limitations. Signature based systems are effective against known attacks, but they may miss new attacks or modified versions of existing ones. Machine learning approaches can identify unusual traffic, but their performance may drop when they are used on a network that is different from the dataset on which they were trained.
+
+\noindent The problem addressed by this project is therefore the lack of an affordable and practical solution for small networks that can combine known-attack detection, anomaly detection, and attack classification while still running efficiently on limited hardware. The system must also be able to deal with encrypted traffic, avoid excessive false positives, and continue behaving safely if one of its components fails.
+
+\section{Problem Elaboration}\label{sec:2.3}
+
+\noindent The overall problem can be divided into smaller problems that need to be handled together.
+
+\noindent \textbf{First}, no single detection method works for everything. Signature tools like Suricata catch known attacks instantly, but they miss brand new threats. On the flip side, machine learning spots weird behavior, but it can trigger false alarms on normal traffic. Using just one approach leaves major security gaps, so the system needs a multi-layer setup.
+
+\noindent \textbf{Second}, machine learning models often struggle when moved to a new environment. A model might get perfect scores on one dataset, but completely fail on a different network with different devices and user habits. To test real-world reliability, we evaluate our models across multiple datasets, like CIC-IDS-2017, CSE-CIC-IDS2018, and CIC-IoT-2023, as well as live traffic from our own access point.
+
+\noindent \textbf{Third}, most internet traffic is encrypted. Trying to decrypt network traffic slows down the hardware and invades user privacy. Instead of reading packet contents, the system looks at connection behavior, flow patterns, and unencrypted TLS handshake signatures like JA3 and JA3S.
+
+\noindent \textbf{Fourth}, automatic blocking can backfire if the system makes a mistake. While blocking bad actors via iptables and ipset stops attacks fast, false alarms can accidentally lock out real users. To prevent this, the response engine includes safeguards like allowlists, temporary blocks, and adjustable threat thresholds.
+
+\noindent Finally, the system runs on low power hardware. If the NIDPS uses too much CPU or memory, it will slow down internet speeds for everyone on the network. To keep things fast and stable, we use lightweight ML models, process data off-path, and set up fail-safes so a system crash doesn't knock out the entire internet connection.
+
+\section{Goals and Objectives}\label{sec:2.4}
+
+\noindent The main goal of this project is to build and evaluate a practical hybrid NIDPS that protects small networks using both signature matching and machine learning.
+
+\noindent Key objectives include:
+
+\begin{itemize}
+\item \textbf{Hardware \& Deployment:} Implement an inline NIDPS between client devices and the ISP gateway, complete with a watchdog and auto-recovery rules to prevent network downtime.
+\item \textbf{Multi-Layer Detection:} Combine Suricata (using Emerging Threats rules) for known attacks, Isolation Forest for unseen traffic anomalies, and Random Forest/XGBoost for classifying specific threats.
+\item \textbf{Encrypted Traffic Analysis:} Assess encrypted connections using flow statistics and TLS fingerprints (JA3/JA3S) without decrypting user payloads.
+\item \textbf{Automated Mitigation:} Automatically block confirmed threats using Linux firewall rules (iptables/ipset).
+\item \textbf{Cross-Environment Research:} Train and test models across CIC-IDS-2017, CSE-CIC-IDS2018, and CIC-IoT-2023, and benchmark their performance on live traffic from our actual access point.
+\item \textbf{Management \& Telemetry:} Build a web dashboard for live monitoring, alerts, and system controls, measuring throughput, latency, CPU/memory usage, and detection accuracy under real traffic.
+\end{itemize}
+
+\section{Project Scope}\label{sec:2.5}
+
+\noindent The system will operate directly as a wireless access point positioned between connected devices and the ISP gateway. Core features include:
+
+\begin{itemize}
+\item \textbf{Multi-Layer Detection:} Combines Suricata to catch known attack rules, Isolation Forest to spot unusual traffic spikes, and Random Forest or XGBoost to figure out the exact attack type.
+\item \textbf{Encrypted Traffic Analysis:} Looks at connection patterns and unencrypted TLS signatures to check if a stream is safe, completely skipping payload decryption to keep user privacy intact.
+\item \textbf{Active Response:} Automatically kicks bad actors off the network by blocking their IP, while giving admins a simple web dashboard to manage alerts and track blocked devices.
+\item \textbf{Research \& Testing:} Benchmarks model accuracy across several benchmark datasets and real traffic captures from our setup, while making sure memory and CPU usage stay light on modest hardware.
+\end{itemize}
+
+\subsection*{Key Deliverables}
+
+\begin{itemize}
+\item A working NIDPS access point prototype with automated prevention and fail-safe controls.
+\item The complete ML model training, testing, and cross-dataset evaluation pipeline.
+\item A web management dashboard.
+\item Practical performance benchmarks (latency, resource usage, detection accuracy).
+\item Full system design and research documentation.
+\end{itemize}
+
+\subsection*{Out of Scope}
+
+\noindent To maintain a clear focus, the project will not:
+
+\begin{itemize}
+\item Function as an enterprise-grade security suite or support enterprise-scale hosting.
+\item Monitor traffic from devices bypassing the access point.
+\item Decrypt user traffic payloads.
+\item Cover every existing exploit category or run continuous online model retraining on the live device.
+\end{itemize}
+
+\section{Sustainable Development Goal (SDG)}\label{sec:2.6}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.3\textwidth]{Figures/sdg16.png}
+\caption{UN Sustainable Development Goal targeted by the NIDPS.}
+\label{fig:2.1}
+\end{figure}
+
+\noindent Our project primarily aligns with the \textbf{Industry, Innovation and Infrastructure} SDG. Modern digital services rely heavily on secure and stable network connections. By adapting advanced threat detection for low-cost, resource-constrained hardware, this project offers an accessible way to make small scale networks more resilient against cyberattacks.
+
+
+\section{Constraints}\label{sec:2.7}
+
+\noindent Building and running this system comes with a few limitations:
+
+\begin{itemize}
+\item \textbf{Hardware Limits:} Low cost hardware cannot handle heavy software. Memory and CPU usage must stay low, which rules out heavy ML models.
+\item \textbf{Network Speed:} Sitting directly in the network path means any extra delay will slow down the internet. Traffic processing must be fast to keep connections smooth.
+\item \textbf{Encrypted Traffic:} Since packet contents are hidden, reading payloads is off the table. The ML side has to rely only on connection patterns and TLS details.
+\item \textbf{Data Limits:} Public security datasets do not cover every real-world scenario. That is why testing across multiple datasets and live traffic is necessary.
+\item \textbf{Coverage Gaps:} The system can only monitor devices that connect directly through its access point. Any device using a different network stays invisible.
+\item \textbf{Blocking Mistakes:} Blocking too aggressively locks out real users, but loose rules let threats through. Finding the right balance requires careful tuning and safety defaults.
+\end{itemize}
+
+\section{Business Opportunity}\label{sec:2.8}
+
+\noindent Most small offices, research labs, and home users cannot afford expensive corporate security gear. They also lack dedicated IT teams to manage complicated setups. This opens up a clear opportunity for a simple, low cost security solution built on standard Linux hardware. By securing traffic right at the main access point, it protects every connected device at once, without needing extra software installed on each phone or laptop. While this project is centered on research and a working prototype, it builds a solid base for a practical product aimed at smaller networks.
+
+\section{Stakeholders Description/ User Characteristics}\label{sec:2.9}
+
+\noindent \textbf{Network Owners and Admins:} The primary users of the system which involve configuration of alerts, blocked devices, and system preferences. Since these are not security experts, the system is designed to provide informative feedback and employ safety defaults.
+
+\noindent \textbf{Regular Network Users:} These are the individuals and devices which access the WI-FI network. They are not direct users of the dashboard but benefit from its existence as it helps protect and optimize the network.
+
+\noindent \textbf{The Project Team:} This team is responsible for developing the system, including coding, training, and testing the algorithms.
+
+\noindent \textbf{Advisors and Evaluators:} Faculty members who review the details of the research, evaluate the code, and ensure that the project meets its objectives.
+
+\noindent \textbf{Future Researchers:} Potential students and developers who will review the project's details and possibly adopt it in their own research.
+
+\section{Conclusion}\label{sec:2.10}
+
+\noindent The contents of chapter 2 provided an overview of the proposed NIDPS project, which included the problem statement, major aspects and issues, and objectives of the intended solution. In this chapter, we have discussed the project scope, its key objectives, constraints, and stakeholders, as well as the potential benefits for business, and specified the relevant Sustainable Development Goal. Thus, this chapter sets the course and boundaries of the project, providing the basis for the requirements, methods, design, and implementation that will be elaborated in subsequent chapters.
+
+\chapter{Literature Review / Related Work}\label{chap:3}
+
+\noindent This chapter reviews recent research related to Network Intrusion Detection and Prevention Systems (NIDPS). It focuses on the detection techniques, datasets, machine learning models, deployment approaches and evaluation methods used in previous studies. Each study is summarised, critically analysed and related to the proposed system, and the chapter ends with summary tables of the reviewed literature, the datasets they use and the systems closest to the proposed NIDPS.
+
+\section{Definitions, Acronyms, and Abbreviations}\label{sec:3.1}
+
+\noindent The important definitions, acronyms and abbreviations used in this chapter are listed below:
+
+\begin{itemize}
+\item \textbf{AUC:} Area Under the (ROC) Curve
+\item \textbf{CIC:} Canadian Institute for Cybersecurity
+\item \textbf{DT:} Decision Tree
+\item \textbf{EIF:} Extended Isolation Forest
+\item \textbf{F1-score:} Harmonic mean of precision and recall
+\item \textbf{FPR:} False Positive Rate
+\item \textbf{IDS:} Intrusion Detection System
+\item \textbf{IIoT:} Industrial Internet of Things
+\item \textbf{IoT:} Internet of Things
+\item \textbf{iForest / IF:} Isolation Forest
+\item \textbf{IPS:} Intrusion Prevention System
+\item \textbf{LSTM:} Long Short-Term Memory (recurrent neural network)
+\item \textbf{ML:} Machine Learning
+\item \textbf{NIDPS:} Network Intrusion Detection and Prevention System
+\item \textbf{NIDS:} Network Intrusion Detection System
+\item \textbf{OC-SVM:} One-Class Support Vector Machine
+\item \textbf{RF:} Random Forest
+\item \textbf{SVM:} Support Vector Machine
+\item \textbf{XGBoost:} Extreme Gradient Boosting
+\item \textbf{Zeek:} Open-source network security monitor that produces connection logs
+\end{itemize}
+
+\section{Detailed Literature Review}\label{sec:3.2}
+
+\noindent This section covers notable literature on hybrid signature and machine learning intrusion detection, unsupervised anomaly detection with Isolation Forest, supervised attack classification with tree ensembles, and the deployment and generalisation of ML-based detectors. Each item is presented with a summary, a critical analysis and its relationship to the proposed NIDPS.
+
+\subsection{Performance Comparison of Intrusion Detection Systems and Application of Machine Learning to Snort}\label{sec:3.2.1}
+
+\noindent Snort and Suricata are compared on a 10 Gbps network, and machine learning is added to Snort to reduce its false alarms. An SVM optimised with the firefly algorithm lowers the false positive rate to 8.6\%.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.1.1}
+
+\noindent Shah and Issac~\cite{lr:shah2018} compared the two most widely used open-source signature engines, Snort and Suricata, running on identical machines at a traffic rate of 10 Gbps. Suricata handled the high traffic speed with a lower packet drop rate because of its multi-threaded design, but used more computing resources, while Snort showed slightly higher detection accuracy. Since Snort produced a large number of false positive alarms, the authors developed an adaptive Snort plug-in and compared several learning algorithms to filter its alerts. SVM was selected, and the best configuration, an SVM optimised with the firefly algorithm, achieved a false positive rate of 8.6\% and a false negative rate of 2.2\%.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.1.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It gives a practical, measured comparison of Snort and Suricata under heavy load, which is useful when choosing the signature engine for an inline system.
+\item It shows clearly that machine learning can reduce the false alarms of a signature engine.
+\item The SVM models were evaluated offline; SVMs are relatively heavy, and the work does not show the approach running on live traffic on low-cost hardware.
+\item The system only detects and does not block traffic, and it does not consider encrypted traffic.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.1.3}
+
+\noindent This work supports the use of Suricata as the first layer of the proposed NIDPS because it copes better with high traffic rates, and it supports the idea of using machine learning to reduce the false positives of a signature engine. Unlike this work, the proposed system uses lightweight tree models that classify flows in milliseconds and acts on the verdict by blocking the offending host.
+
+\subsection{A Novel Hybrid Intrusion Detection Method Integrating Anomaly Detection with Misuse Detection}\label{sec:3.2.2}
+
+\noindent A C4.5 decision tree (misuse detection) splits the normal training data into subsets, and a separate one-class SVM is trained on each subset for anomaly detection. Evaluated on NSL-KDD.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.2.1}
+
+\noindent Kim, Lee and Kim~\cite{lr:kim2014} proposed a hierarchical hybrid intrusion detection method in which a misuse detection model and an anomaly detection model are combined in a decomposed structure. A C4.5 decision tree is first trained as the misuse detector, and it is also used to divide the normal training data into smaller, more uniform subsets. A one-class SVM is then trained on each subset, so every anomaly model describes one region of normal behaviour more precisely and indirectly benefits from the knowledge of known attacks. On the NSL-KDD dataset the method detected both known and unknown attacks better than conventional methods while keeping false positives low, and the anomaly model needed only about 50\% of the training time and 60\% of the testing time of the conventional models.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.2.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item The decomposition of normal traffic gives more accurate anomaly models and noticeably lower training and testing time.
+\item It shows that relying on a single model to do all the work produces more false positives than letting each component handle the traffic it is best at.
+\item The evaluation uses only NSL-KDD, a dataset derived from 1998 traffic that does not represent modern or encrypted traffic.
+\item It is an offline detection method; no prevention or deployment on a real network is shown.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.2.3}
+
+\noindent The proposed NIDPS follows the same principle of combining misuse (signature) detection with anomaly detection so that each part handles the traffic it suits best. It replaces the decision tree with Suricata rules and a Random Forest/XGBoost classifier, uses Isolation Forest instead of one-class SVM for cheaper anomaly scoring, and evaluates on modern datasets and live traffic.
+
+\subsection{Collaborative and Hybrid Network Intrusion Detection Framework Based on Suricata and Isolation Forest}\label{sec:3.2.3}
+
+\noindent Suricata detects known attacks and an Isolation Forest flags anomalies that may be unknown attacks. Several NIDS instances share alerts through a central log.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.3.1}
+
+\noindent Chiba et al.~\cite{lr:chiba2019} proposed a hybrid and collaborative NIDS framework. Suricata performs signature-based detection of known attacks and was chosen over Snort because it is multi-threaded and divides its workload across processing resources. Traffic that does not match any signature is examined by an Isolation Forest, which detects anomalies that may indicate unknown attacks. Since Isolation Forest does not depend on distance or density calculations, the authors argue that it keeps the computational cost low. The NIDS instances are collaborative: alerts are stored in a central log so that an attack detected by one sensor is also recognised by the others.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.3.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item The pairing of Suricata with Isolation Forest is lightweight and matches the needs of edge devices.
+\item Sharing confirmed attacks between sensors lets the whole network benefit from one detection.
+\item It is mainly a design proposal: there is no attack-classification stage and only limited experimental evaluation.
+\item It does not describe automated blocking, failure handling or the analysis of encrypted traffic.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.3.3}
+
+\noindent This is one of the works closest to the proposed NIDPS, which also places Suricata first and sends traffic to an Isolation Forest. The proposed system extends this idea into a complete three-layer implementation by adding a supervised attack classifier, decision fusion, automated blocking and a watchdog, all running on low-cost hardware for home and small-office networks.
+
+\subsection{Self-Healing Hybrid Intrusion Detection System: An Ensemble Machine Learning Approach}\label{sec:3.2.4}
+
+\noindent A C5 decision tree acts as the signature stage, an LSTM detects anomalies, and features of detected anomalies are turned into new signatures that are fed back into the first stage.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.4.1}
+
+\noindent Kushal et al.~\cite{lr:kushal2024} proposed a three-stage self-healing hybrid IDS. In the first stage, a C5 decision tree trained on UNSW-NB15 classifies packets as normal or attack and acts as the signature-based detector. Packets that it does not match are passed to the second stage, an LSTM recurrent neural network trained on ADFA-LD, which flags deviations from normal behaviour. In the third stage, the attributes of anomalous packets are extracted and added to the training data of the C5 stage, so the system learns new signatures and can detect similar attacks earlier. The C5 classifier reached a true positive rate of about 97\% with a false positive rate of about 8\%, while the LSTM reached a detection rate of about 90\% with a false alarm rate of 17\% and an AUC of 0.936.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.4.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item Turning detected anomalies into new signatures is an interesting way to keep the detector up to date without manual work.
+\item The two stages were evaluated separately on different datasets, and the authors note that the performance of the integrated system still needs to be assessed.
+\item The deep learning stage is computationally expensive and has a high false alarm rate, so wrongly learned signatures could classify dangerous traffic as normal or block benign traffic.
+\item Real-time testing on live networks is left as future work.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.4.3}
+
+\noindent The proposed NIDPS shares the goal of adapting to the local network, but keeps a fixed, verified set of models on the device and adapts only the anomaly threshold through calibration on normal traffic. This keeps the system adaptable while avoiding the cost and risk of learning new signatures online.
+
+\subsection{Comparative Evaluation of Machine Learning and Signature-Based NIDS for Multi-Class and Binary Threat Detection}\label{sec:3.2.5}
+
+\noindent Snort is compared with Random Forest, XGBoost and Decision Tree on UNSW-NB15. The ensemble models clearly outperform Snort in accuracy and false positive rate.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.5.1}
+
+\noindent Wen-Udeoji, Muyeba and Mohammadi~\cite{lr:wenudeoji2025} built an empirical framework to compare the signature-based Snort NIDS with three machine learning models, Random Forest, XGBoost and Decision Tree, for both binary and multi-class threat detection on the UNSW-NB15 dataset while keeping its real class distribution. Random Forest reached 87\% accuracy compared with 56.21\% for Snort, with a false positive rate of 25\% against 62.5\% for Snort. Decision Tree and XGBoost reached 80.2\% and 82.84\% accuracy respectively. The authors conclude that the results support hybrid strategies that combine signature-based and machine learning detection.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.5.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It is a recent, direct comparison of a signature engine with tree-based ML models on the same data.
+\item Keeping the natural class distribution gives a more realistic picture than artificially balanced data.
+\item Only one dataset is used, and the hybrid approach that the authors recommend is not implemented or evaluated.
+\item Real-time performance and resource use are not reported.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.5.3}
+
+\noindent The results support the choice of tree ensembles (Random Forest and XGBoost) for Layer 3 of the proposed NIDPS and the decision to keep the signature engine and the ML models as separate layers whose outputs are fused, rather than relying on either one alone.
+
+\subsection{Real-Time Hybrid Signature and Machine Learning Intrusion Detection}\label{sec:3.2.6}
+
+\noindent A signature engine is combined with deep learning models for real-time detection, and the decisions of both detection stages are combined after each stage has produced its own output.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.6.1}
+
+\noindent Naik et al.~\cite{lr:naik2025} presented a real-time hybrid intrusion detection approach in which a signature-based engine detects known attacks and deep learning models detect anomalous behaviour. Each detection stage produces its own decision, and their experiments showed that combining these decisions at the end (late fusion) gives better results than passing the output of one stage as input to the other.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.6.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It shows the benefit of late fusion of independent detector outputs in a real-time setting.
+\item Deep learning models need more processing power, which makes the approach harder to run inline on low-cost hardware.
+\item Automated prevention, encrypted traffic and cross-dataset evaluation are not addressed.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.6.3}
+
+\noindent The proposed NIDPS also uses late fusion across its three layers, but with optimised tree models instead of deep learning. Each layer's output is recorded, so the system can show which layer made the decision and why before deciding whether to pass, alert or block.
+
+\subsection{Improving Detection Accuracy of Network Intrusions Using a Hybrid NIDS Based on Isolation Forest and Random Forest}\label{sec:3.2.7}
+
+\noindent Suricata is combined with an Isolation Forest that flags anomalous traffic and a Random Forest that identifies the attack type. It reaches 96.33\% accuracy on CIC-IDS-2017.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.7.1}
+
+\noindent Wang and Avrianto~\cite{lr:wang2025} proposed a hybrid NIDS in which Suricata performs real-time packet inspection, an Isolation Forest flags anomalous traffic and a Random Forest identifies the family of the attack. The models were trained on pre-processed captured traffic and evaluated on CIC-IDS-2017 and on simulated attack data. The hybrid model reached 96.33\% accuracy on CIC-IDS-2017 and 99.86\% on the simulated data, and compared with standalone Suricata it detected more unknown threats with fewer false positives.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.7.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It is the closest published design to the proposed system and shows that Isolation Forest and Random Forest work well together.
+\item The evaluation on CIC-IDS-2017 covers a limited subset of attacks, mainly DoS and port scanning.
+\item The very high accuracy is reported on simulated data, which may not reflect real network traffic.
+\item The system detects but does not block traffic, and failure handling is not considered.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.7.3}
+
+\noindent This is the most similar approach to the proposed NIDPS. The proposed system keeps the Isolation Forest and Random Forest pairing, but places Suricata inline in IPS mode as the first layer, adds automated blocking and failure handling, and is evaluated on three public datasets together with a self-collected dataset.
+
+\subsection{Extended Isolation Forest for Intrusion Detection in Zeek Data}\label{sec:3.2.8}
+
+\noindent The hyperparameters of the Extended Isolation Forest are tuned to detect malicious connections in Zeek logs. The simplest configuration (extension level 0) performs best.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.8.1}
+
+\noindent Moomtaheen et al.~\cite{lr:moomtaheen2024} tuned the hyperparameters of the Extended Isolation Forest (EIF), a variant of Isolation Forest, to detect malicious traffic in Zeek connection logs. The authors created a new dataset, UWF-Zeek\-DataFall22, and used Hadoop for storage and Apache Spark for training. The model reached accuracies of 82.3\% for the Resource Development tactic, 82.21\% for Reconnaissance and 78.3\% for Discovery. The best results came from extension level 0, which is equivalent to the standard Isolation Forest.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.8.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It uses real Zeek connection logs labelled with MITRE ATT\&CK tactics, which is closer to real deployments than older benchmarks.
+\item It shows that the extended variant gives no benefit over the basic Isolation Forest on this data.
+\item Accuracy around 80\% is moderate, so Isolation Forest alone is not enough for reliable detection.
+\item The big-data pipeline (Hadoop and Spark) is not suited to small, resource-constrained devices.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.8.3}
+
+\noindent This study supports the decision to use the standard Isolation Forest in Layer 2 of the proposed NIDPS rather than a more complex variant, and to combine it with a signature layer and a supervised classifier because its accuracy on its own is moderate.
+
+\subsection{An Optimized Isolation Forest Based Intrusion Detection System for Heterogeneous and Streaming Data in IIoT Networks}\label{sec:3.2.9}
+
+\noindent An Isolation Forest tuned with a modified Harris Hawks Optimisation (ERHHO) reduces features and training time and handles streaming data with concept drift.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.9.1}
+
+\noindent Elsaid and Binbusayyis~\cite{lr:elsaid2024} proposed OIFIDS, an Isolation Forest based intrusion detection system for Industrial IoT networks. The Isolation Forest is optimised with ERHHO, a modified Harris Hawks Optimisation algorithm, which reduces the number of features and the training time. The system was evaluated on NSL-KDD, UNSW-NB15 and CSE-CIC-IDS2018, reaching accuracies of 95.6\%, 94.8\% and 99\% respectively. On streaming data with concept drift it achieved AUC values of 0.948, 0.922 and 0.97 on the three datasets.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.9.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It addresses streaming traffic and concept drift, which are real problems for a deployed detector.
+\item Feature reduction lowers computational complexity, which suits resource-constrained devices.
+\item The optimisation step adds complexity to training, and the results are still on public benchmarks rather than a live deployment.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.9.3}
+
+\noindent The proposed NIDPS also has to cope with traffic that changes over time. Instead of a metaheuristic optimiser, it handles this with feature selection and a periodic recalibration of the Isolation Forest threshold on the local network's normal traffic.
+
+\subsection{Improved Isolation Forest with Sparse Auto-Encoder Feature Extraction}\label{sec:3.2.10}
+
+\noindent A sparse auto-encoder extracts features and a new split-point rule improves the Isolation Forest, giving better accuracy, recall, F1-score and AUC on KDDCUP99.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.10.1}
+
+\noindent Yu et al.~\cite{lr:yu2024} improved the Isolation Forest for intrusion detection in two ways. First, a sparse auto-encoder is used to extract better features from the raw traffic records. Second, a new rule is used to choose the split points of the isolation trees. Evaluated on the KDDCUP99 dataset, the improved model achieved higher accuracy, recall, F1-score and AUC than the standard Isolation Forest.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.10.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It shows that feature quality has a large effect on how well Isolation Forest separates attacks.
+\item KDDCUP99 is outdated and contains many redundant records, so the results may not hold on modern traffic.
+\item The auto-encoder adds training and inference cost compared with the plain Isolation Forest.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.10.3}
+
+\noindent This work confirms that the proposed NIDPS should invest in good flow features for its Isolation Forest. The proposed system obtains them from a consistent flow extractor and feature selection rather than from a neural auto-encoder, keeping the anomaly layer lightweight.
+
+\subsection{An Improved X-Means and Isolation Forest Based Methodology for Network Traffic Anomaly Detection}\label{sec:3.2.11}
+
+\noindent X-iForest removes the need to know the anomaly ratio in advance by clustering the suspected anomalies. It improves average AUC by 8.1\% over the basic Isolation Forest.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.11.1}
+
+\noindent Feng et al.~\cite{lr:feng2022} addressed a common problem of Isolation Forest: the contamination parameter (the share of anomalies) must be guessed, although the true ratio is unknown in real traffic. Their method, X-iForest, first runs an Isolation Forest with a deliberately high contamination value, then measures the distance of each suspected anomaly from the centre of the normal data, removes extreme values and uses X-means and 2-means clustering to separate real anomalies from normal points. Across four simulated and four public datasets, the average AUC was 8.1\% higher than the basic Isolation Forest, and the method had the best AUC on six of the eight datasets.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.11.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It removes the need to guess the contamination parameter, which is a real practical issue.
+\item The evaluation datasets are general anomaly-detection datasets and simulated Gaussian data, not network intrusion datasets.
+\item Performance is weaker on small datasets, and the method has not been tested on live traffic.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.11.3}
+
+\noindent The proposed NIDPS faces the same problem of setting the anomaly threshold without knowing the true anomaly ratio. It solves it by calibrating the Isolation Forest threshold on a period of normal traffic from the local network, which is simpler to run on the device.
+
+\subsection{Intrusion Detection: A Comparison Study of Machine Learning Models Using Unbalanced Dataset}\label{sec:3.2.12}
+
+\noindent Five classifiers are compared on the imbalanced UNSW-NB15 dataset. Random Forest and XGBoost give the best overall results.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.12.1}
+
+\noindent Ajagbe, Awotunde and Florez~\cite{lr:ajagbe2024} compared five machine learning models, Linear SVC, Logistic Regression, Random Forest, Decision Tree and XGBoost, on the UNSW-NB15 dataset, in which about 92.7\% of the records are normal and 7.3\% are attacks. Random Forest and XGBoost performed best in accuracy, precision, recall and F1-score. The AUC-ROC was 0.91 for Random Forest and Linear SVC, 0.90 for XGBoost, 0.83 for Decision Tree and 0.70 for Logistic Regression.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.12.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It evaluates the models on imbalanced data, which reflects real networks where attacks are rare.
+\item The way oversampling and undersampling were applied is not clearly described.
+\item The study was not tested in a real-world setting and uses a single dataset.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.12.3}
+
+\noindent This comparison supports the choice of Random Forest and XGBoost for the attack classifier (Layer 3) of the proposed NIDPS, and highlights class imbalance as an issue that the training pipeline must handle.
+
+\subsection{Enhanced Intrusion Detection Systems Performance with UNSW-NB15 Data Analysis}\label{sec:3.2.13}
+
+\noindent Four supervised classifiers are compared after correlation-based feature selection. Random Forest performs best with an F1-score of 97.80\%.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.13.1}
+
+\noindent More et al.~\cite{lr:more2024} compared Logistic Regression, SVM, Decision Tree and Random Forest on UNSW-NB15 after exploratory data analysis, correlation-based feature selection and random sampling. Random Forest was the best model, with an F1-score of 97.80\%, an accuracy of 98.63\% and a false alarm rate of 1.36\%.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.13.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It shows strong Random Forest results with a low false alarm rate after simple feature selection.
+\item Results come from a single dataset, so they say little about generalisation to other networks.
+\item Detection latency and resource use are not reported.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.13.3}
+
+\noindent The study supports the use of Random Forest in Layer 3 of the proposed NIDPS. The proposed system goes further by also measuring latency and resource use and by testing the model across datasets.
+
+\subsection{An Optimized Gradient Boosting Framework for IoT Intrusion Detection on the CICIoT2023 Dataset}\label{sec:3.2.14}
+
+\noindent XGBoost, LightGBM and CatBoost are evaluated on CICIoT2023 with a focus on edge deployment. Reducing 46 features to 23 cuts inference latency by 30--51\% with almost no loss of accuracy.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.14.1}
+
+\noindent Almahaqeri et al.~\cite{lr:almahaqeri2026} proposed an optimised gradient boosting intrusion detection framework for IoT environments, with an emphasis on practical deployment at the edge. An intrusion detection system on an edge gateway must not only detect attacks accurately but also run efficiently with limited computing power. The framework was evaluated on the CICIoT2023 dataset, comparing XGBoost, LightGBM and CatBoost for binary, attack-family (8-class) and fine-grained (34-class) classification.
+
+\noindent Training is performed offline, while the deployed edge system performs online flow classification. To reduce the processing cost, the authors apply gain-based feature selection and reduce the 46 features to 23, which lowered inference latency by around 30--51\% and training time by 33--40\% with almost no loss in predictive performance. XGBoost achieved 99.61\% accuracy and a macro F1-score of 0.995 in binary detection, taking 0.355 microseconds per sample.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.14.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It considers deployment efficiency in addition to detection accuracy, which many intrusion detection works ignore.
+\item It shows that reducing the number of features greatly improves inference speed without sacrificing accuracy, which suits edge environments.
+\item The evaluation is limited to CICIoT2023, so generalisation to other networks is not shown; the authors list cross-dataset validation and streaming conditions as future work.
+\item Edge suitability is judged from latency measurements rather than a full deployment on a low-power gateway, and only flow-level features are used.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.14.3}
+
+\noindent This work is closely related to the proposed NIDPS, which also performs detection on a resource-constrained Linux gateway. Like the paper, the proposed system separates offline training from online inference and treats latency and resource use as evaluation criteria. Unlike this study, it also includes signature-based and anomaly detection, cross-dataset evaluation, automated blocking, failure handling and testing on traffic from the actual deployment.
+
+\subsection{Cross-Dataset Generalisation of Deep Learning Intrusion Detection Models}\label{sec:3.2.15}
+
+\noindent Deep IDS models that score about 99\% on the dataset they were trained on drop to roughly 50\% when tested on a different dataset.
+
+\subsubsection{Summary of the Research Item}\label{sec:3.2.15.1}
+
+\noindent Xin and Xu~\cite{lr:xin2025} examined how well intrusion detection models generalise beyond the dataset they were trained on. They report that deep IDS models which reach around 99\% on their own dataset often fall to about 50\%, close to random guessing, when evaluated on other datasets. This shows that high benchmark scores do not guarantee good performance on a different network.
+
+\subsubsection{Critical Analysis of the Research Item}\label{sec:3.2.15.2}
+
+\noindent The strengths and weaknesses of this work are:
+
+\begin{itemize}
+\item It exposes a major weakness of single-dataset evaluation, which most reviewed studies rely on.
+\item It focuses on detection accuracy and does not propose a deployable system or measure runtime cost.
+\end{itemize}
+
+\subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.15.3}
+
+\noindent This finding is the main reason why the proposed NIDPS is trained on CIC-IDS-2017, CSE-CIC-IDS2018 and CIC-IoT-2023 with a common flow extractor, evaluated across datasets, and validated on traffic collected from the deployment network itself.
+
+\section{Literature Review Summary Table}\label{sec:3.3}
+
+\noindent Table~\ref{tab:3.1} gives a general overview of the studies reviewed in Section~\ref{sec:3.2}, listing the method, dataset, main results and limitations of each work.
+
+{\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.190\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.075\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.180\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.150\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.220\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.185\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Summary of the reviewed literature.}\label{tab:3.1}\\
+\hline
+\textbf{Title} & \textbf{Year} & \textbf{Method} & \textbf{Dataset} & \textbf{Results} & \textbf{Limitations} \\ \hline
+\endfirsthead
+\hline
+\textbf{Title} & \textbf{Year} & \textbf{Method} & \textbf{Dataset} & \textbf{Results} & \textbf{Limitations} \\ \hline
+\endhead
+Performance comparison of IDSs and application of ML to Snort~\cite{lr:shah2018} & 2018 & Snort vs Suricata at 10~Gbps; SVM (firefly-optimised) filtering Snort alerts & Test-bed traffic (10~Gbps) & FPR 8.6\%, FNR 2.2\%; Suricata handles high load better & Offline SVM; no blocking \\ \hline
+Hybrid IDS integrating anomaly with misuse detection~\cite{lr:kim2014} & 2014 & C4.5 decision tree + multiple one-class SVMs & NSL-KDD & Higher detection of known and unknown attacks; \textasciitilde50\% of training time & Old dataset; offline only \\ \hline
+Collaborative hybrid NIDS based on Suricata and Isolation Forest~\cite{lr:chiba2019} & 2019 & Suricata + Isolation Forest; alerts shared via central log & Not reported (design proposal) & Lower computational cost (design) & No classifier; limited evaluation \\ \hline
+Self-healing hybrid IDS: an ensemble ML approach~\cite{lr:kushal2024} & 2024 & C5 decision tree + LSTM; anomalies turned into new signatures & UNSW-NB15, ADFA-LD & C5: \textasciitilde97\% TPR, 8\% FPR; LSTM: 90\% DR, AUC 0.936 & Stages tested separately; costly DL \\ \hline
+Comparative evaluation of ML and signature-based NIDS~\cite{lr:wenudeoji2025} & 2025 & Snort vs RF, XGBoost, DT & UNSW-NB15 & RF 87\% vs Snort 56.21\% accuracy; FPR 25\% vs 62.5\% & Single dataset; hybrid not built \\ \hline
+Real-time hybrid signature and ML detection~\cite{lr:naik2025} & 2025 & Signature engine + deep learning, late fusion & Not reported & Late fusion better than chaining stages & Heavy DL models; no prevention \\ \hline
+Hybrid NIDS based on Isolation Forest and Random Forest~\cite{lr:wang2025} & 2025 & Suricata + Isolation Forest + Random Forest & CIC-IDS-2017, simulated & 96.33\% (CIC-IDS-2017), 99.86\% (simulated) & Small attack subset; no blocking \\ \hline
+Extended Isolation Forest for intrusion detection in Zeek data~\cite{lr:moomtaheen2024} & 2024 & Extended Isolation Forest, Spark & UWF-Zeek\-DataFall22 & 78.3--82.3\% accuracy; level 0 (basic IF) best & Moderate accuracy; big-data stack \\ \hline
+Optimized Isolation Forest IDS for IIoT networks~\cite{lr:elsaid2024} & 2024 & Isolation Forest tuned with ERHHO; streaming data & NSL-KDD, UNSW-NB15, CSE-CIC-IDS2018 & Accuracy 95.6\%, 94.8\%, 99\%; streaming AUC up to 0.97 & Complex optimisation; no live test \\ \hline
+Improved Isolation Forest based on split points~\cite{lr:yu2024} & 2024 & Sparse auto-encoder features + new split rule & KDDCUP99 & Higher accuracy, recall, F1 and AUC than IF & Outdated dataset; extra cost \\ \hline
+X-means and Isolation Forest for traffic anomaly detection~\cite{lr:feng2022} & 2022 & X-iForest: IF + distance + X-means clustering & 4 simulated + 4 public sets & Average AUC +8.1\% over IF; best on 6 of 8 & Not intrusion data; weak on small sets \\ \hline
+Comparison of ML models using unbalanced dataset~\cite{lr:ajagbe2024} & 2024 & Linear SVC, LR, RF, DT, XGBoost & UNSW-NB15 & RF and XGBoost best; AUC 0.91 (RF), 0.90 (XGB) & Single dataset; not tested in real setting \\ \hline
+Enhanced IDS performance with UNSW-NB15 data analysis~\cite{lr:more2024} & 2024 & LR, SVM, DT, RF with correlation feature selection & UNSW-NB15 & RF: F1 97.80\%, accuracy 98.63\%, FAR 1.36\% & Single dataset; no latency \\ \hline
+Optimized gradient boosting framework on CICIoT2023~\cite{lr:almahaqeri2026} & 2026 & XGBoost, LightGBM, CatBoost; gain-based feature selection & CICIoT2023 & XGBoost 99.61\%, macro F1 0.995; 30--51\% lower latency & One dataset; no device deployment \\ \hline
+Cross-dataset generalisation of deep IDS models~\cite{lr:xin2025} & 2025 & Transformer IDS with calibration; cross-dataset evaluation & NSL-KDD, UNSW-NB15, CIC-IDS2017 & \textasciitilde99\% within-dataset drops to near chance across datasets & No deployable system \\ \hline
+\end{longtable}
+}
+
+\section{Data Set Summary Table}\label{sec:3.4}
+
+\noindent Table~\ref{tab:3.2} gives an overview of the datasets used in the reviewed studies and how relevant each one is to the proposed NIDPS.
+
+{\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.069\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.177\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.069\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.255\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.166\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.264\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Datasets used in the reviewed studies.}\label{tab:3.2}\\
+\hline
+\textbf{Sr. No} & \textbf{Dataset} & \textbf{Year} & \textbf{Environment / Traffic} & \textbf{Used in} & \textbf{Relevance to the proposed NIDPS} \\ \hline
+\endfirsthead
+\hline
+\textbf{Sr. No} & \textbf{Dataset} & \textbf{Year} & \textbf{Environment / Traffic} & \textbf{Used in} & \textbf{Relevance to the proposed NIDPS} \\ \hline
+\endhead
+1 & KDDCUP99 & 1999 & Simulated military network (DARPA 1998) & \cite{lr:yu2024} & Historical baseline only; outdated and redundant \\ \hline
+2 & NSL-KDD & 2009 & Cleaned version of KDDCUP99 & \cite{lr:kim2014,lr:elsaid2024} & Still based on 1998 traffic; no modern attacks \\ \hline
+3 & UNSW-NB15 & 2015 & Hybrid real and synthetic traffic, 9 attack families & \cite{lr:kushal2024,lr:wenudeoji2025,lr:elsaid2024,lr:ajagbe2024,lr:more2024} & Common benchmark; class imbalance \\ \hline
+4 & ADFA-LD & 2013 & Host-based Linux system-call traces & \cite{lr:kushal2024} & Host-level data; not used for flows \\ \hline
+5 & CIC-IDS-2017 & 2017 & 5 days of enterprise-style traffic & \cite{lr:wang2025} & Used for training and cross-evaluation \\ \hline
+6 & CSE-CIC-IDS2018 & 2018 & Larger AWS-hosted network, 10 days & \cite{lr:elsaid2024} & Used for training and cross-evaluation \\ \hline
+7 & CICIoT2023 & 2023 & 105 IoT devices in a smart-home topology & \cite{lr:almahaqeri2026} & Closest to home/IoT target; used for training \\ \hline
+8 & UWF-Zeek\-DataFall22 & 2022 & Zeek connection logs labelled with MITRE ATT\&CK & \cite{lr:moomtaheen2024} & Shows value of real Zeek-style logs \\ \hline
+\end{longtable}
+}
+
+\section{Comparison with Closest Existing Systems}\label{sec:3.5}
+
+\noindent The systems reviewed above that come closest to the proposed NIDPS are compared in Table~\ref{tab:3.3}. The table shows which detection layers each system uses and whether it addresses inline blocking, encrypted traffic, evaluation on multiple datasets or real traffic, low-cost hardware and failure handling.
+
+{\scriptsize\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.129\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.110\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.110\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.109\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.109\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.109\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.109\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.109\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.109\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Comparison of the closest existing systems with the proposed NIDPS.}\label{tab:3.3}\\
+\hline
+\textbf{System} & \textbf{Signature layer} & \textbf{Anomaly layer} & \textbf{Classifier} & \textbf{Inline blocking} & \textbf{Encrypted traffic} & \textbf{Multi-dataset / real traffic} & \textbf{Low-cost hardware} & \textbf{Failure handling} \\ \hline
+\endfirsthead
+\hline
+\textbf{System} & \textbf{Signature layer} & \textbf{Anomaly layer} & \textbf{Classifier} & \textbf{Inline blocking} & \textbf{Encrypted traffic} & \textbf{Multi-dataset / real traffic} & \textbf{Low-cost hardware} & \textbf{Failure handling} \\ \hline
+\endhead
+\textbf{Wang and Avrianto~\cite{lr:wang2025}} & Yes (Suricata) & Yes (IF) & Yes (RF) & No & No & No & No & No \\ \hline
+\textbf{Chiba et al.~\cite{lr:chiba2019}} & Yes (Suricata) & Yes (IF) & No & Proposed & No & Not evaluated & No & No \\ \hline
+\textbf{Kim, Lee and Kim~\cite{lr:kim2014}} & Misuse model (C4.5) & Yes (OC-SVM) & Yes (DT) & No & No & No (NSL-KDD) & No & No \\ \hline
+\textbf{Kushal et al.~\cite{lr:kushal2024}} & Learned (C5) & Yes (LSTM) & Yes (C5) & No & No & Partial & No & No \\ \hline
+\textbf{Wen-Udeoji et al.~\cite{lr:wenudeoji2025}} & Yes (Snort) & No & Yes (RF, XGB, DT) & No & No & No & No & No \\ \hline
+\textbf{Naik et al.~\cite{lr:naik2025}} & Yes & Yes (deep) & n/r & n/r & No & n/r & No & No \\ \hline
+\textbf{Shah and Issac~\cite{lr:shah2018}} & Yes (Snort) & No & Yes (SVM) & No & No & n/r & No (server) & No \\ \hline
+\textbf{Proposed NIDPS} & Yes (Suricata IPS) & Yes (IF, calibrated) & Yes (RF/XGB) & Yes (ipset) & Yes (JA3, flow stats) & Yes (3 public + own) & Yes (Raspberry Pi 4) & Yes (watchdog, 3 modes) \\ \hline
+\end{longtable}
+}
+
+{\footnotesize \emph{n/r: not reported. IF: Isolation Forest, RF: Random Forest, XGB: XGBoost, DT: Decision Tree, OC-SVM: One-Class SVM.}}
+
+\noindent The existing systems mainly address one or two of these issues, whereas the proposed system improves on them in five ways:
+
+\begin{itemize}
+\item \textbf{Complete system:} Previous works either propose a design or only detect traffic. The proposed system detects, blocks and applies safeguards, while keeping forwarding latency close to that of a regular router.
+\item \textbf{Three layers with fusion:} Suricata catches known attacks first, an Isolation Forest tuned to local traffic spots anomalous behaviour, and a Random Forest/XGBoost classifier identifies the attack family. Their outputs are fused so that the system records what each layer decided and why.
+\item \textbf{Lightweight models:} Unlike many deep learning systems, the proposed system uses lightweight tree models on the forwarding path, and latency, throughput and resource use are measured.
+\item \textbf{Cross-dataset evaluation:} Because most models fail on unseen datasets, the system is trained on CIC-IDS-2017, CSE-CIC-IDS2018 and CIC-IoT-2023 using one flow extractor and validated on self-collected household traffic.
+\item \textbf{Encrypted traffic and failure handling:} The system analyses encrypted connections using JA3/JA3S fingerprints and flow metadata without decryption, and uses a watchdog with configurable fail-open, fail-closed and degraded modes. None of the reviewed systems addresses either problem.
+\end{itemize}
+
+\noindent The contribution of the proposed project is therefore not the idea of combining signature detection with machine learning, which has been researched extensively, but turning that idea into a practical, deployable system for home and small-office networks.
+
+\section{Conclusion}\label{sec:3.6}
+
+\noindent The reviewed literature shows a clear direction: signature engines such as Snort and Suricata detect known attacks reliably but miss new ones and raise many false alarms, while machine learning detects unknown behaviour but is rarely deployed inline. Hybrid systems that let each technique handle the traffic it suits best, and that fuse their decisions at the end, give the best results~\cite{lr:kim2014,lr:wenudeoji2025,lr:naik2025}. Isolation Forest is a cheap and effective anomaly detector when it is given good features and a sensible threshold~\cite{lr:moomtaheen2024,lr:yu2024,lr:feng2022}, and tree ensembles such as Random Forest and XGBoost are the strongest and fastest choice for classifying known attack types~\cite{lr:ajagbe2024,lr:more2024,lr:almahaqeri2026}.
+
+\noindent The review also exposed common gaps. Most studies use a single, often outdated dataset, and models that score close to 99\% on one dataset can fall to about 50\% on another~\cite{lr:xin2025}. Few works report latency or resource use, few implement automated blocking, and none of the reviewed systems analyses encrypted traffic or defines what happens when a component fails. The proposed NIDPS is designed around these gaps: it combines Suricata, a calibrated Isolation Forest and a Random Forest/XGBoost classifier with late fusion, blocks confirmed attackers automatically, analyses encrypted traffic through flow metadata and JA3/JA3S fingerprints, is evaluated across three public datasets and real traffic, and runs on low-cost hardware with defined failure modes.
+
+\chapter{Software Requirement Specifications}\label{chap:4}
+
+\noindent This chapter specifies the requirements of the proposed Network Intrusion Detection and Prevention System (NIDPS). It describes what the system must do, how well it must do it, and the conditions under which it operates, in enough detail for the system to be built and tested against it. The chapter begins with the list of features and the functional requirements, grouped by module. It then states the quality attributes and the measurable non-functional requirements, followed by the assumptions on which the specification rests. The main interactions between users and the system are described as use cases. The chapter closes with the hardware and software requirements, the design of the graphical user interface, the database design and an analysis of project risks. Requirements are given identifiers (for example FR-2.1) so that they can be traced to the design in Chapter~\ref{chap:6} and to the tests in Section~\ref{sec:6.6.6}.
+
+\noindent The system has five classes of users or actors, which are referred to throughout this chapter:
+
+\begin{itemize}
+\item \textbf{Network Administrator:} the owner of the home or small-office network who installs the NIDPS and manages it through the web dashboard. This user is not assumed to be a security expert.
+\item \textbf{Network User (client device):} any phone, laptop or IoT device that connects to the NIDPS access point. These users do not interact with the NIDPS directly; they are protected by it.
+\item \textbf{Attacker:} an external host or a compromised device inside the network that generates malicious traffic. The attacker triggers detection and prevention use cases.
+\item \textbf{System Scheduler / Watchdog:} internal time- and event-driven actors that run scheduled jobs (rule updates, threshold calibration, data purging) and supervise the health of every component.
+\item \textbf{Model Maintainer:} a project team member who trains and validates machine learning models offline and publishes model packages to the device.
+\end{itemize}
+
+\section{List of Features}\label{sec:4.1}
+
+\noindent The NIDPS provides the following features. Each feature is refined into functional requirements in Section~\ref{sec:4.2}.
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.118\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.309\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.573\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Features of the proposed NIDPS.}\label{tab:4.1}\\
+\hline
+\textbf{ID} & \textbf{Feature} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{ID} & \textbf{Feature} & \textbf{Description} \\ \hline
+\endhead
+NIDPS-1 & Inline wireless access point & Acts as the visible network in the system. All devices connect to it. It provides WiFi, DHCP, DNS and NAT before passing the connection on to the router. \\ \hline
+NIDPS-2 & Signature-based detection (Layer 1) & Checks every packet that passes through using Suricata \\ \hline
+NIDPS-3 & Flow extraction and TLS fingerprinting & Groups up related packets and assigns them 78 features. It can identify details from encrypted packets as well. \\ \hline
+NIDPS-4 & Anomaly detection (Layer 2) & An Isolation Forest will be trained on normal traffic relative to the local network it is placed in and will be able to detect an anomaly score for traffic. \\ \hline
+NIDPS-5 & Attack classification (Layer 3) & Once attacks or anomalies have been detected, they are then reused and classified into specific families through Random Forest or XGBoost. \\ \hline
+NIDPS-6 & Decision fusion & Collects the decisions from each layer and decides whether traffic may pass through or the device should be blocked due to frequent anomalous traffic. \\ \hline
+NIDPS-7 & Automated prevention & It will block identified hosts that are dangerous by blocking their IP address, there will be a specific whitelist as well for unique cases. Features eventual expiry as well. \\ \hline
+NIDPS-8 & Fault tolerance & Takes care of all components with a watchdog system, if some system fails the watchdog may close the network, or let traffic pass through free depending on configuration. \\ \hline
+NIDPS-9 & Monitoring & An interface available on the network's LAN which will show statistics and alerts including all configuration settings. \\ \hline
+NIDPS-10 & Configurations & The administrator can edit or turn off the layers, change thresholds for detection, change failsafe actions and manage black/whitelists. \\ \hline
+NIDPS-11 & Logs and storage & Stores alerts, traffic logs, configurations in files and databases. \\ \hline
+NIDPS-12 & Training and versioning & The system can train and test its models using the collected data. Each version is tagged so it can be returned to. \\ \hline
+NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and thresholds updated. Older data outside of the limit deleted. \\ \hline
+\end{longtable}
+}
+
+\section{Functional Requirements}\label{sec:4.2}
+
+\noindent The functional requirements below describe what the system must do. They are grouped by the features listed in Section~\ref{sec:4.1}, and each requirement is numbered according to its feature.
+
+\subsection{NIDPS-1: Inline Wireless Access Point}\label{sec:4.2.1}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-1.1}] The system shall act as a wireless access point with a configurable network name (SSID) and WPA2/WPA3 password.
+\item[\textbf{FR-1.2}] The system shall assign IP addresses to connected devices using DHCP.
+\item[\textbf{FR-1.3}] The system shall act as the only DNS server for connected devices.
+\item[\textbf{FR-1.4}] The system shall pass client traffic on to the ISP router using NAT over its wired connection.
+\item[\textbf{FR-1.5}] The system shall stop wireless clients from talking to each other directly, so that traffic between them also passes through the NIDPS.
+\end{itemize}
+
+\subsection{NIDPS-2: Signature-Based Detection (Layer 1)}\label{sec:4.2.2}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-2.1}] The system shall send all forwarded traffic to Suricata so it can be checked before it is passed on.
+\item[\textbf{FR-2.2}] The system shall check every packet against the Emerging Threats Open ruleset.
+\item[\textbf{FR-2.3}] The system shall drop packets that match rules set to "drop" and allow all other packets through.
+\item[\textbf{FR-2.4}] The system shall use custom rules to detect SSH brute force, port scans, DNS spoofing, SYN floods and known malicious TLS fingerprints.
+\item[\textbf{FR-2.5}] The system shall detect ARP spoofing by comparing ARP replies with the devices it has assigned addresses to.
+\item[\textbf{FR-2.6}] The system shall pass every alert, with its source, destination, rule and severity, on to the other layers.
+\end{itemize}
+
+\subsection{NIDPS-3: Flow Extraction and TLS Fingerprinting}\label{sec:4.2.3}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-3.1}] The system shall group related packets into flows, where each flow is one conversation between two devices in both directions.
+\item[\textbf{FR-3.2}] The system shall end a flow when the connection closes or after a set period of inactivity (default 30 seconds) or activity (default 10 seconds).
+\item[\textbf{FR-3.3}] The system shall calculate 78 features for each flow as packets arrive, without storing the packets themselves.
+\item[\textbf{FR-3.4}] The system shall read identifying details (JA3, JA3S and SNI) from encrypted TLS connections and attach them to the flow, without decrypting the traffic.
+\end{itemize}
+
+\subsection{NIDPS-4: Anomaly Detection (Layer 2)}\label{sec:4.2.4}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-4.1}] The system shall check that each flow matches the features expected by the current model and reject any that do not.
+\item[\textbf{FR-4.2}] The system shall give each flow an anomaly score between 0 and 1 using an Isolation Forest.
+\item[\textbf{FR-4.3}] The system shall mark a flow as anomalous when its score is above the anomaly threshold.
+\item[\textbf{FR-4.4}] The system shall set the anomaly threshold based on normal traffic from the local network, leaving out traffic linked to alerts or blocked devices.
+\item[\textbf{FR-4.5}] The system shall learn how much data each device normally sends out and flag it when a device sends far more than usual (possible data theft).
+\item[\textbf{FR-4.6}] The system shall flag devices that contact the same destination at regular intervals with similar-sized messages (possible C2 beaconing).
+\end{itemize}
+
+\subsection{NIDPS-5: Attack Classification (Layer 3)}\label{sec:4.2.5}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-5.1}] The system shall sort each flow into one of the following classes using Random Forest or XGBoost: Benign, Reconnaissance, Brute Force, DoS/DDoS, Botnet/C2, Spoofing, or Infiltration/Lateral Movement.
+\item[\textbf{FR-5.2}] The system shall give a confidence value for each classification.
+\item[\textbf{FR-5.3}] The system shall label a flow as "unknown" when the model's confidence is too low, instead of forcing it into a class.
+\end{itemize}
+
+\subsection{NIDPS-6: Decision Fusion}\label{sec:4.2.6}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-6.1}] The system shall combine the results of all three layers to decide whether each flow should be passed (PASS), flagged (ALERT) or blocked (BLOCK).
+\item[\textbf{FR-6.2}] The system shall record which layers led to each decision and the evidence used.
+\item[\textbf{FR-6.3}] The system shall keep a risk score for each device that rises with suspicious activity and drops over time when the device behaves normally.
+\item[\textbf{FR-6.4}] The system shall block a device when its risk score reaches the block threshold.
+\end{itemize}
+
+\subsection{NIDPS-7: Automated Prevention}\label{sec:4.2.7}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-7.1}] The system shall block a dangerous device by adding its IP address to a block list.
+\item[\textbf{FR-7.2}] The system shall remove each block automatically once its time runs out.
+\item[\textbf{FR-7.3}] The system shall never block devices on the allowlist, which includes the NIDPS itself, the router, the DNS server and the administrator's devices.
+\item[\textbf{FR-7.4}] The system shall double the block time each time the same device is blocked again within 24 hours, up to a set maximum.
+\item[\textbf{FR-7.5}] The system shall stop blocking and only raise alerts if too many blocks happen within one minute, and warn the administrator.
+\item[\textbf{FR-7.6}] The system shall log every block, skipped block and release.
+\end{itemize}
+
+\subsection{NIDPS-8: Fault Tolerance}\label{sec:4.2.8}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-8.1}] The system shall have a watchdog that checks each component every second.
+\item[\textbf{FR-8.2}] The system shall treat a component as failed if it misses three checks in a row or stops running, and restart it automatically.
+\item[\textbf{FR-8.3}] The system shall, while a component is down, either let all traffic through (fail-open), block all traffic (fail-closed) or run with reduced checking (degraded), depending on configuration.
+\item[\textbf{FR-8.4}] The system shall switch to degraded mode and check only some flows when it becomes overloaded, and return to normal once the load drops.
+\item[\textbf{FR-8.5}] The system shall log when each failure happened, which mode was used, when it recovered and how many packets were affected.
+\end{itemize}
+
+\subsection{NIDPS-9: Monitoring}\label{sec:4.2.9}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-9.1}] The system shall require the administrator to log in before the dashboard can be viewed.
+\item[\textbf{FR-9.2}] The system shall show live traffic statistics, alerts, blocks and types of attacks, updated at least every two seconds.
+\item[\textbf{FR-9.3}] The system shall show a list of alerts with time, source, destination, attack type, layer and confidence, which can be filtered.
+\item[\textbf{FR-9.4}] The system shall show the evidence behind each alert.
+\item[\textbf{FR-9.5}] The system shall list blocked devices with the reason and time left, and let the administrator unblock them.
+\item[\textbf{FR-9.6}] The system shall show traffic and risk scores for each connected device.
+\item[\textbf{FR-9.7}] The system shall show the health of each component, along with CPU, memory, temperature and uptime.
+\end{itemize}
+
+\subsection{NIDPS-10: Configurations}\label{sec:4.2.10}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-10.1}] The system shall let the administrator turn each detection layer on or off while running.
+\item[\textbf{FR-10.2}] The system shall let the administrator choose the failure mode and watchdog settings.
+\item[\textbf{FR-10.3}] The system shall let the administrator change detection thresholds, block times and flow timeouts within safe limits.
+\item[\textbf{FR-10.4}] The system shall let the administrator add and remove devices from the allowlist.
+\item[\textbf{FR-10.5}] The system shall let the administrator reload the rules and recalibrate the anomaly threshold on demand.
+\item[\textbf{FR-10.6}] The system shall apply configuration changes without restarting, and log who made each change and what was changed.
+\end{itemize}
+
+\subsection{NIDPS-11: Logs and Storage}\label{sec:4.2.11}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-11.1}] The system shall store alerts, decisions, blocks, risk scores, calibration data, health events and configuration in a local database.
+\item[\textbf{FR-11.2}] The system shall not store packet contents during normal operation.
+\item[\textbf{FR-11.3}] The system shall let the administrator export alerts and blocks for a chosen time period as a CSV file.
+\end{itemize}
+
+\subsection{NIDPS-12: Training and Versioning}\label{sec:4.2.12}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-12.1}] The system shall build training data using the same flow extractor that runs on the device.
+\item[\textbf{FR-12.2}] The system shall train and test models offline.
+\item[\textbf{FR-12.3}] The system shall save each model as a package that includes the model, its feature list, extractor version, classes, training date and test results.
+\item[\textbf{FR-12.4}] The system shall refuse to load a model that does not match the current flow extractor.
+\item[\textbf{FR-12.5}] The system shall keep the previous model so the administrator can return to it in one step.
+\end{itemize}
+
+\subsection{NIDPS-13: Auto Maintenance}\label{sec:4.2.13}
+
+\begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
+\item[\textbf{FR-13.1}] The system shall download and test new rules every day, and keep using the old rules if the test fails.
+\item[\textbf{FR-13.2}] The system shall recalibrate the anomaly threshold every week.
+\item[\textbf{FR-13.3}] The system shall delete flow records older than the retention period (default 7 days).
+\end{itemize}
+
+\section{Quality Attributes}\label{sec:4.3}
+
+\noindent The quality attributes below describe the general qualities the NIDPS must have and the design decisions that provide them. The measurable targets for each attribute are given as non-functional requirements in Section~\ref{sec:4.4}.
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.208\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.383\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.409\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Quality attributes of the NIDPS.}\label{tab:4.2}\\
+\hline
+\textbf{Attribute} & \textbf{Meaning for the NIDPS} & \textbf{How it is achieved} \\ \hline
+\endfirsthead
+\hline
+\textbf{Attribute} & \textbf{Meaning for the NIDPS} & \textbf{How it is achieved} \\ \hline
+\endhead
+Performance & The NIDPS must not noticeably slow the network and must react to attacks quickly. & Only the kernel and Suricata sit in the forwarding path; ML runs on flows beside the path; lightweight tree models; ipset lookups in constant time. \\ \hline
+Availability & A failure of the NIDPS must not leave the household without internet unless the owner chose that. & Fail-open default enforced by the kernel; automatic service restarts; blocks that expire on their own. \\ \hline
+Reliability & Detection must keep working under load and recover from faults in a defined way. & Watchdog with heartbeats; degraded mode with hysteresis; per-service isolation; recovery events logged. \\ \hline
+Security & The NIDPS itself must not become an easy target or a tool against its own users. & Authenticated LAN-only dashboard; allowlist; block rate limit; models loaded only from a protected directory; no pickle loading for XGBoost. \\ \hline
+Privacy & Household traffic must stay private. & No TLS decryption; no payload storage; only metadata and alerts kept, with a retention limit. \\ \hline
+Accuracy & Attacks must be detected with few false alarms. & Three complementary layers; decision fusion requiring strong or corroborated evidence; per-network threshold calibration. \\ \hline
+Usability & A non-expert must be able to understand alerts and act on them. & Plain-language alert explanations; safe defaults; one-click unblock; clear health indicators. \\ \hline
+Maintainability & Rules, models and thresholds must be easy to update. & Versioned model packages with rollback; separate custom rule file; single configuration file; modular services. \\ \hline
+Extensibility & New detectors and responses must be addable without rewriting the system. & Common Detector interface; publish/subscribe event bus; JA3 extraction isolated so it can be replaced by JA4. \\ \hline
+Testability & Each layer and the full pipeline must be measurable. & Layers can be toggled at runtime for ablation; PCAP replay; fault injection; every decision logged with its evidence. \\ \hline
+Portability & The system should run on different low-cost Linux devices. & Standard Debian-based Linux components; Python services; no hardware-specific code apart from the wireless driver. \\ \hline
+\end{longtable}
+}
+
+\section{Non-Functional Requirements}\label{sec:4.4}
+
+\noindent The non-functional requirements set measurable targets for how well the system must perform. The numbers apply to the reference setup: a Raspberry Pi 4 with 4 GB RAM serving a home network of up to 30 devices. These are design targets that will be tested, and adjusted if needed, during the evaluation in Section~\ref{sec:5.10}.
+
+\subsection{Performance}\label{sec:4.4.1}
+
+\begin{itemize}
+\item \textbf{NFR-1} The system shall add no more than 200 ms of delay (median round-trip time) under normal household use, with all layers turned on.
+\item \textbf{NFR-2} The system shall handle at least 50 Mbps of traffic with all layers turned on, and the maximum speed it can handle shall be measured and reported.
+\item \textbf{NFR-3} The system shall score each flow with the machine learning layers (Layers 2 and 3) in no more than 10 ms (median).
+\item \textbf{NFR-4} The system shall apply a block within 1 second of deciding to block a device.
+\item \textbf{NFR-5} The system shall produce a machine learning decision for long-running connections no later than 1 second after the active timeout.
+\end{itemize}
+
+\subsection{Capacity}\label{sec:4.4.2}
+
+\begin{itemize}
+\item \textbf{NFR-6} The system shall support at least 30 connected devices and at least 5 people using the dashboard at the same time.
+\end{itemize}
+
+\subsection{Resource Use}\label{sec:4.4.3}
+
+\begin{itemize}
+\item \textbf{NFR-7} The system shall use less than 70\% CPU and less than 3 GB of memory on average under normal household use, leaving room for traffic spikes.
+\end{itemize}
+
+\subsection{Reliability and Availability}\label{sec:4.4.4}
+
+\begin{itemize}
+\item \textbf{NFR-8} The system shall detect a failed component within 3 seconds and restart it within 30 seconds in at least 95\% of tested failures.
+\item \textbf{NFR-9} The system shall keep the internet connection working without interruption in fail-open mode when any detection component fails.
+\end{itemize}
+
+\subsection{Accuracy}\label{sec:4.4.5}
+
+\begin{itemize}
+\item \textbf{NFR-10} The system shall raise alerts on no more than 1\% of normal traffic after calibration, and shall not block any normal device during a one-week test.
+\item \textbf{NFR-11} The system shall detect attacks more accurately (higher macro F1-score) than Suricata on its own, using the self-collected test data.
+\end{itemize}
+
+\subsection{Security}\label{sec:4.4.6}
+
+\begin{itemize}
+\item \textbf{NFR-12} The system shall only allow dashboard access from the local network, require a login, store passwords securely as salted hashes, and lock an account for 5 minutes after 5 wrong password attempts.
+\item \textbf{NFR-13} The system shall run all detection services without admin privileges, except those that need network access to work.
+\end{itemize}
+
+\subsection{Privacy}\label{sec:4.4.7}
+
+\begin{itemize}
+\item \textbf{NFR-14} The system shall not save packet contents or decrypted data during normal operation, and shall delete flow records after the retention period (default 7 days).
+\end{itemize}
+
+\subsection{Usability}\label{sec:4.4.8}
+
+\begin{itemize}
+\item \textbf{NFR-15} The system shall allow a non-expert user to find out why a device was blocked and unblock it within 1 minute, without needing a manual.
+\item \textbf{NFR-16} The system shall include a plain-language description of the suspected attack and the layer that detected it with every alert.
+\end{itemize}
+
+\subsection{Maintainability}\label{sec:4.4.9}
+
+\begin{itemize}
+\item \textbf{NFR-17} The system shall allow new models and rules to be installed, or rolled back, without interrupting network traffic.
+\end{itemize}
+
+\subsection{Extensibility and Reusability}\label{sec:4.4.10}
+
+\begin{itemize}
+\item \textbf{NFR-18} The system shall allow a new detector to be added without changing any other component.
+\item \textbf{NFR-19} The system shall allow the flow extractor and training pipeline to be reused separately from the device.
+\end{itemize}
+
+\subsection{Portability}\label{sec:4.4.11}
+
+\begin{itemize}
+\item \textbf{NFR-20} The system shall install with a single script on any 64-bit Debian-based ARM or x86 device that meets the hardware requirements in Section~\ref{sec:4.7.1}.
+\end{itemize}
+
+\section{Assumptions}\label{sec:4.5}
+
+\noindent The specification is based on the following assumptions. If one of them does not hold, the affected requirements may need to be revisited.
+
+\begin{itemize}
+\item The NIDPS is the only wireless network that client devices use. The ISP router's own Wi-Fi is disabled, and devices connected by cable directly to the ISP router are outside the protection of the system.
+\item The host has at least a quad-core 64-bit CPU, 4 GB of RAM, a wireless adapter that supports access point mode and an Ethernet port for the uplink.
+\item The ISP router works correctly and provides internet access, but it is not relied on for any security function.
+\item The NIDPS host and the administrator's devices are trusted and have not been compromised.
+\item The administrator is not a security expert. Default settings must therefore be safe without tuning.
+\item Periodic internet access is available for ruleset updates.
+\item Most traffic is encrypted with TLS or QUIC, so payload inspection is not possible for the ML layers. Detection of encrypted traffic relies on flow metadata and handshake fingerprints only.
+\item The public datasets (CIC-IDS-2017, CSE-CIC-IDS2018 and CIC-IoT-2023) and their raw PCAP files remain available for download.
+\item Attack traffic for the self-collected dataset is generated only on an isolated network owned by the project team, against the team's own devices.
+\item Traffic observed during the calibration window is mostly benign; flows flagged by Suricata during this window are excluded.
+\item The household traffic volume does not exceed the measured capacity of the device for long periods; short peaks are handled by degraded mode.
+\end{itemize}
+
+\section{Use Cases}\label{sec:4.6}
+
+\noindent This section describes the main use cases of the NIDPS. Figure~\ref{fig:4.1} shows the use case diagram with the actors introduced at the beginning of this chapter. The use cases that represent the central functionality of the system, namely automatic detection and blocking, failure handling and the administrator's main tasks on the dashboard, are then described in detail in tabular form. In each table, the Basic Flow is written as a dialogue between the actor and the system, and the Alternative Flow describes exceptions; step numbers with a suffix (for example 4-A) replace the step of the basic flow with the same number.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/usecase.png}
+\caption{Use case diagram of the NIDPS.}
+\label{fig:4.1}
+\end{figure}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-01: Log In to Dashboard.}\label{tab:4.3}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-01: Log In to Dashboard}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator enters a username and password on the login page. After successful verification, the system establishes a session and shows the overview page.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator's device is connected to the NIDPS network (LAN side).\newline An administrator account exists.\newline The administrator is not already logged in.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{An authenticated session is established and the overview page is displayed.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Passwords are stored as salted hashes. The account is locked for 5 minutes after 5 consecutive failed attempts (NFR-12).} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The administrator opens the dashboard address in a browser. & 2 & The system displays the login page asking for username and password. \\ \hline
+3 & The administrator enters a valid username and password and presses Log In. & 4 & The system verifies the credentials, creates a session, records the login in the audit log and displays the overview page. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+3 & The administrator enters an invalid username or password. & 4-A & The system shows the message "Incorrect username or password" and increments the failed-attempt counter. \\ \hline
+3 & The administrator enters wrong credentials for the fifth consecutive time. & 4-B & The system locks the account for 5 minutes and shows the time remaining. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-02: View Live Network Statistics.}\label{tab:4.4}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-02: View Live Network Statistics}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator views real-time throughput, flows per second, alert and block counts per detection layer, attack category distribution and per-device traffic.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Live statistics are displayed and keep updating while the page is open.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Statistics refresh at least every 2 seconds (FR-9.2).} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The administrator opens the Overview page. & 2 & The system displays current throughput, flows per second, alerts and blocks per layer and the attack category chart for the last hour. \\ \hline
+3 & The administrator selects a different time window (for example 24 hours). & 4 & The system reloads the charts and counters for the selected window. \\ \hline
+5 & The administrator selects a client device from the device list. & 6 & The system shows that device's traffic summary and current risk score. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+2 & No traffic has been observed in the selected window. & 2-A & The system shows empty charts with the message "No traffic in this period". \\ \hline
+ & The live connection to the server is lost. &  & The system marks the data as stale and retries the connection automatically. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-03: Review Alerts and Evidence.}\label{tab:4.5}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-03: Review Alerts and Evidence}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator browses the alert list, filters it and opens an alert to see which layer detected it, the evidence behind the verdict and the originating flow.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The selected alert and its evidence are displayed. The alert may be marked as reviewed.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Each alert includes a plain-language description of the suspected attack (NFR-16).} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The administrator opens the Alerts page. & 2 & The system displays the most recent alerts with time, source, destination, attack class, detecting layer, confidence and verdict. \\ \hline
+3 & The administrator filters by severity, layer, host or time range. & 4 & The system displays only the matching alerts. \\ \hline
+5 & The administrator selects an alert. & 6 & The system shows the evidence panel: Suricata signature, anomaly score and threshold, class probabilities, host risk history and the flow record. \\ \hline
+7 & The administrator marks the alert as reviewed. & 8 & The system records the review in the audit log. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+2 & No alerts match the filter. & 2-A & The system shows "No alerts match the selected filters". \\ \hline
+3 & The flow record has been deleted by the retention policy. & 3-A & The system shows the stored evidence and notes that the flow details are no longer available. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-04: Detect and Block Malicious Host.}\label{tab:4.6}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-04: Detect and Block Malicious Host}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Attacker (initiator), System} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Traffic from an attacker is detected by one or more layers. The decision engine issues a BLOCK verdict, and the enforcer adds the attacker's address to the block set for a limited time and notifies the dashboard.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The NIDPS is running with at least one detection layer enabled.\newline The attacker's traffic passes through the NIDPS.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The attacker's address is in the block set with an expiry time.\newline An audit record and a dashboard event exist for the block.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Blocking must take effect within 1 second of the verdict (NFR-4). Allowlisted addresses are never blocked (FR-7.3).} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The attacker sends malicious traffic (for example an SSH brute-force attempt or a beaconing connection). & 2 & Suricata inspects the packets inline; the flow extractor builds flow records with features and TLS fingerprints. \\ \hline
+ & --- & 3 & Layer 1 raises an alert and/or Layers 2 and 3 score the flow; the evidence is published on the event bus. \\ \hline
+ & --- & 4 & The decision engine applies the verdict algorithm and returns BLOCK with the responsible layer(s). \\ \hline
+ & --- & 5 & The enforcer checks the allowlist and rate limit, computes the block duration, adds the address to the ipset and writes an audit record. \\ \hline
+6 & The attacker continues sending traffic. & 7 & Packets from the attacker are dropped in the kernel before reaching Suricata. The dashboard shows the new block. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+3 & Evidence is weak (for example an anomaly score just above $\tau$ only). & 3-A & The verdict is ALERT; evidence is added to the host's risk score, and the host is blocked only if its score reaches $\Theta$. \\ \hline
+4 & The attacker's address is on the allowlist. & 4-A & The block is suppressed and logged as "block suppressed"; an alert is still shown. \\ \hline
+4 & The block rate limit R\_max has been reached. & 4-B & The verdict is downgraded to ALERT and a "block rate limit" warning is shown on the dashboard. \\ \hline
+4 & The attacker was blocked before in the last 24 hours. & 4-C & The block duration is doubled for each earlier offence, up to the maximum. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-05: Release Blocked Host.}\label{tab:4.7}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-05: Release Blocked Host}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator reviews the list of blocked hosts and manually releases a host that was blocked by mistake.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).\newline At least one host is currently blocked.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The host's address is removed from the block set and the release is recorded in the audit log.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The released host may optionally be added to the allowlist (UC-06).} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The administrator opens the Blocked Hosts page. & 2 & The system lists blocked hosts with address, device name, attack class, detecting layer, block start and remaining time. \\ \hline
+3 & The administrator selects a host and presses Release. & 4 & The system asks for confirmation and offers to add the host to the allowlist. \\ \hline
+5 & The administrator confirms. & 6 & The system removes the address from the ipset, marks the block as released, writes an audit record and refreshes the list. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+3 & The block expired while the dialog was open. & 3-A & The system informs the administrator that the block has already expired. \\ \hline
+3 & The administrator cancels. & 3-B & No change is made. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-06: Manage Allowlist.}\label{tab:4.8}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-06: Manage Allowlist}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator adds or removes IP or MAC addresses that must never be blocked, such as the gateway or the administrator's own laptop.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The allowlist is updated and immediately used by the enforcer.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The NIDPS host, gateway and DNS resolver are permanent entries and cannot be removed.} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The administrator opens the Allowlist section and presses Add. & 2 & The system shows a form for address and description. \\ \hline
+3 & The administrator enters an address and description and saves. & 4 & The system validates the address, stores the entry, publishes the change on the bus and records it in the audit log. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+2 & The address is invalid or already listed. & 2-A & The system shows a validation error and does not save. \\ \hline
+2 & The address is currently blocked. & 2-B & The system asks whether to release the block as well (UC-05). \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-07: Configure Failure Mode.}\label{tab:4.9}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-07: Configure Failure Mode}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator chooses how the network behaves when a detection component fails: fail-open (keep internet access), fail-closed (stop forwarding until detection is restored) or degraded operation under load.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The new failure mode is saved and applied to the kernel queue configuration.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Changing between fail-open and fail-closed briefly reloads the inspection queue rule; forwarding is not interrupted.} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The administrator opens Settings and selects the Failure Mode tab. & 2 & The system shows the current mode with a description of its trade-off. \\ \hline
+3 & The administrator selects a new mode and presses Save. & 4 & The system asks for confirmation, explaining the effect of the chosen mode. \\ \hline
+5 & The administrator confirms. & 6 & The system updates the queue-bypass setting, saves the configuration, logs the change and shows a success message. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+3 & The system cannot apply the new rule. & 3-A & The previous mode remains active and an error message is shown. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-08: Enable or Disable Detection Layers.}\label{tab:4.10}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-08: Enable or Disable Detection Layers}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator turns individual detection layers (Suricata, Isolation Forest, classifier) on or off. This is also used to run the layer ablation experiments.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The selected layers are active or inactive and the dashboard shows their status.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{At least one layer must remain enabled unless the administrator explicitly confirms monitoring-only operation.} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The administrator opens Settings and selects the Detection Layers tab. & 2 & The system shows each layer with its status and a toggle. \\ \hline
+3 & The administrator switches a layer off and saves. & 4 & The system publishes the change; the decision engine stops using that layer's evidence and the dashboard marks it as disabled. \\ \hline
+5 & The administrator switches the layer back on. & 6 & The system resumes using the layer's evidence. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+2 & The administrator tries to disable all layers. & 2-A & The system warns that the network will be unprotected and requires explicit confirmation. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-09: Adjust Detection Thresholds.}\label{tab:4.11}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-09: Adjust Detection Thresholds}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator changes detection sensitivity, such as the calibration percentile, classifier confidence thresholds, host block threshold and block durations.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The new thresholds are validated, saved and used by running services.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Each value has a validated range and a documented default, which can be restored with one action.} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The administrator opens Settings and selects the Thresholds tab. & 2 & The system shows current values, defaults and allowed ranges. \\ \hline
+3 & The administrator changes a value and presses Save. & 4 & The system validates the value, saves it, publishes the change and logs old and new values. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+2 & The value is outside the allowed range. & 2-A & The system rejects the value and shows the allowed range. \\ \hline
+2 & The administrator presses Restore Defaults. & 2-B & The system restores all default values after confirmation. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-10: Calibrate Anomaly Threshold.}\label{tab:4.12}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-10: Calibrate Anomaly Threshold}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{System Scheduler, Network Administrator} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The anomaly threshold $\tau$ is recalculated from the scores of clean local traffic so that it fits the deployment network. It runs weekly or on demand.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The Isolation Forest model is loaded.\newline Flow records from the calibration window are available.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{A new calibration state ($\tau$, timestamp, sample count) is stored and used by Layer 2.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Flows linked to Suricata alerts or blocked hosts are excluded, and $\tau$ cannot move more than $\delta$ from the global threshold (Algorithm~\ref{alg:calibration}).} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The scheduler triggers calibration (or the administrator presses Recalibrate Now). & 2 & The system collects anomaly scores of the clean flows from the calibration window. \\ \hline
+ & --- & 3 & The system computes the p-th percentile, clips it to the allowed range, stores the new $\tau$ and publishes it on the bus. \\ \hline
+ & --- & 4 & The dashboard shows the new $\tau$, its date and the number of flows used. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+2 & Fewer than N\_min clean flows are available. & 2-A & The system keeps the global threshold and reports that more traffic is needed. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-11: Recover from Component Failure.}\label{tab:4.13}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-11: Recover from Component Failure}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Watchdog} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{When a component crashes, freezes or is overloaded, the watchdog detects it, applies the configured failure mode, restarts the component and records the recovery.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The watchdog is running and receiving heartbeats.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The component is running again, or the system remains in the configured failure mode and the administrator is notified.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Detection within 3 seconds and restart within 30 seconds (NFR-8). Fail-open is enforced by the kernel even if the watchdog itself fails.} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+ & --- & 1 & A component misses three consecutive heartbeats or its process exits. \\ \hline
+ & --- & 2 & The watchdog declares it failed, applies the failure mode and logs the failure event. \\ \hline
+ & --- & 3 & systemd restarts the component; the watchdog waits for healthy heartbeats. \\ \hline
+ & --- & 4 & The watchdog marks the component as running, restores normal mode and records the recovery time and packets dropped or bypassed. \\ \hline
+5 & The administrator views System Health. & 6 & The system shows the failure event and recovery details. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+3 & The component fails to restart after the maximum number of attempts. & 3-A & The system stays in the failure mode and shows a critical warning on the dashboard. \\ \hline
+1 & Load exceeds the high watermark without a crash. & 2-A & The watchdog enters degraded mode and returns to normal when load falls below the low watermark. \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|p{\dimexpr 0.060\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.400\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|p{\dimexpr 0.070\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.470\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Use case UC-12: Deploy Model Package.}\label{tab:4.14}\\
+\hline
+\endfirsthead
+\hline
+\endhead
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-12: Deploy Model Package}} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Model Maintainer} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The maintainer trains and validates a new model offline and deploys it to the device as a versioned package. The device checks compatibility before using it.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{A model package has been produced by the offline training pipeline (FR-12.3).\newline The maintainer has deployment access to the device.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The new model is active and the previous package is kept for rollback.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{XGBoost models are stored in native JSON format; packages are loaded only from the protected registry directory.} \\ \hline
+\multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
+\multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
+1 & The maintainer copies the package to the model registry and runs the deploy command. & 2 & The system checks the feature list and extractor version against the running extractor. \\ \hline
+ & --- & 3 & The system loads the new model, keeps the previous one, and shows the new version and its metrics on the dashboard. \\ \hline
+\multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
+1 & The feature schema does not match. & 2-A & The system refuses the package, keeps the current model and reports the mismatch. \\ \hline
+2 & The maintainer runs the rollback command. & 2-B & The system reactivates the previous package. \\ \hline
+\end{longtable}
+}
+
+\section{Hardware and Software Requirements}\label{sec:4.7}
+
+\noindent The NIDPS has two environments: the deployment environment, which is the device that runs inline on the network, and the development environment, which is used to build the software, train the models and generate test attacks. The requirements of both are listed below.
+
+\subsection{Hardware Requirements}\label{sec:4.7.1}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.245\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.370\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.385\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Hardware requirements.}\label{tab:4.15}\\
+\hline
+\textbf{Component} & \textbf{Minimum / reference specification} & \textbf{Purpose} \\ \hline
+\endfirsthead
+\hline
+\textbf{Component} & \textbf{Minimum / reference specification} & \textbf{Purpose} \\ \hline
+\endhead
+NIDPS host & Raspberry Pi 4 Model B, 4 GB RAM (reference); any quad-core 64-bit ARM or x86 device with $\geq$ 4 GB RAM & Runs the access point, Suricata, flow extractor, ML scorer, decision engine, enforcer, watchdog and dashboard \\ \hline
+Storage & 32 GB microSD (A2 class) or SSD & Operating system, rulesets, model packages, event database and logs \\ \hline
+Wireless adapter & Built-in Wi-Fi or USB Wi-Fi adapter supporting AP mode (802.11ac recommended) & Client-facing access point (wlan0) \\ \hline
+Wired uplink & Gigabit Ethernet port and Cat5e/Cat6 cable & Connection to the ISP router (eth0) \\ \hline
+Cooling and power & Official 5 V/3 A power supply; heatsink or fan case & Stable operation under sustained load without thermal throttling \\ \hline
+ISP router / ONT & Existing ISP device (e.g. Huawei HG8546M), built-in Wi-Fi disabled & Upstream internet gateway \\ \hline
+Attack host & Laptop or VM running Kali Linux & Generating controlled attacks on the isolated test network \\ \hline
+Test client devices & At least two phones/laptops and one IoT device & Benign traffic, victims for lateral movement and spoofing tests \\ \hline
+Training workstation & Laptop/PC with $\geq$ 16 GB RAM (32 GB recommended), $\geq$ 200 GB free disk & Regenerating datasets from PCAPs and training models offline \\ \hline
+\end{longtable}
+}
+
+\subsection{Software Requirements}\label{sec:4.7.2}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.245\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.372\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.382\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Software requirements.}\label{tab:4.16}\\
+\hline
+\textbf{Category} & \textbf{Software (version)} & \textbf{Purpose} \\ \hline
+\endfirsthead
+\hline
+\textbf{Category} & \textbf{Software (version)} & \textbf{Purpose} \\ \hline
+\endhead
+Operating system & Raspberry Pi OS 64-bit or another Debian-based Linux with systemd & Base platform for the NIDPS host \\ \hline
+Access point & hostapd, dnsmasq & Wi-Fi access point, DHCP and DNS \\ \hline
+Firewall and queueing & iptables (nftables backend), ipset, NFQUEUE kernel support & Routing, NAT, inline queue, blocking and failure modes \\ \hline
+Signature IDS/IPS & Suricata 7 or later; Emerging Threats Open ruleset; suricata-update & Layer 1 inline detection, JA3/JA3S logging \\ \hline
+Programming language & Python 3.11 or later & All custom services and training scripts \\ \hline
+ML libraries & scikit-learn (Isolation Forest, Random Forest), XGBoost, NumPy, pandas, imbalanced-learn, joblib & Model training and inference \\ \hline
+Packet processing & Scapy / libpcap bindings; CICFlowMeter-compatible feature definitions & Flow extraction and TLS handshake parsing \\ \hline
+Event bus and storage & Redis (Streams); SQLite 3 & Messaging between services; event database \\ \hline
+Dashboard & FastAPI (or Flask) with WebSocket support; HTML/CSS/JavaScript with a charting library & Web interface and API \\ \hline
+Supervision & systemd units and hardware watchdog & Process supervision and automatic restart \\ \hline
+Testing and evaluation & pytest, tcpreplay, iperf3, Wireshark/tcpdump, Kali Linux tools (nmap, hydra, hping3, arpspoof, dnsspoof) & Unit, integration, performance and live attack tests \\ \hline
+Development tools & Git and GitHub, VS Code, Jupyter Notebook & Version control, coding and data analysis \\ \hline
+Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing the dashboard \\ \hline
+\end{longtable}
+}
+
+\section{Graphical User Interface}\label{sec:4.8}
+
+\noindent The NIDPS has one graphical user interface: the web dashboard used by the Network Administrator. It is served by the NIDPS host and is reachable only from the protected network. Network users have no interface, because protection is transparent to them. The interface has six main screens.
+
+\subsection{Login Screen}\label{sec:4.8.1}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.89\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_login.jpg}
+\caption{Login screen.}
+\label{fig:4.3}
+\end{figure}
+
+\noindent The login screen authenticates the administrator before any information is shown. Error messages do not reveal whether the username or the password was wrong, and the account is locked after repeated failures. Covers: UC-01.
+
+\subsection{Overview Screen}\label{sec:4.8.2}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_overview.jpg}
+\caption{Overview screen.}
+\label{fig:4.4}
+\end{figure}
+
+\noindent The overview screen is the home page. It answers the questions "is my network safe right now?" and "is the NIDPS working?" at a glance. Counters and charts update live. Selecting a device shows its traffic summary and risk history. Covers: UC-02.
+
+\subsection{Alerts Screen}\label{sec:4.8.3}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_alerts.jpg}
+\caption{Alerts screen with the evidence panel.}
+\label{fig:4.5}
+\end{figure}
+
+\noindent The alerts screen lists every ALERT and BLOCK verdict. Selecting an alert opens the evidence panel, which explains in plain language what was detected and shows the evidence from each layer, so the administrator can judge whether the alert is genuine. Covers: UC-03, UC-04 (results).
+
+\subsection{Blocked Hosts and Allowlist Screen}\label{sec:4.8.4}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_blocked.jpg}
+\caption{Blocked Hosts and Allowlist screen.}
+\label{fig:4.6}
+\end{figure}
+
+\noindent This screen lets the administrator see who is blocked and why, release hosts blocked by mistake and maintain the allowlist. A warning banner appears here if the block rate limit has been reached. Covers: UC-05, UC-06.
+
+\subsection{Settings Screen}\label{sec:4.8.5}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_settings.jpg}
+\caption{Settings screen.}
+\label{fig:4.7}
+\end{figure}
+
+\noindent The settings screen groups all runtime configuration. Every change is validated, applied without restarting services and recorded in the audit log. Current values are shown next to their defaults. Covers: UC-07, UC-08, UC-09, UC-10, UC-12 (model version display).
+
+\subsection{System Health Screen}\label{sec:4.8.6}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_health.jpg}
+\caption{System Health screen.}
+\label{fig:4.8}
+\end{figure}
+
+\noindent The health screen shows whether every component is running and how the system has behaved over time, including periods in which it was not fully protecting the network. Covers: UC-11.
+
+\section{Database Design}\label{sec:4.9}
+
+\noindent The NIDPS stores derived data only: hosts, flow records for a short retention window, evidence, verdicts, blocks, the allowlist, model packages, calibration state, configuration, component health events and an audit log. A relational database is used because these records are strongly linked (for example, a block refers to a verdict, which refers to a flow and its evidence) and because the dashboard needs filtered, joined queries. SQLite is chosen because it runs in-process with no server, stores everything in one file and is sufficient for the write rate of a single home device. Raw packets and payloads are never stored. Live counters shown on the dashboard are kept in memory and on the event bus rather than in the database.
+
+\subsection{ER Diagram}\label{sec:4.9.1}
+
+\noindent Figure~\ref{fig:4.9} shows the entity-relationship diagram. HOST is the central entity: a host has many flow records, evidence items, verdicts and blocks. Each flow record can have several evidence items (one per layer) and at most one final verdict, and a BLOCK verdict creates at most one block entry. Evidence produced by an ML layer refers to the model package that produced it, and calibration states belong to the anomaly model. Administrative actions are linked to the admin user who performed them.
+
+\begin{sidewaysfigure}
+\centering
+\includegraphics[width=\textheight,height=0.92\textwidth,keepaspectratio]{Figures/nidps_erd_chen.png}
+\caption{Entity-relationship diagram of the NIDPS database.}
+\label{fig:4.9}
+\end{sidewaysfigure}
+\FloatBarrier
+
+\subsection{Data Dictionary}\label{sec:4.9.2}
+
+\noindent The tables below describe every entity. PK denotes a primary key and FK a foreign key. Timestamps are stored in UTC in ISO 8601 format.
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.279\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.179\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.236\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.306\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for ADMIN\_USER.}\label{tab:4.17}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+user\_id & INTEGER & PK & Unique identifier of the administrator \\ \hline
+username & TEXT & UNIQUE, NOT NULL & Login name \\ \hline
+password\_hash & TEXT & NOT NULL & Salted password hash (e.g. Argon2/bcrypt) \\ \hline
+failed\_attempts & INTEGER & DEFAULT 0 & Consecutive failed logins \\ \hline
+locked\_until & DATETIME & NULL & End of lock-out period, if locked \\ \hline
+created\_at / last\_login & DATETIME &  & Account creation and last successful login \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.279\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.179\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.238\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.304\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for HOST.}\label{tab:4.18}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+host\_id & INTEGER & PK & Unique identifier \\ \hline
+ip\_address & TEXT & NOT NULL & Current IPv4/IPv6 address \\ \hline
+mac\_address & TEXT & NULL & MAC address (internal hosts only) \\ \hline
+hostname & TEXT & NULL & Name from DHCP lease or reverse DNS \\ \hline
+is\_internal & BOOLEAN & NOT NULL & True if the host is a client of the NIDPS \\ \hline
+risk\_score & REAL & DEFAULT 0 & Current decaying evidence score S\_h \\ \hline
+first\_seen / last\_seen & DATETIME &  & First and most recent activity \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.282\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.179\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.236\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.304\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for FLOW\_RECORD.}\label{tab:4.19}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+flow\_id & INTEGER & PK & Unique identifier \\ \hline
+host\_id & INTEGER & FK $\rightarrow$ HOST & Internal host involved in the flow \\ \hline
+src\_ip, dst\_ip, src\_port, dst\_port, protocol & TEXT / INTEGER & NOT NULL & 5-tuple (stored for investigation, not used as model features) \\ \hline
+start\_time, end\_time & DATETIME & NOT NULL & Flow or segment time span \\ \hline
+segment\_no & INTEGER & DEFAULT 0 & Segment number for long flows \\ \hline
+ja3, ja3s, sni & TEXT & NULL & TLS fingerprints and server name, if TLS \\ \hline
+features & TEXT (JSON) & NOT NULL & 78 flow features \\ \hline
+extractor\_version & TEXT & NOT NULL & Version of the flow extractor \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.278\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.177\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.246\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.298\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for EVIDENCE.}\label{tab:4.20}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+evidence\_id & INTEGER & PK & Unique identifier \\ \hline
+flow\_id & INTEGER & FK $\rightarrow$ FLOW\_RECORD, NULL & Related flow (NULL for ARP or host-level evidence) \\ \hline
+host\_id & INTEGER & FK $\rightarrow$ HOST & Host the evidence is about \\ \hline
+layer & TEXT & CHECK IN (L1, ARP, L2, L3, HOST) & Detecting layer or host tracker \\ \hline
+evidence\_type & TEXT & NOT NULL & e.g. SIGNATURE, ANOMALY, CLASS, EXFIL, BEACON \\ \hline
+signature\_id & INTEGER & NULL & Suricata rule SID (Layer 1) \\ \hline
+score & REAL & NULL & Anomaly or behaviour score \\ \hline
+predicted\_class, confidence & TEXT, REAL & NULL & Layer 3 class and probability \\ \hline
+weight & REAL & NOT NULL & Weight w\_v added to host score \\ \hline
+model\_id & INTEGER & FK $\rightarrow$ MODEL\_PACKAGE, NULL & Model that produced ML evidence \\ \hline
+created\_at & DATETIME & NOT NULL & Time the evidence was produced \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.274\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.179\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.243\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.304\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for VERDICT.}\label{tab:4.21}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+verdict\_id & INTEGER & PK & Unique identifier \\ \hline
+flow\_id & INTEGER & FK $\rightarrow$ FLOW\_RECORD, NULL & Decided flow (NULL for host-score blocks) \\ \hline
+host\_id & INTEGER & FK $\rightarrow$ HOST & Host the verdict applies to \\ \hline
+decision & TEXT & CHECK IN (PASS, ALERT, BLOCK) & Verdict \\ \hline
+layers & TEXT & NOT NULL & Responsible layer(s), e.g. "L2+L3" \\ \hline
+attack\_class & TEXT & NULL & Unified attack class \\ \hline
+explanation & TEXT & NOT NULL & Plain-language reason shown on the dashboard \\ \hline
+reviewed & BOOLEAN & DEFAULT FALSE & Marked as reviewed by the administrator \\ \hline
+created\_at & DATETIME & NOT NULL & Time of the verdict \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.278\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.179\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.241\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.302\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for BLOCK\_ENTRY.}\label{tab:4.22}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+block\_id & INTEGER & PK & Unique identifier \\ \hline
+host\_id & INTEGER & FK $\rightarrow$ HOST & Blocked host \\ \hline
+verdict\_id & INTEGER & FK $\rightarrow$ VERDICT & Verdict that caused the block \\ \hline
+offence\_count & INTEGER & NOT NULL & Number of earlier blocks in 24 h (n) \\ \hline
+duration\_s & INTEGER & NOT NULL & Block duration D0 $\cdot$ 2\^{}n, capped at D\_max \\ \hline
+start\_time, expires\_at & DATETIME & NOT NULL & Start and expiry of the block \\ \hline
+status & TEXT & CHECK IN (ACTIVE, EXPIRED, RELEASED, SUPPRESSED) & Current state \\ \hline
+released\_by, released\_at & INTEGER, DATETIME & FK $\rightarrow$ ADMIN\_USER, NULL & Manual release details \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.278\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.179\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.241\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.302\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for ALLOWLIST\_ENTRY.}\label{tab:4.23}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+entry\_id & INTEGER & PK & Unique identifier \\ \hline
+address & TEXT & UNIQUE, NOT NULL & IP or MAC address \\ \hline
+description & TEXT &  & Reason, e.g. "Gateway" \\ \hline
+is\_permanent & BOOLEAN & DEFAULT FALSE & System entries that cannot be removed \\ \hline
+added\_by, added\_at & INTEGER, DATETIME & FK $\rightarrow$ ADMIN\_USER, NULL & Who added it and when \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.283\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.179\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.236\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.302\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for MODEL\_PACKAGE.}\label{tab:4.24}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+model\_id & INTEGER & PK & Unique identifier \\ \hline
+model\_type & TEXT & CHECK IN (IFOREST, RF, XGB) & Algorithm \\ \hline
+version & TEXT & NOT NULL & Semantic version of the package \\ \hline
+file\_path & TEXT & NOT NULL & Location in the model registry \\ \hline
+feature\_list\_hash, extractor\_version & TEXT & NOT NULL & Schema compatibility information \\ \hline
+class\_list & TEXT (JSON) & NULL & Output classes (classifier only) \\ \hline
+training\_data, metrics & TEXT (JSON) &  & Datasets used and validation metrics \\ \hline
+is\_active & BOOLEAN & NOT NULL & True for the model currently in use \\ \hline
+deployed\_at & DATETIME & NOT NULL & Deployment time \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.277\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.178\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.245\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.299\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for CALIBRATION\_STATE.}\label{tab:4.25}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+calib\_id & INTEGER & PK & Unique identifier \\ \hline
+model\_id & INTEGER & FK $\rightarrow$ MODEL\_PACKAGE & Anomaly model calibrated \\ \hline
+tau, tau\_global & REAL & NOT NULL & Calibrated and global thresholds \\ \hline
+percentile & REAL & NOT NULL & Percentile p used \\ \hline
+sample\_count & INTEGER & NOT NULL & Number of clean flows used \\ \hline
+u\_max & INTEGER & NULL & Upload-size limit for exfiltration evidence \\ \hline
+window\_start, window\_end, created\_at & DATETIME & NOT NULL & Calibration window and run time \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.275\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.177\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.240\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.307\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for CONFIG\_SETTING.}\label{tab:4.26}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+setting\_key & TEXT & PK & e.g. failure\_mode, active\_timeout\_s \\ \hline
+value & TEXT & NOT NULL & Current value \\ \hline
+default\_value, min\_value, max\_value & TEXT &  & Default and allowed range \\ \hline
+updated\_by, updated\_at & INTEGER, DATETIME & FK $\rightarrow$ ADMIN\_USER, NULL & Last change \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.282\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.179\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.239\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.300\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for COMPONENT\_EVENT.}\label{tab:4.27}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+event\_id & INTEGER & PK & Unique identifier \\ \hline
+component & TEXT & NOT NULL & Service name \\ \hline
+state & TEXT & CHECK IN (RUNNING, DEGRADED, FAILED, RECOVERING) & State entered \\ \hline
+failure\_mode & TEXT & NULL & Mode applied during the failure \\ \hline
+detected\_at, recovered\_at & DATETIME &  & Detection and recovery time \\ \hline
+packets\_dropped, packets\_bypassed & INTEGER & DEFAULT 0 & Traffic affected \\ \hline
+details & TEXT &  & Cause and diagnostic information \\ \hline
+\end{longtable}
+}
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.272\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.179\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.240\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.309\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Data dictionary for AUDIT\_LOG.}\label{tab:4.28}\\
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\textbf{Field} & \textbf{Type} & \textbf{Constraints} & \textbf{Description} \\ \hline
+\endhead
+audit\_id & INTEGER & PK & Unique identifier \\ \hline
+user\_id & INTEGER & FK $\rightarrow$ ADMIN\_USER, NULL & Administrator (NULL for system actions) \\ \hline
+action & TEXT & NOT NULL & e.g. LOGIN, BLOCK, RELEASE, CONFIG\_CHANGE \\ \hline
+target & TEXT &  & Affected object \\ \hline
+old\_value, new\_value & TEXT & NULL & Values before and after a change \\ \hline
+timestamp & DATETIME & NOT NULL & Time of the action \\ \hline
+\end{longtable}
+}
+
+\section{Risk Analysis}\label{sec:4.10}
+
+\noindent The main risks to the project are listed below with their category, likelihood, impact and mitigation. Technical risks concern whether the system can meet its requirements; resource, schedule and project risks concern whether the team can deliver it; legal and ethical risks concern how attack testing is carried out. The risk register is reviewed at every sprint review and updated as risks change.
+
+{\footnotesize\setlength{\tabcolsep}{3.5pt}
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.073\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.235\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.140\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.133\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.117\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.302\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Risk analysis.}\label{tab:4.29}\\
+\hline
+\textbf{ID} & \textbf{Risk} & \textbf{Category} & \textbf{Likelihood} & \textbf{Impact} & \textbf{Mitigation} \\ \hline
+\endfirsthead
+\hline
+\textbf{ID} & \textbf{Risk} & \textbf{Category} & \textbf{Likelihood} & \textbf{Impact} & \textbf{Mitigation} \\ \hline
+\endhead
+R1 & Raspberry Pi cannot sustain household throughput with all layers enabled & Technical & Medium & High & Keep ML off the forwarding path; trim rule groups; degraded mode; measure saturation early and switch to a mini-PC if needed. \\ \hline
+R2 & Models trained on public datasets perform poorly on real home traffic (dataset shift) & Technical & High & High & Harmonised flow regeneration; per-network threshold calibration; Suricata as a baseline; self-collected test set; report results honestly. \\ \hline
+R3 & High false positive rate causes legitimate devices to be blocked & Technical / Business & Medium & High & Fusion requires strong or corroborated evidence; allowlist; rate limit; short first blocks; one-week alert-only soak test before enabling blocking. \\ \hline
+R4 & Wireless adapter or driver does not support stable AP mode or client isolation & Technical & Medium & Medium & Test hardware early; use a supported USB adapter; fall back to bridging lateral traffic where needed. \\ \hline
+R5 & Encrypted traffic and JA3 randomisation reduce detection coverage & Technical & High & Medium & Rely on flow metadata; combine JA3 with JA3S and SNI; isolate fingerprinting so JA4 can be adopted. \\ \hline
+R6 & Errors in public dataset labels or flow construction distort training & Technical & Medium & Medium & Regenerate flows from raw PCAPs; relabel from attack schedules; prefer corrected dataset versions where available. \\ \hline
+R7 & Large dataset PCAPs exceed available storage or memory for training & Resource & Medium & Medium & Process captures in chunks; sample benign traffic; use external storage or university lab machines. \\ \hline
+R8 & The NIDPS becomes a single point of failure and causes network outages & Operational & Low & High & Kernel-enforced fail-open default; watchdog; automatic restarts; timed blocks. \\ \hline
+R9 & An attacker poisons calibration or evades the models & Security & Low & High & Exclude flagged flows from calibration; bound threshold shift; no online retraining; signatures remain active. \\ \hline
+R10 & Attack experiments affect devices or networks outside the project & Legal / Ethical & Low & High & Run attacks only on an isolated lab network owned by the team; capture only the team's own traffic. \\ \hline
+R11 & Schedule slippage due to integration complexity of many services & Schedule & Medium & Medium & Incremental delivery of vertical slices; Layer 1 delivered first; sprint reviews with the supervisor. \\ \hline
+R12 & Hardware damage or failure (SD card corruption, overheating) & Resource & Medium & Medium & Use quality storage and cooling; keep image backups; keep a spare SD card. \\ \hline
+R13 & Team member unavailability & Project & Low & Medium & Shared repository and documentation; pair work on critical components; clear task ownership. \\ \hline
+\end{longtable}
+}
+
+\noindent The two risks rated most serious are R2 and R3, because they determine whether the system is useful on a real network. Both are addressed by design (harmonised features, local calibration and cautious decision fusion) and are measured directly in the evaluation, so that their real effect is known rather than assumed.

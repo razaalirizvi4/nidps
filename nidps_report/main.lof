@@ -1,0 +1,22 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {2.1}{\ignorespaces UN Sustainable Development Goal targeted by the NIDPS.}}{8}{figure.caption.1}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Use case diagram of the NIDPS.}}{39}{figure.caption.2}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Login screen.}}{52}{figure.caption.3}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Overview screen.}}{52}{figure.caption.4}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Alerts screen with the evidence panel.}}{53}{figure.caption.5}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Blocked Hosts and Allowlist screen.}}{53}{figure.caption.6}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Settings screen.}}{54}{figure.caption.7}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces System Health screen.}}{55}{figure.caption.8}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Entity-relationship diagram of the NIDPS database.}}{57}{figure.caption.9}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Proposed three-layer NIDPS pipeline.}}{67}{figure.caption.10}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Decision-fusion flow for one flow record.}}{80}{figure.caption.15}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Watchdog state machine for each supervised component.}}{83}{figure.caption.17}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces System architecture of the NIDPS.}}{91}{figure.caption.21}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Packet path through the data plane.}}{93}{figure.caption.23}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Offline training pipeline and model hand-over to the device.}}{94}{figure.caption.24}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Class diagram of the NIDPS runtime.}}{99}{figure.caption.26}%

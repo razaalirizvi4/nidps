@@ -1,0 +1,135 @@
+\begin{thebibliography}{10}
+
+\bibitem{lr:shah2018}
+S.~A.~R. Shah and B.~Issac, ``Performance comparison of intrusion detection
+  systems and application of machine learning to {Snort} system,'' {\em Future
+  Generation Computer Systems}, vol.~80, pp.~157--170, 2018.
+
+\bibitem{lr:kim2014}
+G.~Kim, S.~Lee, and S.~Kim, ``A novel hybrid intrusion detection method
+  integrating anomaly detection with misuse detection,'' {\em Expert Systems
+  with Applications}, vol.~41, no.~4, pp.~1690--1700, 2014.
+
+\bibitem{lr:chiba2019}
+Z.~Chiba, N.~Abghour, K.~Moussaid, A.~El~Omri, and M.~Rida, ``Newest
+  collaborative and hybrid network intrusion detection framework based on
+  {Suricata} and {Isolation Forest} algorithm,'' in {\em Proc. 4th Int. Conf.
+  Smart City Applications (SCA)}, pp.~1--11, ACM, 2019.
+
+\bibitem{lr:kushal2024}
+S.~Kushal, B.~Shanmugam, J.~Sundaram, and S.~Thennadil, ``Self-healing hybrid
+  intrusion detection system: an ensemble machine learning approach,'' {\em
+  Discover Artificial Intelligence}, vol.~4, 2024.
+\newblock Art. no. 28.
+
+\bibitem{lr:wenudeoji2025}
+S.~C. Wen-Udeoji, M.~K. Muyeba, and A.~Mohammadi, ``Comparative evaluation of
+  machine learning and signature-based {NIDS} for multi-class and binary threat
+  detection,'' in {\em Proc. Int. Conf. Data Science, AI and Applications},
+  Springer, 2025.
+
+\bibitem{lr:naik2025}
+Naik {\em et~al.}, ``Hybrid intrusion detection system for network security:
+  real-time signature and machine learning-based anomaly detection,'' in {\em
+  Proc. IEEE Int. Conf. CICT}, 2025.
+
+\bibitem{lr:wang2025}
+R.~C. Wang and R.~P. Avrianto, ``Improving detection accuracy of network
+  intrusions using a hybrid network intrusion detection system based on
+  {Isolation Forest} and {Random Forest} algorithms,'' {\em Jurnal Teknik
+  Informatika (JUTIF)}, vol.~6, no.~6, pp.~5371--5385, 2025.
+
+\bibitem{lr:moomtaheen2024}
+F.~Moomtaheen, S.~S. Bagui, S.~C. Bagui, and D.~Mink, ``Extended {Isolation
+  Forest} for intrusion detection in {Zeek} data,'' {\em Information}, vol.~15,
+  no.~7, 2024.
+\newblock Art. no. 404.
+
+\bibitem{lr:elsaid2024}
+S.~A. Elsaid and A.~Binbusayyis, ``An optimized isolation forest based
+  intrusion detection system for heterogeneous and streaming data in the
+  industrial {Internet of Things (IIoT)} networks,'' {\em Discover Applied
+  Sciences}, vol.~6, 2024.
+\newblock Art. no. 483.
+
+\bibitem{lr:yu2024}
+Yu {\em et~al.}, ``Improving network intrusion detection methods in isolated
+  forests based on split points,'' {\em Computer Engineering}, 2024.
+
+\bibitem{lr:feng2022}
+Y.~Feng, W.~Cai, H.~Yue, J.~Xu, Y.~Lin, J.~Chen, and Z.~Hu, ``An improved
+  {X-means} and isolation forest based methodology for network traffic anomaly
+  detection,'' {\em PLoS ONE}, vol.~17, no.~1, 2022.
+\newblock Art. no. e0263423.
+
+\bibitem{lr:ajagbe2024}
+S.~A. Ajagbe, J.~B. Awotunde, and H.~Florez, ``Intrusion detection: a
+  comparison study of machine learning models using unbalanced dataset,'' {\em
+  SN Computer Science}, vol.~5, 2024.
+\newblock Art. no. 1028.
+
+\bibitem{lr:more2024}
+S.~More, M.~Idrissi, H.~Mahmoud, and A.~T. Asyhari, ``Enhanced intrusion
+  detection systems performance with {UNSW-NB15} data analysis,'' {\em
+  Algorithms}, vol.~17, no.~2, 2024.
+\newblock Art. no. 64.
+
+\bibitem{lr:almahaqeri2026}
+S.~A. Almahaqeri, M.~H. Almourish, A.~A. Nasser, A.~S.~A. Alghawli, A.~A.~K.
+  Elsayed, and A.~N. Alhejoj, ``An optimized gradient boosting framework for
+  {IoT} intrusion detection: a comprehensive evaluation on the {CICIoT2023}
+  dataset,'' {\em Scientific Reports}, vol.~16, 2026.
+\newblock Art. no. 16909.
+
+\bibitem{lr:xin2025}
+C.~Xin and K.~Xu, ``Cross-dataset {Transformer-IDS} with calibration and {AUC}
+  optimization (evaluated on {NSL-KDD}, {UNSW-NB15}, {CIC-IDS2017}),'' {\em
+  Journal of Cyber Security}, vol.~7, no.~1, pp.~483--503, 2025.
+
+\bibitem{nidps:cicids2017}
+I.~Sharafaldin, A.~Habibi~Lashkari, and A.~A. Ghorbani, ``Toward generating a
+  new intrusion detection dataset and intrusion traffic characterization,'' in
+  {\em Proc. 4th Int. Conf. Information Systems Security and Privacy (ICISSP)},
+  pp.~108--116, 2018.
+
+\bibitem{nidps:cicids2018}
+{Canadian Institute for Cybersecurity}, ``{CSE-CIC-IDS2018} dataset.''
+  University of New Brunswick.
+\newblock [Online]. Available:
+  \url{https://www.unb.ca/cic/datasets/ids-2018.html}.
+
+\bibitem{nidps:ciciot2023}
+{Canadian Institute for Cybersecurity}, ``{CIC IoT} dataset 2023.'' University
+  of New Brunswick.
+\newblock [Online]. Available:
+  \url{https://www.unb.ca/cic/datasets/iotdataset-2023.html}.
+
+\bibitem{nidps:engelen2021}
+G.~Engelen, V.~Rimmer, and W.~Joosen, ``Troubleshooting an intrusion detection
+  dataset: The {CICIDS2017} case study,'' in {\em Proc. IEEE Security and
+  Privacy Workshops (SPW)}, 2021.
+
+\bibitem{nidps:ja3}
+J.~Althouse, J.~Atkinson, and J.~Atkins, ``{JA3} -- a method for profiling
+  {SSL/TLS} clients.'' Salesforce Engineering, 2017.
+\newblock [Online]. Available: \url{https://github.com/salesforce/ja3}.
+
+\bibitem{nidps:suricata}
+{Open Information Security Foundation (OISF)}, ``Suricata: Network {IDS/IPS}
+  engine.''
+\newblock [Online]. Available: \url{https://suricata.io}.
+
+\bibitem{nidps:iforest}
+F.~T. Liu, K.~M. Ting, and Z.-H. Zhou, ``Isolation forest,'' in {\em Proc. 8th
+  IEEE Int. Conf. Data Mining (ICDM)}, pp.~413--422, 2008.
+
+\bibitem{nidps:rf}
+L.~Breiman, ``Random forests,'' {\em Machine Learning}, vol.~45, no.~1,
+  pp.~5--32, 2001.
+
+\bibitem{nidps:xgb}
+T.~Chen and C.~Guestrin, ``{XGBoost}: A scalable tree boosting system,'' in
+  {\em Proc. 22nd ACM SIGKDD Int. Conf. Knowledge Discovery and Data Mining},
+  pp.~785--794, 2016.
+
+\end{thebibliography}

@@ -1,0 +1,208 @@
+\contentsline {chapter}{List of Figures}{ix}{Doc-Start}%
+\contentsline {chapter}{List of Tables}{xi}{Doc-Start}%
+\contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Purpose of this Document}{2}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Intended Audience}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Definitions, Acronyms, and Abbreviations}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Conclusion}{4}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Project Vision}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Problem Domain Overview}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Problem Statement}{5}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Problem Elaboration}{6}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Goals and Objectives}{6}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Project Scope}{7}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Sustainable Development Goal (SDG)}{8}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Constraints}{8}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Business Opportunity}{9}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Stakeholders Description/ User Characteristics}{9}{section.2.9}%
+\contentsline {section}{\numberline {2.10}Conclusion}{9}{section.2.10}%
+\contentsline {chapter}{\numberline {3}Literature Review / Related Work}{11}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Definitions, Acronyms, and Abbreviations}{11}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Detailed Literature Review}{12}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Performance Comparison of Intrusion Detection Systems and Application of Machine Learning to Snort}{12}{subsection.3.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.1.1}Summary of the Research Item}{12}{subsubsection.3.2.1.1}%
+\contentsline {subsubsection}{\numberline {3.2.1.2}Critical Analysis of the Research Item}{12}{subsubsection.3.2.1.2}%
+\contentsline {subsubsection}{\numberline {3.2.1.3}Relationship to the Proposed Research Work}{13}{subsubsection.3.2.1.3}%
+\contentsline {subsection}{\numberline {3.2.2}A Novel Hybrid Intrusion Detection Method Integrating Anomaly Detection with Misuse Detection}{13}{subsection.3.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.2.1}Summary of the Research Item}{13}{subsubsection.3.2.2.1}%
+\contentsline {subsubsection}{\numberline {3.2.2.2}Critical Analysis of the Research Item}{13}{subsubsection.3.2.2.2}%
+\contentsline {subsubsection}{\numberline {3.2.2.3}Relationship to the Proposed Research Work}{13}{subsubsection.3.2.2.3}%
+\contentsline {subsection}{\numberline {3.2.3}Collaborative and Hybrid Network Intrusion Detection Framework Based on Suricata and Isolation Forest}{14}{subsection.3.2.3}%
+\contentsline {subsubsection}{\numberline {3.2.3.1}Summary of the Research Item}{14}{subsubsection.3.2.3.1}%
+\contentsline {subsubsection}{\numberline {3.2.3.2}Critical Analysis of the Research Item}{14}{subsubsection.3.2.3.2}%
+\contentsline {subsubsection}{\numberline {3.2.3.3}Relationship to the Proposed Research Work}{14}{subsubsection.3.2.3.3}%
+\contentsline {subsection}{\numberline {3.2.4}Self-Healing Hybrid Intrusion Detection System: An Ensemble Machine Learning Approach}{15}{subsection.3.2.4}%
+\contentsline {subsubsection}{\numberline {3.2.4.1}Summary of the Research Item}{15}{subsubsection.3.2.4.1}%
+\contentsline {subsubsection}{\numberline {3.2.4.2}Critical Analysis of the Research Item}{15}{subsubsection.3.2.4.2}%
+\contentsline {subsubsection}{\numberline {3.2.4.3}Relationship to the Proposed Research Work}{15}{subsubsection.3.2.4.3}%
+\contentsline {subsection}{\numberline {3.2.5}Comparative Evaluation of Machine Learning and Signature-Based NIDS for Multi-Class and Binary Threat Detection}{16}{subsection.3.2.5}%
+\contentsline {subsubsection}{\numberline {3.2.5.1}Summary of the Research Item}{16}{subsubsection.3.2.5.1}%
+\contentsline {subsubsection}{\numberline {3.2.5.2}Critical Analysis of the Research Item}{16}{subsubsection.3.2.5.2}%
+\contentsline {subsubsection}{\numberline {3.2.5.3}Relationship to the Proposed Research Work}{16}{subsubsection.3.2.5.3}%
+\contentsline {subsection}{\numberline {3.2.6}Real-Time Hybrid Signature and Machine Learning Intrusion Detection}{16}{subsection.3.2.6}%
+\contentsline {subsubsection}{\numberline {3.2.6.1}Summary of the Research Item}{17}{subsubsection.3.2.6.1}%
+\contentsline {subsubsection}{\numberline {3.2.6.2}Critical Analysis of the Research Item}{17}{subsubsection.3.2.6.2}%
+\contentsline {subsubsection}{\numberline {3.2.6.3}Relationship to the Proposed Research Work}{17}{subsubsection.3.2.6.3}%
+\contentsline {subsection}{\numberline {3.2.7}Improving Detection Accuracy of Network Intrusions Using a Hybrid NIDS Based on Isolation Forest and Random Forest}{17}{subsection.3.2.7}%
+\contentsline {subsubsection}{\numberline {3.2.7.1}Summary of the Research Item}{17}{subsubsection.3.2.7.1}%
+\contentsline {subsubsection}{\numberline {3.2.7.2}Critical Analysis of the Research Item}{17}{subsubsection.3.2.7.2}%
+\contentsline {subsubsection}{\numberline {3.2.7.3}Relationship to the Proposed Research Work}{18}{subsubsection.3.2.7.3}%
+\contentsline {subsection}{\numberline {3.2.8}Extended Isolation Forest for Intrusion Detection in Zeek Data}{18}{subsection.3.2.8}%
+\contentsline {subsubsection}{\numberline {3.2.8.1}Summary of the Research Item}{18}{subsubsection.3.2.8.1}%
+\contentsline {subsubsection}{\numberline {3.2.8.2}Critical Analysis of the Research Item}{18}{subsubsection.3.2.8.2}%
+\contentsline {subsubsection}{\numberline {3.2.8.3}Relationship to the Proposed Research Work}{19}{subsubsection.3.2.8.3}%
+\contentsline {subsection}{\numberline {3.2.9}An Optimized Isolation Forest Based Intrusion Detection System for Heterogeneous and Streaming Data in IIoT Networks}{19}{subsection.3.2.9}%
+\contentsline {subsubsection}{\numberline {3.2.9.1}Summary of the Research Item}{19}{subsubsection.3.2.9.1}%
+\contentsline {subsubsection}{\numberline {3.2.9.2}Critical Analysis of the Research Item}{19}{subsubsection.3.2.9.2}%
+\contentsline {subsubsection}{\numberline {3.2.9.3}Relationship to the Proposed Research Work}{19}{subsubsection.3.2.9.3}%
+\contentsline {subsection}{\numberline {3.2.10}Improved Isolation Forest with Sparse Auto-Encoder Feature Extraction}{19}{subsection.3.2.10}%
+\contentsline {subsubsection}{\numberline {3.2.10.1}Summary of the Research Item}{20}{subsubsection.3.2.10.1}%
+\contentsline {subsubsection}{\numberline {3.2.10.2}Critical Analysis of the Research Item}{20}{subsubsection.3.2.10.2}%
+\contentsline {subsubsection}{\numberline {3.2.10.3}Relationship to the Proposed Research Work}{20}{subsubsection.3.2.10.3}%
+\contentsline {subsection}{\numberline {3.2.11}An Improved X-Means and Isolation Forest Based Methodology for Network Traffic Anomaly Detection}{20}{subsection.3.2.11}%
+\contentsline {subsubsection}{\numberline {3.2.11.1}Summary of the Research Item}{20}{subsubsection.3.2.11.1}%
+\contentsline {subsubsection}{\numberline {3.2.11.2}Critical Analysis of the Research Item}{21}{subsubsection.3.2.11.2}%
+\contentsline {subsubsection}{\numberline {3.2.11.3}Relationship to the Proposed Research Work}{21}{subsubsection.3.2.11.3}%
+\contentsline {subsection}{\numberline {3.2.12}Intrusion Detection: A Comparison Study of Machine Learning Models Using Unbalanced Dataset}{21}{subsection.3.2.12}%
+\contentsline {subsubsection}{\numberline {3.2.12.1}Summary of the Research Item}{21}{subsubsection.3.2.12.1}%
+\contentsline {subsubsection}{\numberline {3.2.12.2}Critical Analysis of the Research Item}{21}{subsubsection.3.2.12.2}%
+\contentsline {subsubsection}{\numberline {3.2.12.3}Relationship to the Proposed Research Work}{22}{subsubsection.3.2.12.3}%
+\contentsline {subsection}{\numberline {3.2.13}Enhanced Intrusion Detection Systems Performance with UNSW-NB15 Data Analysis}{22}{subsection.3.2.13}%
+\contentsline {subsubsection}{\numberline {3.2.13.1}Summary of the Research Item}{22}{subsubsection.3.2.13.1}%
+\contentsline {subsubsection}{\numberline {3.2.13.2}Critical Analysis of the Research Item}{22}{subsubsection.3.2.13.2}%
+\contentsline {subsubsection}{\numberline {3.2.13.3}Relationship to the Proposed Research Work}{22}{subsubsection.3.2.13.3}%
+\contentsline {subsection}{\numberline {3.2.14}An Optimized Gradient Boosting Framework for IoT Intrusion Detection on the CICIoT2023 Dataset}{22}{subsection.3.2.14}%
+\contentsline {subsubsection}{\numberline {3.2.14.1}Summary of the Research Item}{23}{subsubsection.3.2.14.1}%
+\contentsline {subsubsection}{\numberline {3.2.14.2}Critical Analysis of the Research Item}{23}{subsubsection.3.2.14.2}%
+\contentsline {subsubsection}{\numberline {3.2.14.3}Relationship to the Proposed Research Work}{23}{subsubsection.3.2.14.3}%
+\contentsline {subsection}{\numberline {3.2.15}Cross-Dataset Generalisation of Deep Learning Intrusion Detection Models}{23}{subsection.3.2.15}%
+\contentsline {subsubsection}{\numberline {3.2.15.1}Summary of the Research Item}{24}{subsubsection.3.2.15.1}%
+\contentsline {subsubsection}{\numberline {3.2.15.2}Critical Analysis of the Research Item}{24}{subsubsection.3.2.15.2}%
+\contentsline {subsubsection}{\numberline {3.2.15.3}Relationship to the Proposed Research Work}{24}{subsubsection.3.2.15.3}%
+\contentsline {section}{\numberline {3.3}Literature Review Summary Table}{24}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Data Set Summary Table}{26}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Comparison with Closest Existing Systems}{27}{section.3.5}%
+\contentsline {section}{\numberline {3.6}Conclusion}{28}{section.3.6}%
+\contentsline {chapter}{\numberline {4}Software Requirement Specifications}{29}{chapter.4}%
+\contentsline {section}{\numberline {4.1}List of Features}{29}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Functional Requirements}{31}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}NIDPS-1: Inline Wireless Access Point}{31}{subsection.4.2.1}%
+\contentsline {subsection}{\numberline {4.2.2}NIDPS-2: Signature-Based Detection (Layer 1)}{31}{subsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.2.3}NIDPS-3: Flow Extraction and TLS Fingerprinting}{31}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.4}NIDPS-4: Anomaly Detection (Layer 2)}{32}{subsection.4.2.4}%
+\contentsline {subsection}{\numberline {4.2.5}NIDPS-5: Attack Classification (Layer 3)}{32}{subsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.2.6}NIDPS-6: Decision Fusion}{32}{subsection.4.2.6}%
+\contentsline {subsection}{\numberline {4.2.7}NIDPS-7: Automated Prevention}{33}{subsection.4.2.7}%
+\contentsline {subsection}{\numberline {4.2.8}NIDPS-8: Fault Tolerance}{33}{subsection.4.2.8}%
+\contentsline {subsection}{\numberline {4.2.9}NIDPS-9: Monitoring}{33}{subsection.4.2.9}%
+\contentsline {subsection}{\numberline {4.2.10}NIDPS-10: Configurations}{34}{subsection.4.2.10}%
+\contentsline {subsection}{\numberline {4.2.11}NIDPS-11: Logs and Storage}{34}{subsection.4.2.11}%
+\contentsline {subsection}{\numberline {4.2.12}NIDPS-12: Training and Versioning}{34}{subsection.4.2.12}%
+\contentsline {subsection}{\numberline {4.2.13}NIDPS-13: Auto Maintenance}{35}{subsection.4.2.13}%
+\contentsline {section}{\numberline {4.3}Quality Attributes}{35}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Non-Functional Requirements}{36}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Performance}{36}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Capacity}{37}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Resource Use}{37}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Reliability and Availability}{37}{subsection.4.4.4}%
+\contentsline {subsection}{\numberline {4.4.5}Accuracy}{37}{subsection.4.4.5}%
+\contentsline {subsection}{\numberline {4.4.6}Security}{37}{subsection.4.4.6}%
+\contentsline {subsection}{\numberline {4.4.7}Privacy}{37}{subsection.4.4.7}%
+\contentsline {subsection}{\numberline {4.4.8}Usability}{37}{subsection.4.4.8}%
+\contentsline {subsection}{\numberline {4.4.9}Maintainability}{38}{subsection.4.4.9}%
+\contentsline {subsection}{\numberline {4.4.10}Extensibility and Reusability}{38}{subsection.4.4.10}%
+\contentsline {subsection}{\numberline {4.4.11}Portability}{38}{subsection.4.4.11}%
+\contentsline {section}{\numberline {4.5}Assumptions}{38}{section.4.5}%
+\contentsline {section}{\numberline {4.6}Use Cases}{39}{section.4.6}%
+\contentsline {section}{\numberline {4.7}Hardware and Software Requirements}{49}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Hardware Requirements}{49}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Software Requirements}{50}{subsection.4.7.2}%
+\contentsline {section}{\numberline {4.8}Graphical User Interface}{51}{section.4.8}%
+\contentsline {subsection}{\numberline {4.8.1}Login Screen}{51}{subsection.4.8.1}%
+\contentsline {subsection}{\numberline {4.8.2}Overview Screen}{52}{subsection.4.8.2}%
+\contentsline {subsection}{\numberline {4.8.3}Alerts Screen}{53}{subsection.4.8.3}%
+\contentsline {subsection}{\numberline {4.8.4}Blocked Hosts and Allowlist Screen}{53}{subsection.4.8.4}%
+\contentsline {subsection}{\numberline {4.8.5}Settings Screen}{54}{subsection.4.8.5}%
+\contentsline {subsection}{\numberline {4.8.6}System Health Screen}{55}{subsection.4.8.6}%
+\contentsline {section}{\numberline {4.9}Database Design}{55}{section.4.9}%
+\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{55}{subsection.4.9.1}%
+\contentsline {subsection}{\numberline {4.9.2}Data Dictionary}{58}{subsection.4.9.2}%
+\contentsline {section}{\numberline {4.10}Risk Analysis}{63}{section.4.10}%
+\contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{66}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Overview of the Proposed Framework}{66}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Datasets}{67}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Public Benchmark Datasets}{67}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Self-Collected Real-World Dataset}{68}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Feature Harmonisation Across Datasets}{68}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Pre-processing}{69}{subsection.5.2.4}%
+\contentsline {section}{\numberline {5.3}Traffic Acquisition and Flow Construction}{70}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Inline Packet Path}{70}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Flow Assembly Algorithm}{71}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}TLS Fingerprint Extraction (JA3/JA3S)}{72}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Layer 1: Signature-Based Detection}{73}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Suricata Configuration}{73}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Custom Rules for In-Scope Attacks}{73}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}ARP Spoofing Monitor}{74}{subsection.5.4.3}%
+\contentsline {section}{\numberline {5.5}Layer 2: Unsupervised Anomaly Detection}{75}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Isolation Forest}{75}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Adaptive Threshold Calibration}{75}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Data Exfiltration Score}{76}{subsection.5.5.3}%
+\contentsline {subsection}{\numberline {5.5.4}C2 Beaconing Score}{77}{subsection.5.5.4}%
+\contentsline {section}{\numberline {5.6}Layer 3: Supervised Attack Classification}{77}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Random Forest}{77}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}XGBoost}{78}{subsection.5.6.2}%
+\contentsline {subsection}{\numberline {5.6.3}Training and Model Selection}{78}{subsection.5.6.3}%
+\contentsline {subsection}{\numberline {5.6.4}Confidence Handling}{78}{subsection.5.6.4}%
+\contentsline {section}{\numberline {5.7}Decision Fusion}{78}{section.5.7}%
+\contentsline {subsection}{\numberline {5.7.1}Verdict Algorithm}{79}{subsection.5.7.1}%
+\contentsline {subsection}{\numberline {5.7.2}Host Evidence Accumulation}{79}{subsection.5.7.2}%
+\contentsline {subsection}{\numberline {5.7.3}Timing of ML Verdicts}{79}{subsection.5.7.3}%
+\contentsline {section}{\numberline {5.8}Automated Prevention}{81}{section.5.8}%
+\contentsline {subsection}{\numberline {5.8.1}Blocking Mechanism}{81}{subsection.5.8.1}%
+\contentsline {subsection}{\numberline {5.8.2}Blocking Procedure}{81}{subsection.5.8.2}%
+\contentsline {section}{\numberline {5.9}Fault Tolerance and Failure Handling}{82}{section.5.9}%
+\contentsline {subsection}{\numberline {5.9.1}Health Monitoring}{82}{subsection.5.9.1}%
+\contentsline {subsection}{\numberline {5.9.2}Failure Modes}{82}{subsection.5.9.2}%
+\contentsline {subsection}{\numberline {5.9.3}State Machine}{83}{subsection.5.9.3}%
+\contentsline {section}{\numberline {5.10}Evaluation Methodology}{83}{section.5.10}%
+\contentsline {subsection}{\numberline {5.10.1}Detection Metrics}{84}{subsection.5.10.1}%
+\contentsline {subsection}{\numberline {5.10.2}Cross-Dataset Generalisation}{84}{subsection.5.10.2}%
+\contentsline {subsection}{\numberline {5.10.3}System Performance on Constrained Hardware}{84}{subsection.5.10.3}%
+\contentsline {section}{\numberline {5.11}Conclusion}{85}{section.5.11}%
+\contentsline {chapter}{\numberline {6}High-Level and Low-Level Design}{87}{chapter.6}%
+\contentsline {section}{\numberline {6.1}System Overview}{87}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Design Considerations}{87}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Assumptions and Dependencies}{88}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}General Constraints}{88}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Goals and Guidelines}{89}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Development Methods}{90}{subsection.6.2.4}%
+\contentsline {section}{\numberline {6.3}System Architecture}{90}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Subsystem Architecture}{92}{subsection.6.3.1}%
+\contentsline {subsubsection}{\numberline {6.3.1.1}Network Access and Data Plane}{93}{subsubsection.6.3.1.1}%
+\contentsline {subsubsection}{\numberline {6.3.1.2}Detection Subsystem}{93}{subsubsection.6.3.1.2}%
+\contentsline {subsubsection}{\numberline {6.3.1.3}Decision and Response Subsystem}{94}{subsubsection.6.3.1.3}%
+\contentsline {subsubsection}{\numberline {6.3.1.4}Reliability Subsystem}{94}{subsubsection.6.3.1.4}%
+\contentsline {subsubsection}{\numberline {6.3.1.5}Management and Reporting Subsystem}{94}{subsubsection.6.3.1.5}%
+\contentsline {subsubsection}{\numberline {6.3.1.6}Offline Training Pipeline}{94}{subsubsection.6.3.1.6}%
+\contentsline {section}{\numberline {6.4}Architectural Strategies}{95}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Layered Defence with a Short Fast Path}{95}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}Metadata-Only Analysis of Encrypted Traffic}{95}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Offline Training, Online Inference}{95}{subsection.6.4.3}%
+\contentsline {subsection}{\numberline {6.4.4}Local Services Connected by an Event Bus}{96}{subsection.6.4.4}%
+\contentsline {subsection}{\numberline {6.4.5}Kernel-Enforced Blocking and Failure Semantics}{96}{subsection.6.4.5}%
+\contentsline {subsection}{\numberline {6.4.6}Choice of Languages and Products}{96}{subsection.6.4.6}%
+\contentsline {subsection}{\numberline {6.4.7}Error Detection and Recovery}{97}{subsection.6.4.7}%
+\contentsline {subsection}{\numberline {6.4.8}Data Storage, Persistence and Retention}{98}{subsection.6.4.8}%
+\contentsline {subsection}{\numberline {6.4.9}Future Extension}{98}{subsection.6.4.9}%
+\contentsline {section}{\numberline {6.5}Domain Model/Class Diagram}{98}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Policies and Tactics}{98}{section.6.6}%
+\contentsline {subsection}{\numberline {6.6.1}Rule and Threshold Management}{98}{subsection.6.6.1}%
+\contentsline {subsection}{\numberline {6.6.2}Model Packaging and Versioning}{100}{subsection.6.6.2}%
+\contentsline {subsection}{\numberline {6.6.3}Engineering Trade-offs}{100}{subsection.6.6.3}%
+\contentsline {subsection}{\numberline {6.6.4}Coding Guidelines and Conventions}{100}{subsection.6.6.4}%
+\contentsline {subsection}{\numberline {6.6.5}Requirements Traceability}{100}{subsection.6.6.5}%
+\contentsline {subsection}{\numberline {6.6.6}Testing Plan}{101}{subsection.6.6.6}%
+\contentsline {subsection}{\numberline {6.6.7}Hierarchical Organisation of the Source Code}{101}{subsection.6.6.7}%
+\contentsline {subsection}{\numberline {6.6.8}Build and Deployment}{102}{subsection.6.6.8}%
+\contentsline {subsection}{\numberline {6.6.9}Maintenance}{102}{subsection.6.6.9}%
+\contentsline {section}{\numberline {6.7}Conclusion}{102}{section.6.7}%

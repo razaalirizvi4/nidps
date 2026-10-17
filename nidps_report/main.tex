@@ -1,0 +1,94 @@
+\documentclass{FastFyp}
+\begin{document}
+\newcommand{\supervisor}{Dr. Faisal Aslam}
+\newcommand{\university}{National University of Computer and Emerging Sciences, Lahore}
+\newcommand{\fyptitle}{NIDPS: Network Intrusion Detection and Prevention System}
+\newcommand{\degree}{BS}
+\newcommand{\Studentone}{Syed Raza Ali Rizvi \quad 23L-3021 \quad BS(SE)}
+\newcommand{\Studenttwo}{Eishal Fatima Qadri \quad 23L-3027 \quad BS(SE)}
+\newcommand{\Studentthree}{Ryyan Choudhary \quad 23L-2542 \quad BS(SE)}
+\date{October 10, 2026}
+\renewcommand{\contentsname}{Table of Contents}
+
+\makeatletter
+    \begin{titlepage}
+        \includegraphics[height=0.75in]{Figures/nulogo_small.jpg}\hfill
+        \includegraphics[height=0.5in]{Figures/fast_small.jpg}\\
+        \begin{center}
+            {\large\bfseries \university}\\[5ex]
+            \includegraphics[width=0.38\linewidth]{Figures/nu_logo.png}\\[6ex]
+            {\huge \bfseries \fyptitle}\\[8ex]
+            {\Studentone}\\{\Studenttwo}\\{\Studentthree}\\[4ex]
+            {Supervisor: \supervisor}\\[8ex]
+            {Final Year Project}\\
+            {\large \@date}
+        \end{center}
+    \end{titlepage}
+\makeatother
+\frontmatter
+
+\pagestyle{empty}
+\section*{\centering Anti-Plagiarism Declaration}
+This is to declare that the above publication was produced under the:
+\begin{flushleft}
+\textbf{Title: \fyptitle}
+\end{flushleft}
+is the sole contribution of the author(s), and no part hereof has been reproduced as it is the basis (cut and paste) that can be considered Plagiarism. All referenced parts have been used to argue the idea and cited properly. I/We will be responsible and liable for any consequence if a violation of this declaration is determined.
+\\[3ex]
+Date: 10\textsuperscript{th} October 2026
+
+\begin{flushright}
+\begin{tabular}{l}
+Name: Syed Raza Ali Rizvi \\
+Signature: \raisebox{-0.45\height}{\includegraphics[height=0.55in]{Figures/sig_raza.png}} \\[4ex]
+Name: Eishal Fatima Qadri \\
+Signature: \raisebox{-0.45\height}{\includegraphics[height=0.45in,keepaspectratio]{Figures/sig_eishal.png}} \\[4ex]
+Name: Ryyan Choudhary \\
+Signature: \raisebox{-0.45\height}{\includegraphics[height=0.5in]{Figures/sig_ryyan.png}} \\
+\end{tabular}
+\end{flushright}
+
+\vspace{2cm}
+\hrule
+
+\section*{Author's Declaration}
+This states Authors' declaration that the work presented in the report is their own, and has not been submitted/presented previously to any other institution or organization.
+\clearpage
+
+\section*{Abstract}
+Our project presents a Network Intrusion Detection and Prevention System (NIDPS) designed to protect small networks using a combination of signature-based and machine learning techniques. The system uses Suricata to detect known attacks, Isolation Forest to identify unusual network behaviour, and Random Forest or XGBoost to classify known attack types. It also analyzes encrypted traffic using flow-based features and TLS fingerprints without decrypting user data. The proposed system is evaluated across multiple public intrusion detection datasets and real network traffic, with additional focus on detection accuracy, cross-dataset performance, system latency, resource usage, and automated attack blocking on constrained hardware.
+\clearpage
+
+\section*{Executive Summary}
+\noindent The increasing use of IoT devices has made small networks more exposed to cyber security threats. Most home and small-office routers provide basic network protection, but they lack advanced intrusion detection and behavioural analysis. This project proposes a Network Intrusion Detection and Prevention System (NIDPS) that combines multiple detection techniques to provide better protection against both known and previously unseen attacks.
+
+\noindent The proposed system runs on a Linux-based device acting as the wireless access point of the protected network. All client traffic passes through this device before reaching the ISP gateway. The NIDPS follows a three-layer detection approach. Suricata is used for signature-based detection of known attacks, Isolation Forest is used to identify abnormal network behaviour, and Random Forest or XGBoost is used to classify known attack types. The outputs of these layers are combined to decide whether traffic should be passed, reported as suspicious, or blocked.
+
+\noindent The system is designed to detect attacks such as SSH brute force, port scanning, command-and-control beaconing, ARP spoofing, DNS spoofing, data exfiltration, DDoS and lateral movement. Since modern network traffic is mostly encrypted, the system uses flow-based features and TLS fingerprints such as JA3 and JA3S instead of decrypting user traffic. This allows encrypted connections to be analysed while reducing privacy and performance concerns.
+
+\noindent A major part of the project is the evaluation of machine learning models across different datasets. CIC-IDS-2017, CSE-CIC-IDS2018 and CIC-IoT-2023 are used for training and cross-dataset testing, while traffic collected from the actual deployment environment is used as an additional test set. The same flow extraction method is used across the datasets and the live system to reduce differences between training data and real network traffic.
+
+\noindent When malicious activity is detected with sufficient confidence, the system can automatically block the responsible host using iptables and ipset. It also includes safeguards such as temporary blocks, allowlists and rate limits. A watchdog and configurable failure-handling mechanism are included so that the network remains in a defined state even if one of the detection components stops working.
+
+\noindent The project is evaluated using both detection and system performance measures. These include precision, recall, F1-score, false positive rate, forwarding latency, throughput, detection latency, blocking time, resource usage and recovery behaviour. The overall aim is to develop a practical and affordable NIDPS that combines signature-based detection, machine learning, automated prevention and failure handling for small networks.
+\clearpage
+
+\pagestyle{fancy}
+\tableofcontents
+\clearpage
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+\clearpage
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+
+\mainmatter
+
+\input{chapters/ch1to4}
+\input{chapters/ch5}
+\input{chapters/ch6}
+
+\bibliographystyle{ieeetr}
+\bibliography{fypbib}
+
+\end{document}
