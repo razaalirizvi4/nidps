@@ -1,8 +1,8 @@
 \chapter{Introduction}\label{chap:1}
 
-\noindent Computer networks are used to connect devices, share data and access online services, but this connectivity also creates opportunities for malicious activity. A \textbf{network intrusion} occurs when an unauthorized user or program attempts to access, misuse, disrupt or damage a network or the devices connected to it. Intrusions may originate from outside the network, such as an attacker scanning for open ports or trying to gain access through weak credentials, or from inside the network through a compromised device or malicious user.
+\noindent Computer networks enable the connection of devices, exchange of information and access to online services, but at the same time they create threats for malevolent individuals to exploit. A \textbf{network intrusion} happens when an unauthorized entity attempts to gain access, use, interrupt or destroy a network or the devices connected to it. Intrusions can be external, originating from outside the network, for example, when an intruder scans the network for open ports or attempts to access the network using weak credentials, or internal, coming from within the network through a compromised device or user.
 
-\noindent Network intrusions can take many forms. Some attacks focus on gaining unauthorized access, such as brute-force attacks, while others attempt to disrupt services through Denial-of-Service attacks. Attackers may also intercept or manipulate network communication through spoofing, move between devices after gaining access, transfer sensitive data outside the network, or communicate with compromised devices through command-and-control channels. Because these attacks behave differently, relying on a single detection method is often not enough.
+\noindent Network intrusions can take different forms, varying from the attempts to gain unauthorized access like in the case of brute-force attacks, Denial-of-Service attacks that cause service disruption, interception of traffic through spoofing, transferring data out of the network after gaining access to a host computer, or attacking other compromised nodes through command-and-control methods. The variety of intrusion methods requires multiple approaches to detecting malicious activity since relying on a single method may be ineffective.
 
 \noindent Intrusion Detection and Prevention Systems are used to monitor network traffic and identify such malicious behaviour. Traditional systems commonly use predefined signatures or rules to recognize known attacks. These methods can be effective when an attack pattern is already known, but they may struggle with new attacks or variations that do not match an existing signature. Machine learning offers another approach by learning patterns in network traffic and identifying suspicious or abnormal behaviour. However, its effectiveness can depend heavily on the data used to train the model and the environment in which it is deployed.
 
@@ -10,23 +10,23 @@
 
 \noindent The aim of this project is to develop a \textbf{Network Intrusion Detection and Prevention System (NIDPS)} for small networks. The project combines different detection approaches so that known attacks, abnormal behaviour and suspicious network activity can be identified and acted upon. The system is designed to operate on a Linux-based device placed directly in the network path, while also considering practical issues such as encrypted traffic, limited hardware resources and reliability.
 
-\noindent The remainder of this report is organised as follows. \textbf{Chapter~\ref{chap:2}} presents the project scope, goals and objectives. \textbf{Chapter~\ref{chap:3}} reviews existing research and related work in network intrusion detection and machine learning. \textbf{Chapter~\ref{chap:4}} presents the Software Requirements Specification (SRS) of the proposed system. \textbf{Chapter~\ref{chap:5}} explains the proposed approach and methodology used for detection, prevention and evaluation. \textbf{Chapter~\ref{chap:6}} describes the high-level and low-level design of the system.
+\noindent The remainder of this report is organized as follows. \textbf{Chapter~\ref{chap:2}} contains the project scope, goals, and objectives. \textbf{Chapter~\ref{chap:3}} reviews the background research and related work on network intrusion detection and machine learning. \textbf{Chapter~\ref{chap:4}} presents the Software Requirements Specification (SRS) of the proposed system. \textbf{Chapter~\ref{chap:5}} explains the proposed approach and methodology used for detection, prevention and evaluation. \textbf{Chapter~\ref{chap:6}} describes the high-level and low-level design of the system.
 
 \section{Purpose of this Document}\label{sec:1.1}
 
-\noindent The purpose of this document is to present the design, development and evaluation of our Final Year Project, a \textbf{Network Intrusion Detection and Prevention System (NIDPS)} for small networks. The project aims to provide a practical security solution that can monitor network traffic, detect malicious or abnormal activity and respond to identified threats using a combination of signature-based detection and machine learning.
+\noindent The purpose of this document is to present the design, development and evaluation of our Final Year Project, a \textbf{Network Intrusion Detection and Prevention System (NIDPS)} for small networks. The project aims to provide a practical security solution that can monitor network traffic and detect malicious or abnormal activity and respond to identified threats using a combination of signature-based detection and machine learning.
 
-\noindent The main objective is to evaluate whether this hybrid approach can provide effective protection while remaining suitable for limited hardware. The research also examines how well machine learning models trained on public intrusion detection datasets perform when tested on different datasets and on real deployment traffic.
+\noindent The primary goal is to assess the protection level provided by this approach while maintaining its viability for limited hardware. The research also examines how well machine learning models trained on public intrusion detection datasets perform when tested on different datasets and on real deployment traffic.
 
-\noindent The main research questions focus on whether combining multiple detection techniques improves the detection of known and abnormal activity, whether the models can generalize across different network environments, and whether the complete system can operate efficiently without significantly affecting normal network performance.
+\noindent The main research questions concern whether a combination of diverse detection techniques helps in improving the recognition of both normal and abnormal activities, whether the models are capable of generalizing on different network environments, and whether the overall system can be operated efficiently without affecting the performance of the normal network significantly
 
 \noindent This report covers the project scope, related research, software requirements, methodology and system design.
 
 \section{Intended Audience}\label{sec:1.2}
 
-\noindent This report is primarily intended for the \textbf{Final Year Project evaluation panel, project advisor, faculty members and other academic reviewers} who will assess the technical quality, design, implementation and evaluation of the project.
+\noindent This report is mainly directed to the \textbf{Final Year Project evaluation panel, project advisor, faculty members and other academic reviewers} who will assess the technical quality, design, implementation and evaluation of the project.
 
-\noindent It may also be useful for \textbf{students, researchers and developers working in network security, intrusion detection or machine learning}, as it documents the proposed NIDPS architecture, detection methods, evaluation approach and practical deployment considerations.
+\noindent In addition, it may be useful for \textbf{students, researchers and developers working in the areas of network security, intrusion detection or machine learning}, as it describes the proposed NIDPS architecture, detection approaches, evaluation methodology and practical implementation considerations.
 
 \noindent The report is written with enough technical detail to explain the system clearly while keeping the discussion understandable for readers with a general background in computer science and cyber security.
 
@@ -65,8 +65,8 @@
 \textbf{AP} & Access Point \\ \hline
 \textbf{PCAP} & Packet Capture file containing recorded network traffic \\ \hline
 \textbf{NFQUEUE} & Linux Netfilter queue used to pass packets from the kernel to a user-space application for inspection \\ \hline
-\textbf{iptables} & Linux firewall utility used to configure packet filtering and traffic-control rules \\ \hline
-\textbf{ipset} & Linux utility used to maintain sets of IP addresses for efficient firewall matching and blocking \\ \hline
+\textbf{iptables} & Linux firewall utility used to configure packet filtering and rules for controlling traffic \\ \hline
+\textbf{ipset} & Linux utility used to maintain sets of IP addresses for firewall matching and blocking \\ \hline
 \textbf{Suricata} & Open-source network IDS/IPS used for signature-based traffic inspection \\ \hline
 \textbf{Isolation Forest} & Unsupervised machine learning algorithm used to detect abnormal or unusual network traffic \\ \hline
 \textbf{Flow} & A group of related packets identified using network properties such as source and destination addresses, ports and protocol \\ \hline
@@ -83,11 +83,11 @@
 
 \section{Conclusion}\label{sec:1.4}
 
-\noindent The proposed NIDPS aims to improve the security of small networks by combining multiple intrusion detection techniques within a single system. The project focuses on detecting both known and abnormal network activity while also considering practical issues such as encrypted traffic, limited hardware resources and system reliability. Chapter~\ref{chap:1} introduced the background, purpose and overall direction of the project. The following chapters discuss the related research, software requirements, proposed methodology and system design.
+\noindent The proposed NIDPS aims to improve the security of small networks by combining multiple intrusion detection techniques within a single system. The project focuses on the detection of both known and abnormal network behavior with regard to practical aspects like encrypted traffic or the limitations of the available hardware and system reliability. Chapter~\ref{chap:1} introduced the background, intention and general direction of the project. The following chapters elaborate on the related research, software requirements, proposed methodology and system design.
 
 \chapter{Project Vision}\label{chap:2}
 
-\noindent This chapter explains the overall vision of the proposed Network Intrusion Detection and Prevention System. It describes what the system is intended to do, the problem it addresses, the goals of the project, its scope, major constraints, relevant stakeholders, and the broader value of the proposed solution. Since this project includes both research and development, it focuses on building a working NIDPS as well as evaluating how well the selected intrusion detection techniques perform in different network environments.
+\noindent This chapter provides an overview of the proposed Network Intrusion Detection and Prevention System. It mainly focuses on describing the purpose of the system, the problem that the system aims to solve, project objectives, scope, major constraints, identifying stakeholders, and the benefits of the project. Since this project includes both research and development, it focuses on building a working NIDPS as well as evaluating how well the selected intrusion detection techniques perform in different network environments.
 
 \section{Problem Domain Overview}\label{sec:2.1}
 
@@ -101,7 +101,7 @@
 
 \noindent Existing intrusion detection approaches have their limitations. Signature based systems are effective against known attacks, but they may miss new attacks or modified versions of existing ones. Machine learning approaches can identify unusual traffic, but their performance may drop when they are used on a network that is different from the dataset on which they were trained.
 
-\noindent The problem addressed by this project is therefore the lack of an affordable and practical solution for small networks that can combine known-attack detection, anomaly detection, and attack classification while still running efficiently on limited hardware. The system must also be able to deal with encrypted traffic, avoid excessive false positives, and continue behaving safely if one of its components fails.
+\noindent The problem addressed by this project is therefore the lack of an affordable and practical solution for small networks that can combine known-attack detection, anomaly detection, and attack classification, while still run efficiently on limited hardware. The system must also be able to deal with encrypted traffic, avoid excessive false positives, and continue behaving safely if one of its components fails.
 
 \section{Problem Elaboration}\label{sec:2.3}
 
@@ -111,7 +111,7 @@
 
 \noindent \textbf{Second}, machine learning models often struggle when moved to a new environment. A model might get perfect scores on one dataset, but completely fail on a different network with different devices and user habits. To test real-world reliability, we evaluate our models across multiple datasets, like CIC-IDS-2017, CSE-CIC-IDS2018, and CIC-IoT-2023, as well as live traffic from our own access point.
 
-\noindent \textbf{Third}, most internet traffic is encrypted. Trying to decrypt network traffic slows down the hardware and invades user privacy. Instead of reading packet contents, the system looks at connection behavior, flow patterns, and unencrypted TLS handshake signatures like JA3 and JA3S.
+\noindent \textbf{Third}, most internet traffic is encrypted. Trying to decode network traffic is too taxing on the hardware and invasive to user privacy. Instead, the system reads connection behaviors, traffic patterns, and TLS handshake plaintexts (JA3 and JA3S).
 
 \noindent \textbf{Fourth}, automatic blocking can backfire if the system makes a mistake. While blocking bad actors via iptables and ipset stops attacks fast, false alarms can accidentally lock out real users. To prevent this, the response engine includes safeguards like allowlists, temporary blocks, and adjustable threat thresholds.
 
@@ -121,7 +121,7 @@
 
 \noindent The main goal of this project is to build and evaluate a practical hybrid NIDPS that protects small networks using both signature matching and machine learning.
 
-\noindent Key objectives include:
+\noindent The main objectives include:
 
 \begin{itemize}
 \item \textbf{Hardware \& Deployment:} Implement an inline NIDPS between client devices and the ISP gateway, complete with a watchdog and auto-recovery rules to prevent network downtime.
@@ -139,17 +139,17 @@
 \begin{itemize}
 \item \textbf{Multi-Layer Detection:} Combines Suricata to catch known attack rules, Isolation Forest to spot unusual traffic spikes, and Random Forest or XGBoost to figure out the exact attack type.
 \item \textbf{Encrypted Traffic Analysis:} Looks at connection patterns and unencrypted TLS signatures to check if a stream is safe, completely skipping payload decryption to keep user privacy intact.
-\item \textbf{Active Response:} Automatically kicks bad actors off the network by blocking their IP, while giving admins a simple web dashboard to manage alerts and track blocked devices.
-\item \textbf{Research \& Testing:} Benchmarks model accuracy across several benchmark datasets and real traffic captures from our setup, while making sure memory and CPU usage stay light on modest hardware.
+\item \textbf{Active Response:} Proactively take actions such as dropping the offending IP from a network by triggering automated responses while providing a intuitive web interface to triage and manage alerts and blocked devices.
+\item \textbf{Research and Testing:} Evaluate the accuracy of the framework against several benchmark datasets and network traffic captures from our infrastructure while maintaining memory and CPU footprint under reasonable limits for small scale hardware.
 \end{itemize}
 
-\subsection*{Key Deliverables}
+\subsection*{Key Deliverables} 
 
 \begin{itemize}
-\item A working NIDPS access point prototype with automated prevention and fail-safe controls.
-\item The complete ML model training, testing, and cross-dataset evaluation pipeline.
-\item A web management dashboard.
-\item Practical performance benchmarks (latency, resource usage, detection accuracy).
+\item A working NIDPS access point prototype with automated prevention and fail-safe controls
+\item The complete ML model training, testing, and cross-dataset evaluation pipeline
+\item A web management dashboard
+\item Practical performance benchmarks (latency, resource usage, detection accuracy)
 \item Full system design and research documentation.
 \end{itemize}
 
@@ -168,46 +168,51 @@
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.3\textwidth]{Figures/sdg16.png}
-\caption{UN Sustainable Development Goal targeted by the NIDPS.}
+\includegraphics[width=0.28\textwidth]{Figures/sdg9.png}
+\qquad
+\includegraphics[width=0.28\textwidth]{Figures/sdg16.png}
+\caption{The figures display the orange SDG 9 icon (Industry, Innovation, and Infrastructure) and blue SDG 16 icon (Peace, Justice, and Strong Institutions), representing resilient tech frameworks and safe digital environments.}
 \label{fig:2.1}
 \end{figure}
 
-\noindent Our project primarily aligns with the \textbf{Industry, Innovation and Infrastructure} SDG. Modern digital services rely heavily on secure and stable network connections. By adapting advanced threat detection for low-cost, resource-constrained hardware, this project offers an accessible way to make small scale networks more resilient against cyberattacks.
+\noindent Our project mainly focuses on \textbf{SDG 9: Industry, Innovation and Infrastructure}. Modern digital services rely heavily 
+on secure and stable network connections. By adapting advanced threat detection for low-cost, resource-constrained hardware, 
+this project offers an accessible way to make small scale networks more resilient against cyberattacks.
 
+\noindent It also contributes to \textbf{SDG 16: Peace, Justice and Strong Institutions} by supporting safe online spaces where users are protected against unauthorized access, data disclosure, and attacks on their network.
 
 \section{Constraints}\label{sec:2.7}
 
 \noindent Building and running this system comes with a few limitations:
 
 \begin{itemize}
-\item \textbf{Hardware Limits:} Low cost hardware cannot handle heavy software. Memory and CPU usage must stay low, which rules out heavy ML models.
-\item \textbf{Network Speed:} Sitting directly in the network path means any extra delay will slow down the internet. Traffic processing must be fast to keep connections smooth.
+\item \textbf{Hardware Constraints:} Low-cost hardware is unable to withstand the demands of resource-heavy software. Memory consumption, as well as processor utilization, must be kept at a minimum, which rules out the use of heavy ML models.
+\item \textbf{Network Latency:} Being in the middle of the track means that any additional delay introduced by the system will add up to the overall latency of the Internet. Traffic processing must be fast to keep connections smooth.   
 \item \textbf{Encrypted Traffic:} Since packet contents are hidden, reading payloads is off the table. The ML side has to rely only on connection patterns and TLS details.
 \item \textbf{Data Limits:} Public security datasets do not cover every real-world scenario. That is why testing across multiple datasets and live traffic is necessary.
 \item \textbf{Coverage Gaps:} The system can only monitor devices that connect directly through its access point. Any device using a different network stays invisible.
-\item \textbf{Blocking Mistakes:} Blocking too aggressively locks out real users, but loose rules let threats through. Finding the right balance requires careful tuning and safety defaults.
+\item \textbf{Blocking Mistakes:} Too aggressive blocking prevents legitimate users, while too lenient allows threats through, requires careful adjustment and default safety settings.
 \end{itemize}
 
 \section{Business Opportunity}\label{sec:2.8}
 
-\noindent Most small offices, research labs, and home users cannot afford expensive corporate security gear. They also lack dedicated IT teams to manage complicated setups. This opens up a clear opportunity for a simple, low cost security solution built on standard Linux hardware. By securing traffic right at the main access point, it protects every connected device at once, without needing extra software installed on each phone or laptop. While this project is centered on research and a working prototype, it builds a solid base for a practical product aimed at smaller networks.
+\noindentMost small offices, research labs, and home users cannot afford costly corporate security tools. Moreover, they rarely have a competent IT staff that would be able to constantly monitor and adjust complicated security software. This makes an affordable Linux-based solution that uses standard security hardware attractive. It makes all devices connected to it secure without any additional software. By only implementing the traffic control at the regional access point level, it makes all the devices connected to it safe and secure without any additional hassle. While this project is centered on research and a working prototype, it builds a solid base for a practical product aimed at smaller networks.
 
 \section{Stakeholders Description/ User Characteristics}\label{sec:2.9}
 
 \noindent \textbf{Network Owners and Admins:} The primary users of the system which involve configuration of alerts, blocked devices, and system preferences. Since these are not security experts, the system is designed to provide informative feedback and employ safety defaults.
 
-\noindent \textbf{Regular Network Users:} These are the individuals and devices which access the WI-FI network. They are not direct users of the dashboard but benefit from its existence as it helps protect and optimize the network.
+\noindent \textbf{Regular Network Users:} These are the individuals and devices which access the WI-FI network. They are not direct users of the dashboard, but benefit from its existence, as it helps to maintain and optimize the network.
 
-\noindent \textbf{The Project Team:} This team is responsible for developing the system, including coding, training, and testing the algorithms.
+\noindent \textbf{The Project Team:} This team is responsible for the development of the system, including the coding, training, and testing of algorithms.
 
-\noindent \textbf{Advisors and Evaluators:} Faculty members who review the details of the research, evaluate the code, and ensure that the project meets its objectives.
+\noindent \textbf{Advisors and Evaluators:} Faculty members who review the details of the research, evaluate the code, and ensure that the project's objectives are met.
 
 \noindent \textbf{Future Researchers:} Potential students and developers who will review the project's details and possibly adopt it in their own research.
 
 \section{Conclusion}\label{sec:2.10}
 
-\noindent The contents of chapter 2 provided an overview of the proposed NIDPS project, which included the problem statement, major aspects and issues, and objectives of the intended solution. In this chapter, we have discussed the project scope, its key objectives, constraints, and stakeholders, as well as the potential benefits for business, and specified the relevant Sustainable Development Goal. Thus, this chapter sets the course and boundaries of the project, providing the basis for the requirements, methods, design, and implementation that will be elaborated in subsequent chapters.
+\noindent The contents of chapter 2 provided an overview of the proposed NIDPS project, which included the problem statement, major aspects and issues, and objectives of the intended solution. In this chapter, we have discussed the project scope, key objectives, constraints, stakeholders, and potential benefits for business, and specified the relevant Sustainable Development Goal. Thus, this chapter sets the course and boundaries of the project, providing the basis for the requirements, methods, design, and implementation that will be elaborated in subsequent chapters.
 
 \chapter{Literature Review / Related Work}\label{chap:3}
 
@@ -552,10 +557,10 @@
 \noindent The strengths and weaknesses of this work are:
 
 \begin{itemize}
-\item It considers deployment efficiency in addition to detection accuracy, which many intrusion detection works ignore.
-\item It shows that reducing the number of features greatly improves inference speed without sacrificing accuracy, which suits edge environments.
-\item The evaluation is limited to CICIoT2023, so generalisation to other networks is not shown; the authors list cross-dataset validation and streaming conditions as future work.
-\item Edge suitability is judged from latency measurements rather than a full deployment on a low-power gateway, and only flow-level features are used.
+\item It takes into account both the deployment efficiency and detection accuracy, which many intrusion detection works failed to consider.
+\item It demonstrates that reducing the feature set significantly increases the inference speed without hurting the accuracy, which is particularly suitable for edge computing scenarios.
+\item The evaluation was restricted to the CICIoT2023, therefore, the extent to which the method can be generalized to other network types has yet to be demonstrated, however, the authors have pointed out that cross-validation on different datasets and streaming conditions are possible future work.
+\item Edge-suitability was evaluated in terms of latency rather than actual deployment on a low-power gateway and only the flow-level features are used.
 \end{itemize}
 
 \subsubsection{Relationship to the Proposed Research Work}\label{sec:3.2.14.3}
