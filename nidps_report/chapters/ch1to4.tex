@@ -689,7 +689,7 @@ Cross-dataset generalisation of deep IDS models~\cite{lr:xin2025} & 2025 & Trans
 
 \chapter{Software Requirement Specifications}\label{chap:4}
 
-\noindent This chapter specifies the requirements of the proposed Network Intrusion Detection and Prevention System (NIDPS). It describes what the system must do, how well it must do it, and the conditions under which it operates, in enough detail for the system to be built and tested against it. The chapter begins with the list of features and the functional requirements, grouped by module. It then states the quality attributes and the measurable non-functional requirements, followed by the assumptions on which the specification rests. The main interactions between users and the system are described as use cases. The chapter closes with the hardware and software requirements, the design of the graphical user interface, the database design and an analysis of project risks. Requirements are given identifiers (for example FR-2.1) so that they can be traced to the design in Chapter~\ref{chap:6} and to the tests in Section~\ref{sec:6.6.6}.
+\noindent This part will explain the requirements of the proposed Network Intrusion Detection and Prevention System. It will go through the workings of the system, what its required benchmarks are and the conditions in which it can be used. The level of detail will be such that it can be properly built and tested. We start with a feature list and functional requirements which have been categorized. Further on we discuss quality attributes and non-functional requirements followed by assumptions regarding the system. Interactions between different users and the system are modeled as use cases. The chapter closes with the hardware and software requirements, the design of the graphical user interface, the database design and an analysis of project risks. Requirements are given identifiers (for example FR-2.1) so that they can be traced to the design in Chapter~\ref{chap:6} and to the tests in Section~\ref{sec:6.6.6}.
 
 \noindent The system has five classes of users or actors, which are referred to throughout this chapter:
 
@@ -714,17 +714,17 @@ Cross-dataset generalisation of deep IDS models~\cite{lr:xin2025} & 2025 & Trans
 \hline
 \textbf{ID} & \textbf{Feature} & \textbf{Description} \\ \hline
 \endhead
-NIDPS-1 & Inline wireless access point & Acts as the visible network in the system. All devices connect to it. It provides WiFi, DHCP, DNS and NAT before passing the connection on to the router. \\ \hline
-NIDPS-2 & Signature-based detection (Layer 1) & Checks every packet that passes through using Suricata \\ \hline
-NIDPS-3 & Flow extraction and TLS fingerprinting & Groups up related packets and assigns them 78 features. It can identify details from encrypted packets as well. \\ \hline
+NIDPS-1 & Inline wireless access point & Acts as the visible network in the system. Any device wanting to connect to the protected network will see this and establish a connection to it instead. \\ \hline
+NIDPS-2 & Detection based on signatures (Layer 1) & Checks every packet that passes through using Suricata. \\ \hline
+NIDPS-3 & TLS fingerprints and flow extraction & Groups up related packets and assigns them 78 features. It can identify details from encrypted packets as well. \\ \hline
 NIDPS-4 & Anomaly detection (Layer 2) & An Isolation Forest will be trained on normal traffic relative to the local network it is placed in and will be able to detect an anomaly score for traffic. \\ \hline
-NIDPS-5 & Attack classification (Layer 3) & Once attacks or anomalies have been detected, they are then reused and classified into specific families through Random Forest or XGBoost. \\ \hline
+NIDPS-5 & Classification of attacks (Layer 3) & Once attacks or anomalies have been detected, they are then reused and classified into specific families through Random Forest or XGBoost. \\ \hline
 NIDPS-6 & Decision fusion & Collects the decisions from each layer and decides whether traffic may pass through or the device should be blocked due to frequent anomalous traffic. \\ \hline
-NIDPS-7 & Automated prevention & It will block identified hosts that are dangerous by blocking their IP address, there will be a specific whitelist as well for unique cases. Features eventual expiry as well. \\ \hline
-NIDPS-8 & Fault tolerance & Takes care of all components with a watchdog system, if some system fails the watchdog may close the network, or let traffic pass through free depending on configuration. \\ \hline
+NIDPS-7 & Dynamic blocking & It will block identified hosts that are dangerous by blocking their IP address, there will be a specific whitelist as well for unique cases. Features eventual expiry as well. \\ \hline
+NIDPS-8 & Recovery mechanism & Takes care of all components with a watchdog system, if some system fails the watchdog may close the network, or let traffic pass through free depending on configuration. \\ \hline
 NIDPS-9 & Monitoring & An interface available on the network's LAN which will show statistics and alerts including all configuration settings. \\ \hline
 NIDPS-10 & Configurations & The administrator can edit or turn off the layers, change thresholds for detection, change failsafe actions and manage black/whitelists. \\ \hline
-NIDPS-11 & Logs and storage & Stores alerts, traffic logs, configurations in files and databases. \\ \hline
+NIDPS-11 & Logging and storage & Stores alerts, traffic logs, configurations in files and databases. \\ \hline
 NIDPS-12 & Training and versioning & The system can train and test its models using the collected data. Each version is tagged so it can be returned to. \\ \hline
 NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and thresholds updated. Older data outside of the limit deleted. \\ \hline
 \end{longtable}
@@ -737,9 +737,9 @@ NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and 
 \subsection{NIDPS-1: Inline Wireless Access Point}\label{sec:4.2.1}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-1.1}] The system shall act as a wireless access point with a configurable network name (SSID) and WPA2/WPA3 password.
-\item[\textbf{FR-1.2}] The system shall assign IP addresses to connected devices using DHCP.
-\item[\textbf{FR-1.3}] The system shall act as the only DNS server for connected devices.
+\item[\textbf{FR-1.1}] The system shall act as a WAP, and its network name will be configurable along with being password protected.
+\item[\textbf{FR-1.2}] The system shall assign IP addresses to any devices that are connected using DHCP.
+\item[\textbf{FR-1.3}] The system shall be acting as the DNS server for any connected devices.
 \item[\textbf{FR-1.4}] The system shall pass client traffic on to the ISP router using NAT over its wired connection.
 \item[\textbf{FR-1.5}] The system shall stop wireless clients from talking to each other directly, so that traffic between them also passes through the NIDPS.
 \end{itemize}
@@ -755,12 +755,12 @@ NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and 
 \item[\textbf{FR-2.6}] The system shall pass every alert, with its source, destination, rule and severity, on to the other layers.
 \end{itemize}
 
-\subsection{NIDPS-3: Flow Extraction and TLS Fingerprinting}\label{sec:4.2.3}
+\subsection{NIDPS-3: TLS Fingerprints and Flow Extraction}\label{sec:4.2.3}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-3.1}] The system shall group related packets into flows, where each flow is one conversation between two devices in both directions.
-\item[\textbf{FR-3.2}] The system shall end a flow when the connection closes or after a set period of inactivity (default 30 seconds) or activity (default 10 seconds).
-\item[\textbf{FR-3.3}] The system shall calculate 78 features for each flow as packets arrive, without storing the packets themselves.
+\item[\textbf{FR-3.1}] The system shall group packets into flows, where a flow is a connection/conversation between devices.
+\item[\textbf{FR-3.2}] The system shall end a flow when it is closed, when inactive for a set amount of time, or when it has been active for a set amount of time.
+\item[\textbf{FR-3.3}] The system shall extract 78 features for flows from the packets that arrive.
 \item[\textbf{FR-3.4}] The system shall read identifying details (JA3, JA3S and SNI) from encrypted TLS connections and attach them to the flow, without decrypting the traffic.
 \end{itemize}
 
@@ -775,11 +775,11 @@ NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and 
 \item[\textbf{FR-4.6}] The system shall flag devices that contact the same destination at regular intervals with similar-sized messages (possible C2 beaconing).
 \end{itemize}
 
-\subsection{NIDPS-5: Attack Classification (Layer 3)}\label{sec:4.2.5}
+\subsection{NIDPS-5: Classification of Attacks (Layer 3)}\label{sec:4.2.5}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-5.1}] The system shall sort each flow into one of the following classes using Random Forest or XGBoost: Benign, Reconnaissance, Brute Force, DoS/DDoS, Botnet/C2, Spoofing, or Infiltration/Lateral Movement.
-\item[\textbf{FR-5.2}] The system shall give a confidence value for each classification.
+\item[\textbf{FR-5.1}] The system shall sort every flow into a class using XGBoost or Random Forest. The possible classifications are DoS/DDoS, Botnet/C2, Infiltration, Spoofing, Reconnaissance, Benign.
+\item[\textbf{FR-5.2}] The system shall evaluate each classification and give it a confidence score.
 \item[\textbf{FR-5.3}] The system shall label a flow as "unknown" when the model's confidence is too low, instead of forcing it into a class.
 \end{itemize}
 
@@ -792,25 +792,25 @@ NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and 
 \item[\textbf{FR-6.4}] The system shall block a device when its risk score reaches the block threshold.
 \end{itemize}
 
-\subsection{NIDPS-7: Automated Prevention}\label{sec:4.2.7}
+\subsection{NIDPS-7: Dynamic Blocking}\label{sec:4.2.7}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-7.1}] The system shall block a dangerous device by adding its IP address to a block list.
-\item[\textbf{FR-7.2}] The system shall remove each block automatically once its time runs out.
-\item[\textbf{FR-7.3}] The system shall never block devices on the allowlist, which includes the NIDPS itself, the router, the DNS server and the administrator's devices.
+\item[\textbf{FR-7.1}] The system shall block a device that it has deemed risky by placing its IP address/MAC address into a block/blacklist.
+\item[\textbf{FR-7.2}] The system shall remove members from the block list once the set cooldown timer has passed.
+\item[\textbf{FR-7.3}] The system shall have an allow/whitelist, and it shall never block any devices on it. It must necessarily include the NIDPS itself, any routers, DNS and admin devices as well.
 \item[\textbf{FR-7.4}] The system shall double the block time each time the same device is blocked again within 24 hours, up to a set maximum.
 \item[\textbf{FR-7.5}] The system shall stop blocking and only raise alerts if too many blocks happen within one minute, and warn the administrator.
 \item[\textbf{FR-7.6}] The system shall log every block, skipped block and release.
 \end{itemize}
 
-\subsection{NIDPS-8: Fault Tolerance}\label{sec:4.2.8}
+\subsection{NIDPS-8: Recovery Mechanism}\label{sec:4.2.8}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-8.1}] The system shall have a watchdog that checks each component every second.
-\item[\textbf{FR-8.2}] The system shall treat a component as failed if it misses three checks in a row or stops running, and restart it automatically.
-\item[\textbf{FR-8.3}] The system shall, while a component is down, either let all traffic through (fail-open), block all traffic (fail-closed) or run with reduced checking (degraded), depending on configuration.
-\item[\textbf{FR-8.4}] The system shall switch to degraded mode and check only some flows when it becomes overloaded, and return to normal once the load drops.
-\item[\textbf{FR-8.5}] The system shall log when each failure happened, which mode was used, when it recovered and how many packets were affected.
+\item[\textbf{FR-8.1}] The system shall contain a watchdog per component which it must feed every few seconds.
+\item[\textbf{FR-8.2}] The system shall assume that a part of the system has failed if it misses some amount of watchdog checks or stops running completely, at which point it will try to restart it.
+\item[\textbf{FR-8.3}] The system shall, upon the failure of a component, switch to one of three modes: let all traffic through unfiltered, block all traffic or run with reduced functionality.
+\item[\textbf{FR-8.4}] The system shall switch to a low functionality mode when it is overwhelmed and switch back when it can handle the load.
+\item[\textbf{FR-8.5}] The system shall, upon failure, create logs that detail when it happened, in what mode and the affected packets before recovery.
 \end{itemize}
 
 \subsection{NIDPS-9: Monitoring}\label{sec:4.2.9}
@@ -836,12 +836,12 @@ NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and 
 \item[\textbf{FR-10.6}] The system shall apply configuration changes without restarting, and log who made each change and what was changed.
 \end{itemize}
 
-\subsection{NIDPS-11: Logs and Storage}\label{sec:4.2.11}
+\subsection{NIDPS-11: Logging and Storage}\label{sec:4.2.11}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-11.1}] The system shall store alerts, decisions, blocks, risk scores, calibration data, health events and configuration in a local database.
-\item[\textbf{FR-11.2}] The system shall not store packet contents during normal operation.
-\item[\textbf{FR-11.3}] The system shall let the administrator export alerts and blocks for a chosen time period as a CSV file.
+\item[\textbf{FR-11.1}] The system shall store any alert notifications, potential alerts and blocks, calculated risk scores, configuration data and health statuses in a log file or database.
+\item[\textbf{FR-11.2}] The system shall make sure not to store actual packet data during operation.
+\item[\textbf{FR-11.3}] The system shall let the admin select a block of time and export alerts, blacklists or other operational data in a preferable format such as CSV.
 \end{itemize}
 
 \subsection{NIDPS-12: Training and Versioning}\label{sec:4.2.12}
@@ -849,8 +849,8 @@ NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
 \item[\textbf{FR-12.1}] The system shall build training data using the same flow extractor that runs on the device.
 \item[\textbf{FR-12.2}] The system shall train and test models offline.
-\item[\textbf{FR-12.3}] The system shall save each model as a package that includes the model, its feature list, extractor version, classes, training date and test results.
-\item[\textbf{FR-12.4}] The system shall refuse to load a model that does not match the current flow extractor.
+\item[\textbf{FR-12.3}] The system shall be able to save each model in a package, which will include what model it is, the extractor version, classes, feature list and training date.
+\item[\textbf{FR-12.4}] The system shall not be able to load a model that does not follow the flow extractor rules and architecture.
 \item[\textbf{FR-12.5}] The system shall keep the previous model so the administrator can return to it in one step.
 \end{itemize}
 
@@ -858,8 +858,8 @@ NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and 
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
 \item[\textbf{FR-13.1}] The system shall download and test new rules every day, and keep using the old rules if the test fails.
-\item[\textbf{FR-13.2}] The system shall recalibrate the anomaly threshold every week.
-\item[\textbf{FR-13.3}] The system shall delete flow records older than the retention period (default 7 days).
+\item[\textbf{FR-13.2}] The system shall recalculate and adjust the anomaly threshold by looking at traffic at the end of a set time such as after a week.
+\item[\textbf{FR-13.3}] The system shall delete records about flows after a set time frame has passed, which will be a week by default.
 \end{itemize}
 
 \section{Quality Attributes}\label{sec:4.3}
@@ -876,77 +876,77 @@ NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and 
 \textbf{Attribute} & \textbf{Meaning for the NIDPS} & \textbf{How it is achieved} \\ \hline
 \endhead
 Performance & The NIDPS must not noticeably slow the network and must react to attacks quickly. & Only the kernel and Suricata sit in the forwarding path; ML runs on flows beside the path; lightweight tree models; ipset lookups in constant time. \\ \hline
-Availability & A failure of the NIDPS must not leave the household without internet unless the owner chose that. & Fail-open default enforced by the kernel; automatic service restarts; blocks that expire on their own. \\ \hline
-Reliability & Detection must keep working under load and recover from faults in a defined way. & Watchdog with heartbeats; degraded mode with hysteresis; per-service isolation; recovery events logged. \\ \hline
-Security & The NIDPS itself must not become an easy target or a tool against its own users. & Authenticated LAN-only dashboard; allowlist; block rate limit; models loaded only from a protected directory; no pickle loading for XGBoost. \\ \hline
-Privacy & Household traffic must stay private. & No TLS decryption; no payload storage; only metadata and alerts kept, with a retention limit. \\ \hline
-Accuracy & Attacks must be detected with few false alarms. & Three complementary layers; decision fusion requiring strong or corroborated evidence; per-network threshold calibration. \\ \hline
-Usability & A non-expert must be able to understand alerts and act on them. & Plain-language alert explanations; safe defaults; one-click unblock; clear health indicators. \\ \hline
-Maintainability & Rules, models and thresholds must be easy to update. & Versioned model packages with rollback; separate custom rule file; single configuration file; modular services. \\ \hline
-Extensibility & New detectors and responses must be addable without rewriting the system. & Common Detector interface; publish/subscribe event bus; JA3 extraction isolated so it can be replaced by JA4. \\ \hline
+Availability & A failure of the NIDPS must not leave the household without internet unless the owner chooses that. & By default, if the NIDPS fails, it will simply let traffic pass through it, it will try to restart any failed components and will have blocks that expire after a timeframe. \\ \hline
+Reliability & The NIDPS should be able to work under high network traffic loads and be able to recover from faults. & Implement a watchdog that must be fed, create a degraded mode for heavy loads and log any failure and recovery occurrences. \\ \hline
+Security & The NIDPS must be secure enough to survive attacks and must not attack its valid users. & Create a dashboard only accessible when authenticated through a LAN, add a limit to the block rate, models are loaded from a protected directory. \\ \hline
+Privacy & Any traffic that is collected during operation should be kept private. & When traffic is passing through, only keep important information such as metadata or alerts with a window size limit. \\ \hline
+Accuracy & Attacks should be detected with a good detection rate and few false alarms. & Three-layer design, fusing decisions to reach a conclusion, calibration to the current network. \\ \hline
+Usability & Someone who is not well versed in networking should also be able to understand when alerts occur and how to act on them. & Alerts should be explainable in plain language, default settings should be clear and safe, one click to block/unblock threats and health indications. \\ \hline
+Maintainability & The models, training thresholds and rules should be easy to build on or update. & Models should be tagged and versioned with the ability to roll back, rule and configuration setting files should be available. \\ \hline
+Extensibility & New types of detectors or response types should be easily addable into the system without a full rewrite. & There should be a common interface for detectors along with a publish/subscribe event bus and JA3 extraction should be in its own module to be replaced/changed later. \\ \hline
 Testability & Each layer and the full pipeline must be measurable. & Layers can be toggled at runtime for ablation; PCAP replay; fault injection; every decision logged with its evidence. \\ \hline
-Portability & The system should run on different low-cost Linux devices. & Standard Debian-based Linux components; Python services; no hardware-specific code apart from the wireless driver. \\ \hline
+Portability & The system should run on different low-cost Linux devices. & Only requires a standard Linux install, with Python services. No part of the code requires specialized hardware. \\ \hline
 \end{longtable}
 }
 
 \section{Non-Functional Requirements}\label{sec:4.4}
 
-\noindent The non-functional requirements set measurable targets for how well the system must perform. The numbers apply to the reference setup: a Raspberry Pi 4 with 4 GB RAM serving a home network of up to 30 devices. These are design targets that will be tested, and adjusted if needed, during the evaluation in Section~\ref{sec:5.10}.
+\noindent The NFRs will measure the statistics of how the system will perform. The goal is to allow the system to run on a Raspberry Pi with around 4 GB RAM or a mid-tier laptop to serve a home/small office network of 30 or more devices. These are design targets that will be tested, and adjusted if needed, during the evaluation in Section~\ref{sec:5.10}.
 
 \subsection{Performance}\label{sec:4.4.1}
 
 \begin{itemize}
-\item \textbf{NFR-1} The system shall add no more than 200 ms of delay (median round-trip time) under normal household use, with all layers turned on.
-\item \textbf{NFR-2} The system shall handle at least 50 Mbps of traffic with all layers turned on, and the maximum speed it can handle shall be measured and reported.
-\item \textbf{NFR-3} The system shall score each flow with the machine learning layers (Layers 2 and 3) in no more than 10 ms (median).
-\item \textbf{NFR-4} The system shall apply a block within 1 second of deciding to block a device.
-\item \textbf{NFR-5} The system shall produce a machine learning decision for long-running connections no later than 1 second after the active timeout.
+\item \textbf{NFR-1} The system shall only add an upper limit of 200 ms of delay onto devices under normal loads.
+\item \textbf{NFR-2} The system shall be able to support 50 Mbps of traffic with all layers active.
+\item \textbf{NFR-3} The system shall analyze each flow and then assign a risk score to its device in no more than 15 ms.
+\item \textbf{NFR-4} The system shall, when it has recognized an anomalous device, block it within 1 second.
+\item \textbf{NFR-5} The system shall come to a decision regarding long-running connections in about a second after it has timed out.
 \end{itemize}
 
 \subsection{Capacity}\label{sec:4.4.2}
 
 \begin{itemize}
-\item \textbf{NFR-6} The system shall support at least 30 connected devices and at least 5 people using the dashboard at the same time.
+\item \textbf{NFR-6} The system shall support up to 30 devices connected at the same time along with 5 people using the dashboard.
 \end{itemize}
 
-\subsection{Resource Use}\label{sec:4.4.3}
+\subsection{Resource Usage}\label{sec:4.4.3}
 
 \begin{itemize}
-\item \textbf{NFR-7} The system shall use less than 70\% CPU and less than 3 GB of memory on average under normal household use, leaving room for traffic spikes.
+\item \textbf{NFR-7} The system shall use around a maximum of 70\% of a lower-end Pi CPU and no more than 4 GB of memory at a given time.
 \end{itemize}
 
 \subsection{Reliability and Availability}\label{sec:4.4.4}
 
 \begin{itemize}
-\item \textbf{NFR-8} The system shall detect a failed component within 3 seconds and restart it within 30 seconds in at least 95\% of tested failures.
-\item \textbf{NFR-9} The system shall keep the internet connection working without interruption in fail-open mode when any detection component fails.
+\item \textbf{NFR-8} The system shall be able to detect failure and start resetting within 3 seconds. The system should not take more than 30 seconds to restart in normal conditions.
+\item \textbf{NFR-9} The system shall let all packets pass through it undiagnosed in case fail-open mode is activated to not interrupt the connection.
 \end{itemize}
 
 \subsection{Accuracy}\label{sec:4.4.5}
 
 \begin{itemize}
-\item \textbf{NFR-10} The system shall raise alerts on no more than 1\% of normal traffic after calibration, and shall not block any normal device during a one-week test.
-\item \textbf{NFR-11} The system shall detect attacks more accurately (higher macro F1-score) than Suricata on its own, using the self-collected test data.
+\item \textbf{NFR-10} The system shall not raise false positives on more than 1\% of normal traffic and not block any devices during a week of testing.
+\item \textbf{NFR-11} The system shall be able to detect more attacks than Suricata alone using its three-layered architecture, measured by macro F1-score.
 \end{itemize}
 
 \subsection{Security}\label{sec:4.4.6}
 
 \begin{itemize}
-\item \textbf{NFR-12} The system shall only allow dashboard access from the local network, require a login, store passwords securely as salted hashes, and lock an account for 5 minutes after 5 wrong password attempts.
-\item \textbf{NFR-13} The system shall run all detection services without admin privileges, except those that need network access to work.
+\item \textbf{NFR-12} The system shall only allow access to the dashboard from the local network; it will store passwords in salted hashes and block in case of many incorrect login attempts.
+\item \textbf{NFR-13} The system shall be able to run all detection algorithms without admin privileges if they do not require network access.
 \end{itemize}
 
 \subsection{Privacy}\label{sec:4.4.7}
 
 \begin{itemize}
-\item \textbf{NFR-14} The system shall not save packet contents or decrypted data during normal operation, and shall delete flow records after the retention period (default 7 days).
+\item \textbf{NFR-14} The system shall not save any specific data about packets or flows and delete them after a set timeframe (defaults to 1 week).
 \end{itemize}
 
 \subsection{Usability}\label{sec:4.4.8}
 
 \begin{itemize}
-\item \textbf{NFR-15} The system shall allow a non-expert user to find out why a device was blocked and unblock it within 1 minute, without needing a manual.
-\item \textbf{NFR-16} The system shall include a plain-language description of the suspected attack and the layer that detected it with every alert.
+\item \textbf{NFR-15} The system shall be simple enough that a non-technical user can understand what caused a failure and unblock it within a few minutes.
+\item \textbf{NFR-16} The system shall have a simplified explanation for the type of attack found, layer that detected it and other such information in alerts/logs.
 \end{itemize}
 
 \subsection{Maintainability}\label{sec:4.4.9}
@@ -965,7 +965,7 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \subsection{Portability}\label{sec:4.4.11}
 
 \begin{itemize}
-\item \textbf{NFR-20} The system shall install with a single script on any 64-bit Debian-based ARM or x86 device that meets the hardware requirements in Section~\ref{sec:4.7.1}.
+\item \textbf{NFR-20} The system shall be installed with a single script on any 64-bit Debian-based ARM or x86 device that meets the hardware requirements in Section~\ref{sec:4.7.1}.
 \end{itemize}
 
 \section{Assumptions}\label{sec:4.5}
@@ -980,7 +980,7 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \item The administrator is not a security expert. Default settings must therefore be safe without tuning.
 \item Periodic internet access is available for ruleset updates.
 \item Most traffic is encrypted with TLS or QUIC, so payload inspection is not possible for the ML layers. Detection of encrypted traffic relies on flow metadata and handshake fingerprints only.
-\item The public datasets (CIC-IDS-2017, CSE-CIC-IDS2018 and CIC-IoT-2023) and their raw PCAP files remain available for download.
+\item The public datasets (CIC-IDS-2017, CSE-CIC-IDS2018 and CIC-IoT-2023) and their raw PCAP files remain available for downloading.
 \item Attack traffic for the self-collected dataset is generated only on an isolated network owned by the project team, against the team's own devices.
 \item Traffic observed during the calibration window is mostly benign; flows flagged by Suricata during this window are excluded.
 \item The household traffic volume does not exceed the measured capacity of the device for long periods; short peaks are handled by degraded mode.
@@ -988,7 +988,7 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 
 \section{Use Cases}\label{sec:4.6}
 
-\noindent This section describes the main use cases of the NIDPS. Figure~\ref{fig:4.1} shows the use case diagram with the actors introduced at the beginning of this chapter. The use cases that represent the central functionality of the system, namely automatic detection and blocking, failure handling and the administrator's main tasks on the dashboard, are then described in detail in tabular form. In each table, the Basic Flow is written as a dialogue between the actor and the system, and the Alternative Flow describes exceptions; step numbers with a suffix (for example 4-A) replace the step of the basic flow with the same number.
+\noindent This section describes the main use cases of the NIDPS. Figure~\ref{fig:4.1} shows the use case diagram with the actors introduced at the beginning of this chapter. The use cases that represent the central functionality of the system, namely automatic detection and blocking, failure handling and the administrator's main tasks on the dashboard, are then described in detail in tabular form. The tables include a basic flow, which is the path followed in normal circumstances, and an alternate flow, where a suffix will represent replacing a basic flow step with that same number.
 
 \begin{figure}[!htbp]
 \centering
@@ -1006,14 +1006,14 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \endhead
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-01: Log In to Dashboard}} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator enters a username and password on the login page. After successful verification, the system establishes a session and shows the overview page.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator's device is connected to the NIDPS network (LAN side).\newline An administrator account exists.\newline The administrator is not already logged in.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{An authenticated session is established and the overview page is displayed.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The admin will enter their login credentials on the sign in page. Once verified they will be taken to the dashboard.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator's device is connected to the NIDPS network (LAN side).\newline An administrator account exists.\newline The administrator is not currently logged in.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Credentials are authenticated, a new session is established and the home page is displayed.} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Passwords are stored as salted hashes. The account is locked for 5 minutes after 5 consecutive failed attempts (NFR-12).} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
-1 & The administrator opens the dashboard address in a browser. & 2 & The system displays the login page asking for username and password. \\ \hline
-3 & The administrator enters a valid username and password and presses Log In. & 4 & The system verifies the credentials, creates a session, records the login in the audit log and displays the overview page. \\ \hline
+1 & The administrator will enter the address of the dashboard in the browser and open the page. & 2 & The webpage will display the login page, prompting for username and password. \\ \hline
+3 & The administrator will enter provided valid credentials and click Log In. & 4 & The system will verify the credentials and create a session. Along with this a record is created in the audit log and the home page is displayed. \\ \hline
 \multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
 3 & The administrator enters an invalid username or password. & 4-A & The system shows the message "Incorrect username or password" and increments the failed-attempt counter. \\ \hline
 3 & The administrator enters wrong credentials for the fifth consecutive time. & 4-B & The system locks the account for 5 minutes and shows the time remaining. \\ \hline
@@ -1031,7 +1031,7 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator views real-time throughput, flows per second, alert and block counts per detection layer, attack category distribution and per-device traffic.} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Live statistics are displayed and keep updating while the page is open.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Statistics are displayed and update after a certain period of time.} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Statistics refresh at least every 2 seconds (FR-9.2).} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
@@ -1059,7 +1059,7 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Each alert includes a plain-language description of the suspected attack (NFR-16).} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
-1 & The administrator opens the Alerts page. & 2 & The system displays the most recent alerts with time, source, destination, attack class, detecting layer, confidence and verdict. \\ \hline
+1 & The administrator will click to open the alerts section. & 2 & The system will display the most important statistics such as recent alerts, threats, layers detected, confidence and action taken. \\ \hline
 3 & The administrator filters by severity, layer, host or time range. & 4 & The system displays only the matching alerts. \\ \hline
 5 & The administrator selects an alert. & 6 & The system shows the evidence panel: Suricata signature, anomaly score and threshold, class probabilities, host risk history and the flow record. \\ \hline
 7 & The administrator marks the alert as reviewed. & 8 & The system records the review in the audit log. \\ \hline
@@ -1080,14 +1080,14 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Attacker (initiator), System} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Traffic from an attacker is detected by one or more layers. The decision engine issues a BLOCK verdict, and the enforcer adds the attacker's address to the block set for a limited time and notifies the dashboard.} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The NIDPS is running with at least one detection layer enabled.\newline The attacker's traffic passes through the NIDPS.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The attacker's address is in the block set with an expiry time.\newline An audit record and a dashboard event exist for the block.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Blocking must take effect within 1 second of the verdict (NFR-4). Allowlisted addresses are never blocked (FR-7.3).} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The attacker's address is in the block set with an expiry time.\newline A record is logged and a notification appears in the dashboard regarding the block.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Blocking the malicious IP must happen no more than 1 second after the decision is made (NFR-4). IPs in the allowlist cannot be blocked (FR-7.3).} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
-1 & The attacker sends malicious traffic (for example an SSH brute-force attempt or a beaconing connection). & 2 & Suricata inspects the packets inline; the flow extractor builds flow records with features and TLS fingerprints. \\ \hline
- & --- & 3 & Layer 1 raises an alert and/or Layers 2 and 3 score the flow; the evidence is published on the event bus. \\ \hline
- & --- & 4 & The decision engine applies the verdict algorithm and returns BLOCK with the responsible layer(s). \\ \hline
- & --- & 5 & The enforcer checks the allowlist and rate limit, computes the block duration, adds the address to the ipset and writes an audit record. \\ \hline
+1 & The attacker attempts to send harmful traffic. & 2 & Suricata will inspect the packets as they pass inline, the flow extractor will build connections using features and fingerprints. \\ \hline
+ & --- & 3 & The first layer will activate an alert, the others may score the flow, and this will be published onto the event bus. \\ \hline
+ & --- & 4 & The algorithm is run to combine the decisions, and it should return BLOCK along with which layers chose it. \\ \hline
+ & --- & 5 & The enforcement component checks the allowlist and the rate limit, then computes the block duration. The address is added to ipset and the record is logged. \\ \hline
 6 & The attacker continues sending traffic. & 7 & Packets from the attacker are dropped in the kernel before reaching Suricata. The dashboard shows the new block. \\ \hline
 \multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
 3 & Evidence is weak (for example an anomaly score just above $\tau$ only). & 3-A & The verdict is ALERT; evidence is added to the host's risk score, and the host is blocked only if its score reaches $\Theta$. \\ \hline
@@ -1112,9 +1112,9 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The released host may optionally be added to the allowlist (UC-06).} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
-1 & The administrator opens the Blocked Hosts page. & 2 & The system lists blocked hosts with address, device name, attack class, detecting layer, block start and remaining time. \\ \hline
-3 & The administrator selects a host and presses Release. & 4 & The system asks for confirmation and offers to add the host to the allowlist. \\ \hline
-5 & The administrator confirms. & 6 & The system removes the address from the ipset, marks the block as released, writes an audit record and refreshes the list. \\ \hline
+1 & The administrator will open the page that contains the Blocked Hosts. & 2 & The system will list every blocked host with their details such as IP address, device name, attack type, layer detected, blocked time and remaining block time. \\ \hline
+3 & The administrator will pick a particular host and click release/unblock. & 4 & The system prompts for confirmation. \\ \hline
+5 & The administrator clicks confirm. & 6 & The system, upon confirmation, optionally adds the host to the allowlist, removes it from the ipset and marks/logs it as released. \\ \hline
 \multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
 3 & The block expired while the dialog was open. & 3-A & The system informs the administrator that the block has already expired. \\ \hline
 3 & The administrator cancels. & 3-B & No change is made. \\ \hline
@@ -1136,10 +1136,10 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The NIDPS host, gateway and DNS resolver are permanent entries and cannot be removed.} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
-1 & The administrator opens the Allowlist section and presses Add. & 2 & The system shows a form for address and description. \\ \hline
-3 & The administrator enters an address and description and saves. & 4 & The system validates the address, stores the entry, publishes the change on the bus and records it in the audit log. \\ \hline
+1 & The administrator navigates to the Allowlist section and clicks on Add. & 2 & A form will be displayed by the system to insert address and description. \\ \hline
+3 & The administrator fills out the address and description forms and clicks on save. & 4 & The system validates the address and stores it. The changes are published to the bus and records are logged. \\ \hline
 \multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
-2 & The address is invalid or already listed. & 2-A & The system shows a validation error and does not save. \\ \hline
+2 & The address is invalid or already listed. & 2-A & A validation error message is shown and the system does not save anything. \\ \hline
 2 & The address is currently blocked. & 2-B & The system asks whether to release the block as well (UC-05). \\ \hline
 \end{longtable}
 }
@@ -1153,17 +1153,17 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \endhead
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-07: Configure Failure Mode}} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator chooses how the network behaves when a detection component fails: fail-open (keep internet access), fail-closed (stop forwarding until detection is restored) or degraded operation under load.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator can choose network behavior under failure: either fail-open, fail-closed or degraded mode while under load.} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The new failure mode is saved and applied to the kernel queue configuration.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Changing between fail-open and fail-closed briefly reloads the inspection queue rule; forwarding is not interrupted.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The decision is recorded and the failure mode is applied to the kernel queue configuration.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Changing between fail-open and fail-closed modes will reload the inspection queue rule; packets will still be forwarded during this period.} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
-1 & The administrator opens Settings and selects the Failure Mode tab. & 2 & The system shows the current mode with a description of its trade-off. \\ \hline
-3 & The administrator selects a new mode and presses Save. & 4 & The system asks for confirmation, explaining the effect of the chosen mode. \\ \hline
-5 & The administrator confirms. & 6 & The system updates the queue-bypass setting, saves the configuration, logs the change and shows a success message. \\ \hline
+1 & The administrator clicks on Settings and then opens the Failure Mode tab. & 2 & The system will display what current mode it is using along with its specifications. \\ \hline
+3 & The administrator can click another mode to change it and then click save. & 4 & The system prompts for confirmation and explains the trade-offs of the mode being switched to. \\ \hline
+5 & The administrator clicks on confirm. & 6 & The system will update the queue-bypass config and save it. The changes will be logged, and a success message will be shown. \\ \hline
 \multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
-3 & The system cannot apply the new rule. & 3-A & The previous mode remains active and an error message is shown. \\ \hline
+3 & The system cannot apply the new rule. & 3-A & The previous mode remains active, and an error message is shown. \\ \hline
 \end{longtable}
 }
 
@@ -1178,15 +1178,15 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator turns individual detection layers (Suricata, Isolation Forest, classifier) on or off. This is also used to run the layer ablation experiments.} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The selected layers are active or inactive and the dashboard shows their status.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{At least one layer must remain enabled unless the administrator explicitly confirms monitoring-only operation.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The layers will be either active or inactive, and the dashboard page shows their status.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{At all times, a minimum of one layer must be active unless the admin has authorized monitoring mode.} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
-1 & The administrator opens Settings and selects the Detection Layers tab. & 2 & The system shows each layer with its status and a toggle. \\ \hline
-3 & The administrator switches a layer off and saves. & 4 & The system publishes the change; the decision engine stops using that layer's evidence and the dashboard marks it as disabled. \\ \hline
+1 & The administrator clicks on settings and opens the Detection Layers tab. & 2 & The system shows every layer with its current status and an on/off toggle. \\ \hline
+3 & The administrator toggles a layer off and clicks on save changes. & 4 & The system publishes the change; the decision engine stops using that layer's evidence and the dashboard marks it as disabled. \\ \hline
 5 & The administrator switches the layer back on. & 6 & The system resumes using the layer's evidence. \\ \hline
 \multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
-2 & The administrator tries to disable all layers. & 2-A & The system warns that the network will be unprotected and requires explicit confirmation. \\ \hline
+2 & The administrator tries to disable all layers. & 2-A & The system displays a warning message that after this change the network will be fully unprotected and confirmation is required. \\ \hline
 \end{longtable}
 }
 
@@ -1201,15 +1201,15 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Network Administrator} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator changes detection sensitivity, such as the calibration percentile, classifier confidence thresholds, host block threshold and block durations.} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The administrator is logged in (UC-01).} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The new thresholds are validated, saved and used by running services.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Each value has a validated range and a documented default, which can be restored with one action.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The thresholds are then saved if they are valid, and all running services will now refer to the updated thresholds.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Every threshold has a specific valid range and a default value which can be restored by clicking restore default.} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
-1 & The administrator opens Settings and selects the Thresholds tab. & 2 & The system shows current values, defaults and allowed ranges. \\ \hline
-3 & The administrator changes a value and presses Save. & 4 & The system validates the value, saves it, publishes the change and logs old and new values. \\ \hline
+1 & The administrator clicks on settings and then opens the Threshold section. & 2 & The system will show all the current set thresholds along with their valid ranges and recommended defaults. \\ \hline
+3 & The administrator changes any of the thresholds and clicks on save. & 4 & The system will validate the new values, save them along with making logs of the change. New values are made active. \\ \hline
 \multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
-2 & The value is outside the allowed range. & 2-A & The system rejects the value and shows the allowed range. \\ \hline
-2 & The administrator presses Restore Defaults. & 2-B & The system restores all default values after confirmation. \\ \hline
+2 & The value entered is outside of the acceptable range. & 2-A & The system will not allow the change and will show the allowed values. \\ \hline
+2 & The administrator will click on restore all defaults. & 2-B & The system restores all default values after confirmation. \\ \hline
 \end{longtable}
 }
 
@@ -1224,13 +1224,13 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{System Scheduler, Network Administrator} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The anomaly threshold $\tau$ is recalculated from the scores of clean local traffic so that it fits the deployment network. It runs weekly or on demand.} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The Isolation Forest model is loaded.\newline Flow records from the calibration window are available.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{A new calibration state ($\tau$, timestamp, sample count) is stored and used by Layer 2.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Flows linked to Suricata alerts or blocked hosts are excluded, and $\tau$ cannot move more than $\delta$ from the global threshold (Algorithm~\ref{alg:calibration}).} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{A new calibration setting is saved with the threshold, the time logged and sample count. It will be used by Layer 2 from now on.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Any flows that Suricata has alerted or that have been blocked are not included. Threshold $\tau$ will not differ more than $\delta$ from the global threshold (Algorithm~\ref{alg:calibration}).} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
-1 & The scheduler triggers calibration (or the administrator presses Recalibrate Now). & 2 & The system collects anomaly scores of the clean flows from the calibration window. \\ \hline
- & --- & 3 & The system computes the p-th percentile, clips it to the allowed range, stores the new $\tau$ and publishes it on the bus. \\ \hline
- & --- & 4 & The dashboard shows the new $\tau$, its date and the number of flows used. \\ \hline
+1 & The system's scheduler triggers calibration on its own or the administrator clicks on the recalibration option. & 2 & The system will then gather anomaly scores of detected clean flows from the calibration window. \\ \hline
+ & --- & 3 & The system will compute the p-th percentile, clip the value if needed to the valid range and then store the new $\tau$ value and publish it on the bus for use. \\ \hline
+ & --- & 4 & The dashboard now shows the new $\tau$ value along with the date set and the number of flows used. \\ \hline
 \multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
 2 & Fewer than N\_min clean flows are available. & 2-A & The system keeps the global threshold and reports that more traffic is needed. \\ \hline
 \end{longtable}
@@ -1245,19 +1245,19 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \endhead
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-11: Recover from Component Failure}} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Watchdog} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{When a component crashes, freezes or is overloaded, the watchdog detects it, applies the configured failure mode, restarts the component and records the recovery.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{When any of the system's components crash or freeze, their portion of the watchdog is not reset/unfed. This is detected by the watchdog, and it will apply the configured failure mode, try to restart the component and record the recovery.} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The watchdog is running and receiving heartbeats.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The component is running again, or the system remains in the configured failure mode and the administrator is notified.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Detection within 3 seconds and restart within 30 seconds (NFR-8). Fail-open is enforced by the kernel even if the watchdog itself fails.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The component will be back to working again, or the system will stay in a failed state, and the administrator will be sent an alert.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Detection will be within 3 seconds, and attempted restart should happen within 30 seconds (NFR-8). Fail-open is used by the kernel even if the watchdog has crashed.} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
  & --- & 1 & A component misses three consecutive heartbeats or its process exits. \\ \hline
- & --- & 2 & The watchdog declares it failed, applies the failure mode and logs the failure event. \\ \hline
- & --- & 3 & systemd restarts the component; the watchdog waits for healthy heartbeats. \\ \hline
- & --- & 4 & The watchdog marks the component as running, restores normal mode and records the recovery time and packets dropped or bypassed. \\ \hline
+ & --- & 2 & The watchdog detects a failure; it applies the configured fail mode and then logs the event. \\ \hline
+ & --- & 3 & systemd successfully restarts the failed component; the watchdog will wait for a healthy heartbeat. \\ \hline
+ & --- & 4 & The watchdog then marks the component as healthy and restores normal operation mode as well as logging the recovery time and packets missed or dropped. \\ \hline
 5 & The administrator views System Health. & 6 & The system shows the failure event and recovery details. \\ \hline
 \multicolumn{4}{|c|}{\textbf{Alternative Flow}} \\ \hline
-3 & The component fails to restart after the maximum number of attempts. & 3-A & The system stays in the failure mode and shows a critical warning on the dashboard. \\ \hline
+3 & systemd fails to restart the component after a while, or the maximum number of attempts is reached. & 3-A & The system will stay in its failed state, and a visible warning is shown on the main dashboard. \\ \hline
 1 & Load exceeds the high watermark without a crash. & 2-A & The watchdog enters degraded mode and returns to normal when load falls below the low watermark. \\ \hline
 \end{longtable}
 }
@@ -1271,10 +1271,10 @@ Portability & The system should run on different low-cost Linux devices. & Stand
 \endhead
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Name}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{\textbf{UC-12: Deploy Model Package}} \\ \hline
 \multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Actors}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Model Maintainer} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The maintainer trains and validates a new model offline and deploys it to the device as a versioned package. The device checks compatibility before using it.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{A model package has been produced by the offline training pipeline (FR-12.3).\newline The maintainer has deployment access to the device.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The new model is active and the previous package is kept for rollback.} \\ \hline
-\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{XGBoost models are stored in native JSON format; packages are loaded only from the protected registry directory.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Summary}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The developer trains a new model and validates it completely offline. It gets deployed to the device as a tagged/versioned package. The device will first check compatibility with all libraries/features before starting.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Pre-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{A package for a model update is produced by the offline training process (FR-12.3).\newline The developer will have access to deploy onto the device.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Post-Conditions}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{The new model will be made active on the device, and any previous versions will be kept as packages as a possible rollback option.} \\ \hline
+\multicolumn{2}{|>{\raggedright\arraybackslash}p{\dimexpr 0.46\linewidth-2\tabcolsep\relax}|}{\textbf{Special Requirements}} & \multicolumn{2}{>{\raggedright\arraybackslash}p{\dimexpr 0.54\linewidth-2\tabcolsep-2\arrayrulewidth\relax}|}{Any XGBoost models will be stored in a JSON native format. Packages are loaded from only the protected directory and no outside sources.} \\ \hline
 \multicolumn{4}{|c|}{\textbf{Basic Flow}} \\ \hline
 \multicolumn{2}{|c|}{\textbf{Actor Action}} & \multicolumn{2}{c|}{\textbf{System Response}} \\ \hline
 1 & The maintainer copies the package to the model registry and runs the deploy command. & 2 & The system checks the feature list and extractor version against the running extractor. \\ \hline

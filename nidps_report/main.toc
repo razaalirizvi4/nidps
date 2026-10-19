@@ -15,7 +15,7 @@
 \contentsline {section}{\numberline {2.7}Constraints}{8}{section.2.7}%
 \contentsline {section}{\numberline {2.8}Business Opportunity}{9}{section.2.8}%
 \contentsline {section}{\numberline {2.9}Stakeholders Description/ User Characteristics}{9}{section.2.9}%
-\contentsline {section}{\numberline {2.10}Conclusion}{9}{section.2.10}%
+\contentsline {section}{\numberline {2.10}Conclusion}{10}{section.2.10}%
 \contentsline {chapter}{\numberline {3}Literature Review / Related Work}{11}{chapter.3}%
 \contentsline {section}{\numberline {3.1}Definitions, Acronyms, and Abbreviations}{11}{section.3.1}%
 \contentsline {section}{\numberline {3.2}Detailed Literature Review}{12}{section.3.2}%
@@ -75,7 +75,7 @@
 \contentsline {subsubsection}{\numberline {3.2.14.1}Summary of the Research Item}{23}{subsubsection.3.2.14.1}%
 \contentsline {subsubsection}{\numberline {3.2.14.2}Critical Analysis of the Research Item}{23}{subsubsection.3.2.14.2}%
 \contentsline {subsubsection}{\numberline {3.2.14.3}Relationship to the Proposed Research Work}{23}{subsubsection.3.2.14.3}%
-\contentsline {subsection}{\numberline {3.2.15}Cross-Dataset Generalisation of Deep Learning Intrusion Detection Models}{23}{subsection.3.2.15}%
+\contentsline {subsection}{\numberline {3.2.15}Cross-Dataset Generalisation of Deep Learning Intrusion Detection Models}{24}{subsection.3.2.15}%
 \contentsline {subsubsection}{\numberline {3.2.15.1}Summary of the Research Item}{24}{subsubsection.3.2.15.1}%
 \contentsline {subsubsection}{\numberline {3.2.15.2}Critical Analysis of the Research Item}{24}{subsubsection.3.2.15.2}%
 \contentsline {subsubsection}{\numberline {3.2.15.3}Relationship to the Proposed Research Work}{24}{subsubsection.3.2.15.3}%
@@ -88,87 +88,87 @@
 \contentsline {section}{\numberline {4.2}Functional Requirements}{31}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}NIDPS-1: Inline Wireless Access Point}{31}{subsection.4.2.1}%
 \contentsline {subsection}{\numberline {4.2.2}NIDPS-2: Signature-Based Detection (Layer 1)}{31}{subsection.4.2.2}%
-\contentsline {subsection}{\numberline {4.2.3}NIDPS-3: Flow Extraction and TLS Fingerprinting}{31}{subsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.2.3}NIDPS-3: TLS Fingerprints and Flow Extraction}{32}{subsection.4.2.3}%
 \contentsline {subsection}{\numberline {4.2.4}NIDPS-4: Anomaly Detection (Layer 2)}{32}{subsection.4.2.4}%
-\contentsline {subsection}{\numberline {4.2.5}NIDPS-5: Attack Classification (Layer 3)}{32}{subsection.4.2.5}%
+\contentsline {subsection}{\numberline {4.2.5}NIDPS-5: Classification of Attacks (Layer 3)}{32}{subsection.4.2.5}%
 \contentsline {subsection}{\numberline {4.2.6}NIDPS-6: Decision Fusion}{32}{subsection.4.2.6}%
-\contentsline {subsection}{\numberline {4.2.7}NIDPS-7: Automated Prevention}{33}{subsection.4.2.7}%
-\contentsline {subsection}{\numberline {4.2.8}NIDPS-8: Fault Tolerance}{33}{subsection.4.2.8}%
+\contentsline {subsection}{\numberline {4.2.7}NIDPS-7: Dynamic Blocking}{33}{subsection.4.2.7}%
+\contentsline {subsection}{\numberline {4.2.8}NIDPS-8: Recovery Mechanism}{33}{subsection.4.2.8}%
 \contentsline {subsection}{\numberline {4.2.9}NIDPS-9: Monitoring}{33}{subsection.4.2.9}%
 \contentsline {subsection}{\numberline {4.2.10}NIDPS-10: Configurations}{34}{subsection.4.2.10}%
-\contentsline {subsection}{\numberline {4.2.11}NIDPS-11: Logs and Storage}{34}{subsection.4.2.11}%
+\contentsline {subsection}{\numberline {4.2.11}NIDPS-11: Logging and Storage}{34}{subsection.4.2.11}%
 \contentsline {subsection}{\numberline {4.2.12}NIDPS-12: Training and Versioning}{34}{subsection.4.2.12}%
 \contentsline {subsection}{\numberline {4.2.13}NIDPS-13: Auto Maintenance}{35}{subsection.4.2.13}%
 \contentsline {section}{\numberline {4.3}Quality Attributes}{35}{section.4.3}%
 \contentsline {section}{\numberline {4.4}Non-Functional Requirements}{36}{section.4.4}%
 \contentsline {subsection}{\numberline {4.4.1}Performance}{36}{subsection.4.4.1}%
 \contentsline {subsection}{\numberline {4.4.2}Capacity}{37}{subsection.4.4.2}%
-\contentsline {subsection}{\numberline {4.4.3}Resource Use}{37}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.3}Resource Usage}{37}{subsection.4.4.3}%
 \contentsline {subsection}{\numberline {4.4.4}Reliability and Availability}{37}{subsection.4.4.4}%
 \contentsline {subsection}{\numberline {4.4.5}Accuracy}{37}{subsection.4.4.5}%
 \contentsline {subsection}{\numberline {4.4.6}Security}{37}{subsection.4.4.6}%
-\contentsline {subsection}{\numberline {4.4.7}Privacy}{37}{subsection.4.4.7}%
-\contentsline {subsection}{\numberline {4.4.8}Usability}{37}{subsection.4.4.8}%
+\contentsline {subsection}{\numberline {4.4.7}Privacy}{38}{subsection.4.4.7}%
+\contentsline {subsection}{\numberline {4.4.8}Usability}{38}{subsection.4.4.8}%
 \contentsline {subsection}{\numberline {4.4.9}Maintainability}{38}{subsection.4.4.9}%
 \contentsline {subsection}{\numberline {4.4.10}Extensibility and Reusability}{38}{subsection.4.4.10}%
 \contentsline {subsection}{\numberline {4.4.11}Portability}{38}{subsection.4.4.11}%
 \contentsline {section}{\numberline {4.5}Assumptions}{38}{section.4.5}%
 \contentsline {section}{\numberline {4.6}Use Cases}{39}{section.4.6}%
-\contentsline {section}{\numberline {4.7}Hardware and Software Requirements}{49}{section.4.7}%
-\contentsline {subsection}{\numberline {4.7.1}Hardware Requirements}{49}{subsection.4.7.1}%
-\contentsline {subsection}{\numberline {4.7.2}Software Requirements}{50}{subsection.4.7.2}%
-\contentsline {section}{\numberline {4.8}Graphical User Interface}{51}{section.4.8}%
-\contentsline {subsection}{\numberline {4.8.1}Login Screen}{51}{subsection.4.8.1}%
-\contentsline {subsection}{\numberline {4.8.2}Overview Screen}{52}{subsection.4.8.2}%
+\contentsline {section}{\numberline {4.7}Hardware and Software Requirements}{51}{section.4.7}%
+\contentsline {subsection}{\numberline {4.7.1}Hardware Requirements}{51}{subsection.4.7.1}%
+\contentsline {subsection}{\numberline {4.7.2}Software Requirements}{51}{subsection.4.7.2}%
+\contentsline {section}{\numberline {4.8}Graphical User Interface}{53}{section.4.8}%
+\contentsline {subsection}{\numberline {4.8.1}Login Screen}{53}{subsection.4.8.1}%
+\contentsline {subsection}{\numberline {4.8.2}Overview Screen}{53}{subsection.4.8.2}%
 \contentsline {subsection}{\numberline {4.8.3}Alerts Screen}{53}{subsection.4.8.3}%
-\contentsline {subsection}{\numberline {4.8.4}Blocked Hosts and Allowlist Screen}{53}{subsection.4.8.4}%
-\contentsline {subsection}{\numberline {4.8.5}Settings Screen}{54}{subsection.4.8.5}%
-\contentsline {subsection}{\numberline {4.8.6}System Health Screen}{55}{subsection.4.8.6}%
-\contentsline {section}{\numberline {4.9}Database Design}{55}{section.4.9}%
-\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{55}{subsection.4.9.1}%
-\contentsline {subsection}{\numberline {4.9.2}Data Dictionary}{58}{subsection.4.9.2}%
-\contentsline {section}{\numberline {4.10}Risk Analysis}{63}{section.4.10}%
-\contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{66}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Overview of the Proposed Framework}{66}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Datasets}{67}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Public Benchmark Datasets}{67}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Self-Collected Real-World Dataset}{68}{subsection.5.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Feature Harmonisation Across Datasets}{68}{subsection.5.2.3}%
-\contentsline {subsection}{\numberline {5.2.4}Pre-processing}{69}{subsection.5.2.4}%
-\contentsline {section}{\numberline {5.3}Traffic Acquisition and Flow Construction}{70}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Inline Packet Path}{70}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {4.8.4}Blocked Hosts and Allowlist Screen}{55}{subsection.4.8.4}%
+\contentsline {subsection}{\numberline {4.8.5}Settings Screen}{55}{subsection.4.8.5}%
+\contentsline {subsection}{\numberline {4.8.6}System Health Screen}{56}{subsection.4.8.6}%
+\contentsline {section}{\numberline {4.9}Database Design}{56}{section.4.9}%
+\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{56}{subsection.4.9.1}%
+\contentsline {subsection}{\numberline {4.9.2}Data Dictionary}{59}{subsection.4.9.2}%
+\contentsline {section}{\numberline {4.10}Risk Analysis}{64}{section.4.10}%
+\contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{67}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Overview of the Proposed Framework}{67}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Datasets}{68}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Public Benchmark Datasets}{68}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Self-Collected Real-World Dataset}{69}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Feature Harmonisation Across Datasets}{69}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Pre-processing}{70}{subsection.5.2.4}%
+\contentsline {section}{\numberline {5.3}Traffic Acquisition and Flow Construction}{71}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Inline Packet Path}{71}{subsection.5.3.1}%
 \contentsline {subsection}{\numberline {5.3.2}Flow Assembly Algorithm}{71}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}TLS Fingerprint Extraction (JA3/JA3S)}{72}{subsection.5.3.3}%
-\contentsline {section}{\numberline {5.4}Layer 1: Signature-Based Detection}{73}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Suricata Configuration}{73}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Custom Rules for In-Scope Attacks}{73}{subsection.5.4.2}%
-\contentsline {subsection}{\numberline {5.4.3}ARP Spoofing Monitor}{74}{subsection.5.4.3}%
+\contentsline {subsection}{\numberline {5.3.3}TLS Fingerprint Extraction (JA3/JA3S)}{73}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Layer 1: Signature-Based Detection}{74}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Suricata Configuration}{74}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Custom Rules for In-Scope Attacks}{74}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}ARP Spoofing Monitor}{75}{subsection.5.4.3}%
 \contentsline {section}{\numberline {5.5}Layer 2: Unsupervised Anomaly Detection}{75}{section.5.5}%
 \contentsline {subsection}{\numberline {5.5.1}Isolation Forest}{75}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Adaptive Threshold Calibration}{75}{subsection.5.5.2}%
-\contentsline {subsection}{\numberline {5.5.3}Data Exfiltration Score}{76}{subsection.5.5.3}%
+\contentsline {subsection}{\numberline {5.5.2}Adaptive Threshold Calibration}{76}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Data Exfiltration Score}{77}{subsection.5.5.3}%
 \contentsline {subsection}{\numberline {5.5.4}C2 Beaconing Score}{77}{subsection.5.5.4}%
 \contentsline {section}{\numberline {5.6}Layer 3: Supervised Attack Classification}{77}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Random Forest}{77}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.1}Random Forest}{78}{subsection.5.6.1}%
 \contentsline {subsection}{\numberline {5.6.2}XGBoost}{78}{subsection.5.6.2}%
 \contentsline {subsection}{\numberline {5.6.3}Training and Model Selection}{78}{subsection.5.6.3}%
-\contentsline {subsection}{\numberline {5.6.4}Confidence Handling}{78}{subsection.5.6.4}%
-\contentsline {section}{\numberline {5.7}Decision Fusion}{78}{section.5.7}%
+\contentsline {subsection}{\numberline {5.6.4}Confidence Handling}{79}{subsection.5.6.4}%
+\contentsline {section}{\numberline {5.7}Decision Fusion}{79}{section.5.7}%
 \contentsline {subsection}{\numberline {5.7.1}Verdict Algorithm}{79}{subsection.5.7.1}%
-\contentsline {subsection}{\numberline {5.7.2}Host Evidence Accumulation}{79}{subsection.5.7.2}%
-\contentsline {subsection}{\numberline {5.7.3}Timing of ML Verdicts}{79}{subsection.5.7.3}%
+\contentsline {subsection}{\numberline {5.7.2}Host Evidence Accumulation}{81}{subsection.5.7.2}%
+\contentsline {subsection}{\numberline {5.7.3}Timing of ML Verdicts}{81}{subsection.5.7.3}%
 \contentsline {section}{\numberline {5.8}Automated Prevention}{81}{section.5.8}%
 \contentsline {subsection}{\numberline {5.8.1}Blocking Mechanism}{81}{subsection.5.8.1}%
-\contentsline {subsection}{\numberline {5.8.2}Blocking Procedure}{81}{subsection.5.8.2}%
+\contentsline {subsection}{\numberline {5.8.2}Blocking Procedure}{82}{subsection.5.8.2}%
 \contentsline {section}{\numberline {5.9}Fault Tolerance and Failure Handling}{82}{section.5.9}%
 \contentsline {subsection}{\numberline {5.9.1}Health Monitoring}{82}{subsection.5.9.1}%
-\contentsline {subsection}{\numberline {5.9.2}Failure Modes}{82}{subsection.5.9.2}%
+\contentsline {subsection}{\numberline {5.9.2}Failure Modes}{83}{subsection.5.9.2}%
 \contentsline {subsection}{\numberline {5.9.3}State Machine}{83}{subsection.5.9.3}%
 \contentsline {section}{\numberline {5.10}Evaluation Methodology}{83}{section.5.10}%
 \contentsline {subsection}{\numberline {5.10.1}Detection Metrics}{84}{subsection.5.10.1}%
 \contentsline {subsection}{\numberline {5.10.2}Cross-Dataset Generalisation}{84}{subsection.5.10.2}%
-\contentsline {subsection}{\numberline {5.10.3}System Performance on Constrained Hardware}{84}{subsection.5.10.3}%
-\contentsline {section}{\numberline {5.11}Conclusion}{85}{section.5.11}%
+\contentsline {subsection}{\numberline {5.10.3}System Performance on Constrained Hardware}{85}{subsection.5.10.3}%
+\contentsline {section}{\numberline {5.11}Conclusion}{86}{section.5.11}%
 \contentsline {chapter}{\numberline {6}High-Level and Low-Level Design}{87}{chapter.6}%
 \contentsline {section}{\numberline {6.1}System Overview}{87}{section.6.1}%
 \contentsline {section}{\numberline {6.2}Design Considerations}{87}{section.6.2}%

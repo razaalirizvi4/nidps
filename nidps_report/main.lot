@@ -8,40 +8,40 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {4.1}{\ignorespaces Features of the proposed NIDPS.}}{30}{table.4.1}%
 \contentsline {table}{\numberline {4.2}{\ignorespaces Quality attributes of the NIDPS.}}{35}{table.4.2}%
-\contentsline {table}{\numberline {4.3}{\ignorespaces Use case UC-01: Log In to Dashboard.}}{40}{table.4.3}%
+\contentsline {table}{\numberline {4.3}{\ignorespaces Use case UC-01: Log In to Dashboard.}}{39}{table.4.3}%
 \contentsline {table}{\numberline {4.4}{\ignorespaces Use case UC-02: View Live Network Statistics.}}{40}{table.4.4}%
 \contentsline {table}{\numberline {4.5}{\ignorespaces Use case UC-03: Review Alerts and Evidence.}}{41}{table.4.5}%
 \contentsline {table}{\numberline {4.6}{\ignorespaces Use case UC-04: Detect and Block Malicious Host.}}{42}{table.4.6}%
 \contentsline {table}{\numberline {4.7}{\ignorespaces Use case UC-05: Release Blocked Host.}}{43}{table.4.7}%
 \contentsline {table}{\numberline {4.8}{\ignorespaces Use case UC-06: Manage Allowlist.}}{44}{table.4.8}%
-\contentsline {table}{\numberline {4.9}{\ignorespaces Use case UC-07: Configure Failure Mode.}}{45}{table.4.9}%
-\contentsline {table}{\numberline {4.10}{\ignorespaces Use case UC-08: Enable or Disable Detection Layers.}}{45}{table.4.10}%
-\contentsline {table}{\numberline {4.11}{\ignorespaces Use case UC-09: Adjust Detection Thresholds.}}{46}{table.4.11}%
-\contentsline {table}{\numberline {4.12}{\ignorespaces Use case UC-10: Calibrate Anomaly Threshold.}}{47}{table.4.12}%
-\contentsline {table}{\numberline {4.13}{\ignorespaces Use case UC-11: Recover from Component Failure.}}{48}{table.4.13}%
-\contentsline {table}{\numberline {4.14}{\ignorespaces Use case UC-12: Deploy Model Package.}}{48}{table.4.14}%
-\contentsline {table}{\numberline {4.15}{\ignorespaces Hardware requirements.}}{50}{table.4.15}%
-\contentsline {table}{\numberline {4.16}{\ignorespaces Software requirements.}}{50}{table.4.16}%
-\contentsline {table}{\numberline {4.17}{\ignorespaces Data dictionary for ADMIN\_USER.}}{58}{table.4.17}%
-\contentsline {table}{\numberline {4.18}{\ignorespaces Data dictionary for HOST.}}{58}{table.4.18}%
-\contentsline {table}{\numberline {4.19}{\ignorespaces Data dictionary for FLOW\_RECORD.}}{58}{table.4.19}%
-\contentsline {table}{\numberline {4.20}{\ignorespaces Data dictionary for EVIDENCE.}}{59}{table.4.20}%
-\contentsline {table}{\numberline {4.21}{\ignorespaces Data dictionary for VERDICT.}}{60}{table.4.21}%
-\contentsline {table}{\numberline {4.22}{\ignorespaces Data dictionary for BLOCK\_ENTRY.}}{60}{table.4.22}%
-\contentsline {table}{\numberline {4.23}{\ignorespaces Data dictionary for ALLOWLIST\_ENTRY.}}{61}{table.4.23}%
-\contentsline {table}{\numberline {4.24}{\ignorespaces Data dictionary for MODEL\_PACKAGE.}}{61}{table.4.24}%
-\contentsline {table}{\numberline {4.25}{\ignorespaces Data dictionary for CALIBRATION\_STATE.}}{62}{table.4.25}%
-\contentsline {table}{\numberline {4.26}{\ignorespaces Data dictionary for CONFIG\_SETTING.}}{62}{table.4.26}%
-\contentsline {table}{\numberline {4.27}{\ignorespaces Data dictionary for COMPONENT\_EVENT.}}{62}{table.4.27}%
-\contentsline {table}{\numberline {4.28}{\ignorespaces Data dictionary for AUDIT\_LOG.}}{63}{table.4.28}%
-\contentsline {table}{\numberline {4.29}{\ignorespaces Risk analysis.}}{64}{table.4.29}%
+\contentsline {table}{\numberline {4.9}{\ignorespaces Use case UC-07: Configure Failure Mode.}}{46}{table.4.9}%
+\contentsline {table}{\numberline {4.10}{\ignorespaces Use case UC-08: Enable or Disable Detection Layers.}}{46}{table.4.10}%
+\contentsline {table}{\numberline {4.11}{\ignorespaces Use case UC-09: Adjust Detection Thresholds.}}{47}{table.4.11}%
+\contentsline {table}{\numberline {4.12}{\ignorespaces Use case UC-10: Calibrate Anomaly Threshold.}}{48}{table.4.12}%
+\contentsline {table}{\numberline {4.13}{\ignorespaces Use case UC-11: Recover from Component Failure.}}{49}{table.4.13}%
+\contentsline {table}{\numberline {4.14}{\ignorespaces Use case UC-12: Deploy Model Package.}}{50}{table.4.14}%
+\contentsline {table}{\numberline {4.15}{\ignorespaces Hardware requirements.}}{51}{table.4.15}%
+\contentsline {table}{\numberline {4.16}{\ignorespaces Software requirements.}}{52}{table.4.16}%
+\contentsline {table}{\numberline {4.17}{\ignorespaces Data dictionary for ADMIN\_USER.}}{59}{table.4.17}%
+\contentsline {table}{\numberline {4.18}{\ignorespaces Data dictionary for HOST.}}{59}{table.4.18}%
+\contentsline {table}{\numberline {4.19}{\ignorespaces Data dictionary for FLOW\_RECORD.}}{59}{table.4.19}%
+\contentsline {table}{\numberline {4.20}{\ignorespaces Data dictionary for EVIDENCE.}}{60}{table.4.20}%
+\contentsline {table}{\numberline {4.21}{\ignorespaces Data dictionary for VERDICT.}}{61}{table.4.21}%
+\contentsline {table}{\numberline {4.22}{\ignorespaces Data dictionary for BLOCK\_ENTRY.}}{61}{table.4.22}%
+\contentsline {table}{\numberline {4.23}{\ignorespaces Data dictionary for ALLOWLIST\_ENTRY.}}{62}{table.4.23}%
+\contentsline {table}{\numberline {4.24}{\ignorespaces Data dictionary for MODEL\_PACKAGE.}}{62}{table.4.24}%
+\contentsline {table}{\numberline {4.25}{\ignorespaces Data dictionary for CALIBRATION\_STATE.}}{63}{table.4.25}%
+\contentsline {table}{\numberline {4.26}{\ignorespaces Data dictionary for CONFIG\_SETTING.}}{63}{table.4.26}%
+\contentsline {table}{\numberline {4.27}{\ignorespaces Data dictionary for COMPONENT\_EVENT.}}{63}{table.4.27}%
+\contentsline {table}{\numberline {4.28}{\ignorespaces Data dictionary for AUDIT\_LOG.}}{64}{table.4.28}%
+\contentsline {table}{\numberline {4.29}{\ignorespaces Risk analysis.}}{65}{table.4.29}%
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {5.1}{\ignorespaces Public benchmark datasets used for training and cross-evaluation.}}{68}{table.caption.11}%
-\contentsline {table}{\numberline {5.2}{\ignorespaces Unified attack taxonomy used for Layer 3.}}{69}{table.caption.12}%
+\contentsline {table}{\numberline {5.2}{\ignorespaces Unified attack taxonomy used for Layer 3.}}{70}{table.caption.12}%
 \contentsline {table}{\numberline {5.3}{\ignorespaces Flow timeout parameters.}}{72}{table.caption.13}%
 \contentsline {table}{\numberline {5.4}{\ignorespaces Custom Layer 1 rules for the in-scope attacks.}}{74}{table.caption.14}%
-\contentsline {table}{\numberline {5.5}{\ignorespaces Configurable failure modes.}}{82}{table.caption.16}%
-\contentsline {table}{\numberline {5.6}{\ignorespaces Cross-dataset evaluation matrix of macro F1-scores, to be filled from experiments.}}{84}{table.caption.18}%
+\contentsline {table}{\numberline {5.5}{\ignorespaces Configurable failure modes.}}{83}{table.caption.16}%
+\contentsline {table}{\numberline {5.6}{\ignorespaces Cross-dataset evaluation matrix of macro F1-scores, to be filled from experiments.}}{85}{table.caption.18}%
 \contentsline {table}{\numberline {5.7}{\ignorespaces System performance measures.}}{85}{table.caption.19}%
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {6.1}{\ignorespaces General constraints and their impact on the design.}}{89}{table.caption.20}%

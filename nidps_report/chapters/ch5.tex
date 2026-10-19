@@ -463,7 +463,7 @@ push the event to the dashboard\;
 
 \subsection{Health Monitoring}\label{sec:5.9.1}
 \label{sec:health}
-\noindent Every component (Suricata, flow assembler, ML scorer, decision engine, enforcer) runs as a separate systemd service. Each one sends a heartbeat to the watchdog every second, along with load indicators such as queue depth and processing lag. A component is declared failed after $k = 3$ missed heartbeats or if its process exits. systemd restarts failed services automatically, and its own watchdog timer restarts services that are running but frozen.
+\noindent Every component (Suricata, flow assembler, ML scorer, decision engine, enforcer) runs as a separate systemd service. Each one sends a heartbeat to its own watchdog every second, along with load indicators such as queue depth and processing lag. A component is declared failed after $k = 3$ missed heartbeats or if its process exits. systemd restarts failed services automatically, and its own watchdog timer restarts services that are running but frozen.
 
 \subsection{Failure Modes}\label{sec:5.9.2}
 \label{sec:failuremodes}
