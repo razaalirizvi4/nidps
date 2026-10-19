@@ -184,7 +184,7 @@ Offline: training & Regenerate datasets, train and validate models, publish vers
 \noindent \textbf{Alternatives rejected:} full TLS interception (above); ignoring encrypted traffic (most C2 now uses TLS). Known limitation: browsers now randomise TLS extension order making JA3 less stable for browser traffic. Since the fingerprinting is separated from the rest of the flow extractor, other components can remain the same and JA4 can be changed to sort extensions before hashing.
 
 \subsection{Offline Training, Online Inference}\label{sec:6.4.3}
-\noindent \textbf{Decision:}models to be trained on a workstation and deployed as read-only versioned packages. The device can only do inference and threshold calibration.
+\noindent \textbf{Decision:} models to be trained on a workstation and deployed as read-only versioned packages. The device can only do inference and threshold calibration.
 
 \noindent \textbf{Reasoning:} A training process of hundreds of millions of flows requires much more memory than the device available. Online retraining on a device will also enable an adversary to slowly condition the model to think that malicious traffic is acceptable (model poisoning). Calibrating just the threshold (Section~\ref{sec:calibration}) adapts to the local network with limited risk.
 
@@ -193,7 +193,7 @@ Offline: training & Regenerate datasets, train and validate models, publish vers
 \subsection{Local Services Connected by an Event Bus}\label{sec:6.4.4}
 \noindent \textbf{Decision:} each component is its own systemd service and message exchange is handled via a local publish/subscribe bus. Redis Streams is the proposed implementation.
 
-\noindent \textbf{Reasoning:} The failure modes require service isolation, which is where one service can crash without impacting the others, and where systemd can restart each service independently. The bus separates the producers from the consumers. Redis Streams is lightweight, has a bounded backlog which a restarted consumer can resume from and allows for consumer groups that run the dashboard and the decision engine independently, reading the same events.
+\noindent \textbf{Reasoning:} the failure modes require service isolation, which is where one service can crash without impacting the others, and where systemd can restart each service independently. The bus separates the producers from the consumers. Redis Streams is lightweight, has a bounded backlog which a restarted consumer can resume from and allows for consumer groups that run the dashboard and the decision engine independently, reading the same events.
 
 \noindent \textbf{Alternatives rejected:} direct function calls in one process (no fault isolation); Apache Kafka (too heavy for the hardware); plain unix sockets between each pair of components (simple, but every new consumer requires new wiring, and while a consumer restarts, messages are lost).
 
@@ -202,7 +202,7 @@ Offline: training & Regenerate datasets, train and validate models, publish vers
 
 \noindent \textbf{Reasoning:} user space programs can crash but the kernel continues to run. While the queue-bypass flag applies the selected mode regardless of whether the watchdog is down or not, timed ipsets entries expire even if the enforcer fails.
 
-\noindent \textbf{Alternatives rejected:} Add iptables rules one per blocked host (slow when many hosts are blocked and iptables rules are still there after a crash); A user-space proxy that drops traffic (adds latency and is itself a crash risk).
+\noindent \textbf{Alternatives rejected:} add iptables rules one per blocked host (slow when many hosts are blocked and iptables rules are still there after a crash); A user-space proxy that drops traffic (adds latency and is itself a crash risk).
 
 \subsection{Choice of Languages and Products}\label{sec:6.4.6}
 \noindent Table~\ref{tab:products} summarises the main product and language choices.
