@@ -15,7 +15,7 @@
     \item \textbf{Reports and stays available:} shows live statistics and alerts on a web dashboard, and keeps the network in a defined state when a component fails.
 \end{enumerate}
 
-\noindent The system is organised as a set of small, independent services connected by a local event bus, rather than as one large program. The packet-forwarding path is kept as short as possible (kernel plus Suricata), and everything slower, such as machine learning, the database and the dashboard, sits beside that path instead of in it. Sections~\ref{sec:sysarch} and~\ref{sec:archstrategies} explain this choice in detail.
+\noindent The system is made up of independent services connected by a local event bus, rather than as one large program. The packet-forwarding path is kept as short as possible (kernel plus Suricata), and everything slower like machine learning, the database and the dashboard, sits beside that path instead of in it. Sections~\ref{sec:sysarch} and~\ref{sec:archstrategies} explain this choice in detail.
 
 \section{Design Considerations}\label{sec:6.2}
 \label{sec:designconsiderations}
@@ -24,13 +24,13 @@
 \subsection{Assumptions and Dependencies}\label{sec:6.2.1}
 \label{sec:assumptions}
 \begin{itemize}
-    \item \textbf{Hardware:} the host has at least a quad-core 64-bit ARM or x86 CPU, 4\,GB of RAM, a wireless adapter that supports AP mode and an Ethernet port for the uplink. A Raspberry Pi 4/5 class board or a small x86 mini-PC meets this. A USB Wi-Fi adapter is assumed when the built-in radio does not support AP mode reliably.
-    \item \textbf{Operating system:} a Debian-based Linux distribution with systemd, iptables (nftables backend accepted), ipset and NFQUEUE support in the kernel.
-    \item \textbf{Network position:} the NIDPS is the only wireless network clients use. Devices that connect directly to the ISP router by cable or by the router's own Wi-Fi are not protected; disabling the ISP router's Wi-Fi is part of setup.
-    \item \textbf{Third-party software:} Suricata 7 or later with the Emerging Threats Open ruleset, hostapd, dnsmasq, and Python 3.11+ with scikit-learn and XGBoost. Ruleset updates require periodic internet access.
-    \item \textbf{End users:} the owner is not a security expert. Defaults must be safe without tuning, and the dashboard must explain alerts in plain language.
-    \item \textbf{Trust:} the NIDPS host itself and the admin's devices are trusted. The ISP router is assumed to be functional but is not trusted to provide any security.
-    \item \textbf{Likely changes:} new attack types and rules will be added, models will be retrained and the TLS fingerprinting method may move from JA3 to its successor JA4 as client libraries randomise extension order. The design isolates each of these behind its own component.
+    \item \textbf{Hardware:} the host has at least a quad-core 64-bit ARM or x86 CPU, 4\,GB of RAM, a wireless adapter that supports AP mode and an Ethernet port for the uplink.
+    \item \textbf{Operating system:} Debian based Linux distribution with systemd, iptables (use of nftables is accepted, but not required), ipset (use of NFQUEUE is accepted, but not required) and support in the kernel.
+    \item \textbf{Network position:} NIDPS is the only wireless network clients access. Devices which are connected directly to the ISP router via cable or directly by the ISP router's Wi-Fi are not protected. Turning off the ISP router's WiFi is a part of the set-up process.
+    \item \textbf{Third-party software:} Suricata 7 or later with Emerging Threats Open ruleset, hostapd, dnsmasq, Python 3.11+ with scikit-learn and XGBoost. Periodic Internet access is required for ruleset updates.
+    \item \textbf{End users:} Owner is NOT a security expert. Defaults should be safe and not require tuning, and dashboard should provide information about alerts in easy-to-understand terms.
+    \item \textbf{Trust:} The NIDPS host and the admin's devices are trusted. The ISP router is assumed to be working, but is not trusted to provide any security.
+    \item \textbf{Likely changes:} Changes are likely to include new attack types and new rules, models may be retrained and the TLS fingerprinting method could change from JA3 to its successor JA4, as TLS client libraries start to shuffle the order of extensions. Each of these is isolated by the design behind its component.
 \end{itemize}
 
 \subsection{General Constraints}\label{sec:6.2.2}

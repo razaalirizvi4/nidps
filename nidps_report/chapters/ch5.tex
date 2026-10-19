@@ -1,10 +1,10 @@
 \chapter{Proposed Approach and Methodology}\label{chap:5}
 \label{chap:approach}
-\noindent This chapter presents the methodology through which the proposed Network Intrusion Detection and Prevention System (NIDPS) detects and blocks malicious traffic on a small network. The proposed approach is a hybrid detection framework: three complementary detection layers, a decision-fusion algorithm that turns their outputs into a single verdict, and an enforcement and recovery mechanism that acts on that verdict. The chapter begins with the datasets and the way they are harmonised so that models trained offline see the same features at runtime. It then walks through the backend algorithms that are not visible in the system design: flow construction, TLS fingerprinting, rule-based detection, Isolation Forest scoring with per-network threshold calibration, supervised attack classification, verdict fusion, automated blocking and the failure-handling state machine. The chapter closes with the evaluation protocol used to measure detection quality and the behaviour of the system on constrained hardware.
+\noindent This chapter presents the methodology through which the NIDPS detects and blocks malicious traffic on a network. The proposed approach is a hybrid detection framework which combines three detection layers, whose output goes through a decision fusion algorithm, that provides a verdict and then an enforcement and self recovery mechanism that acts on that decision. This chapter covers the datasets and how they are fused, automated prevention and failure handling and the evaluation protocol.
 
 \section{Overview of the Proposed Framework}\label{sec:5.1}
 \label{sec:overview}
-\noindent The NIDPS runs on a single Linux host that acts as the network's wireless access point, so every packet between client devices and the ISP gateway passes through it. Each packet travels two paths at once. On the inline path, Suricata inspects packets as they are forwarded and can drop them immediately. On the analysis path, packets are grouped into bidirectional flows, and each completed flow is described by 78 statistical features plus TLS fingerprints (JA3/JA3S). These flow records are scored by an unsupervised Isolation Forest (Layer~2) and a supervised Random Forest/XGBoost classifier (Layer~3).
+\noindent The NIDPS runs on a single Linux host that acts as a routers wireless access point. Therefore, all packets between the client devices and the ISP gateway pass through it. Each packet travels two independent paths, the inline path in which Suricata inspects packets as they are being forwarded and can drop them immediately, and an analysis path, in which packets are grouped into bidirectional flows, identified by 78 distinct features and their TLS fingerprints. These flow records are scored by an unsupervised Isolation Forest (Layer~2) and a supervised Random Forest/XGBoost classifier (Layer~3).
 
 \noindent The three layers cover different threat classes:
 \begin{itemize}
@@ -18,7 +18,7 @@
 \begin{figure}[!htbp]
     \centering
     \includegraphics[width=\textwidth]{Figures/nidps_fig5_1.png}
-    \caption{Proposed three-layer NIDPS pipeline.}
+    \caption{Proposed three-layer NIDPS pipeline. The inline packet path is represented by the solid line, whereas the dotted line represents the analysis and the supervision path.}
     \label{fig:pipeline}
 \end{figure}
 
@@ -332,7 +332,7 @@ repeat periodically (e.g.\ weekly) as the network's traffic changes\;
 
 \subsection{C2 Beaconing Score}\label{sec:5.5.4}
 \label{sec:beacon}
-\noindent Infected devices typically contact their command-and-control server at regular intervals. Flows are grouped by the key (internal host, destination IP or TLS server name, JA3). For each group with at least $m$ connections in the observation window, the inter-arrival times $\Delta t_1, \ldots, \Delta t_k$ between consecutive connections are computed, along with their coefficient of variation:
+\noindent Infected devices typically contact their command and control server at regular intervals. Flows are grouped by the key (internal host, destination IP or TLS server name, JA3). For each group with at least $m$ connections in the observation window, the inter-arrival times $\Delta t_1, \ldots, \Delta t_k$ between consecutive connections are computed, along with their coefficient of variation:
 \begin{equation}
 \label{eq:cv}
 CV = \frac{\sigma_{\Delta t}}{\mu_{\Delta t}}
@@ -365,20 +365,20 @@ G(S) = 1 - \sum_{k=1}^{K} p_k^2
 \subsection{Training and Model Selection}\label{sec:5.6.3}
 \label{sec:modelselection}
 \begin{enumerate}
-    \item Train on the harmonised flows with identifiers removed (Section~\ref{sec:preprocessing}), using class weights to counter imbalance.
+    \item Train on the harmonised flows with identifiers removed (Section~\ref{sec:preprocessing}) and using class weights to counter the imbalance.
     \item Tune hyperparameters (number of trees, maximum depth, learning rate for XGBoost, minimum samples per leaf) with stratified 5-fold cross-validation on the training days only.
-    \item Select by macro-averaged F1-score rather than accuracy. With heavily skewed classes, a model that always predicts the majority class can still look accurate while missing the rare classes entirely.
+    \item Select by macro-averaged F1-score rather than accuracy.
     \item Apply a hardware budget: among models within one F1 point of the best, choose the one with the lowest per-flow inference time and memory on the target device.
     \item Export the chosen model with its feature list and version number, so the runtime refuses a model whose features do not match the extractor.
 \end{enumerate}
 
 \subsection{Confidence Handling}\label{sec:5.6.4}
 \label{sec:confidence}
-\noindent The classifier always outputs a probability vector $p$ over the $K$ classes. The predicted class is $\hat{y} = \arg\max p$, with confidence $c = \max p$. Low confidence means the flow does not fit any class well, which often happens with attacks the model never saw. Instead of forcing a label, flows with $c$ below a confidence threshold $\theta_c$ are labelled ``unknown'' and passed to decision fusion with their Layer 2 score. This way, Layer 3 refines detections but does not overrule a strong anomaly signal.
+\noindent The classifier produces a probability vector $p$ over $K$ classes. The predicted class is $\hat{y} = \arg\max p$, with confidence $c = \max p$. If the confidence is low then the flow is unlikely to fit into any of the classes particularly if the flow is an attack that was not seen during the model training. For flows with $c$ below a confidence threshold $\theta_c$ , instead a laebl ``unknown'' is assigned. The Layer 2 score is passed to the decision fusion module. This allows refinement of any detected anomalies whilst still allowing a high confidence anomaly to stand untouched.
 
 \section{Decision Fusion}\label{sec:5.7}
 \label{sec:fusion}
-\noindent The three layers can disagree, and acting on any single one would either block too much (anomaly scores alone are noisy) or too little (signatures alone miss new attacks). The decision-fusion engine combines their evidence per flow and per host. Its main principle is that strong evidence from one layer is enough to block, while weak evidence must be confirmed by a second layer or must accumulate over time.
+\noindent The layers may differ in their opinions. An action from a single layer would either block too much (anomalies alone are prone to noise) or too little (signatures alone fail to detect novel attacks). Evidence from each layer is combined by host and by flow in the decision fusion module. The underlying motivation is that if one layer provides strong evidence for a block, then it will be blocked, but if the evidence is weak then either evidence must be provided by at least a second layer or the evidence must be accumulative.
 
 \subsection{Verdict Algorithm}\label{sec:5.7.1}
 \label{sec:verdict}
@@ -577,4 +577,4 @@ Recovery behaviour & Time to detect a failure, time to restore service, packets 
 
 \section{Conclusion}\label{sec:5.11}
 \label{sec:ch5conclusion}
-\noindent This chapter presented the proposed hybrid framework and the backend algorithms behind it. Suricata and an ARP consistency check provide fast, packet-level detection of known attacks. Isolation Forest, with a per-network threshold calibration, detects unusual behaviour, supported by host-level scores for exfiltration and C2 beaconing. A Random Forest or XGBoost classifier assigns flows to known attack families. Encrypted traffic is analysed through JA3/JA3S fingerprints and flow statistics instead of decryption, and all datasets are regenerated with the device's own flow extractor so training and runtime features match. A decision-fusion algorithm with host evidence accumulation turns these signals into verdicts, an enforcer applies them through timed ipset entries with safeguards against self-inflicted outages, and a watchdog applies a configurable failure mode backed by the kernel. The evaluation protocol measures both detection quality across datasets and the system's latency, throughput and recovery on real hardware. The next chapter describes how these algorithms are organised into components and how those components interact.
+\noindent The proposed Hybrid framework and the algorithms of the backend were introduced in this chapter. Known attacks are detected at the packet level, and at the fastest rate, by Suricata and an ARP consistency check. Isolation Forest with per network and with Host level scores for exfiltration and C2 beaconing detects unusual behaviour. A Random Forest or XGBoost classifier is used to classify the flows into known attack families. The analysis of the encrypted traffic is done using JA3/JA3S fingerprints and flow stats, without decrypting it, and all datasets are reconstructed with the device's flow extractor, so that features are identical during training and runtime. These signals are converted to verdicts by a decision-fusion algorithm, which are enforced by a host evidence accumulation, using ipsets with timing constraints and a mechanism to prevent self-inflicted outages, and applied by a watchdog, with a configurable failure mode backed by the kernel. The evaluation protocol not only tests the quality of the detection per dataset, but also the latency, throughput and recovery of the system on real hardware.
