@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.19)  20 OCT 2026 23:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.19)  20 OCT 2026 23:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1178,19 +1178,19 @@ Package pdftex.def Info: Figures/nidps_fig6_1.png  used on input line 91.
 <Figures/nidps_fig6_2.png, id=1709, 2798.455pt x 2156.055pt>
 File: Figures/nidps_fig6_2.png Graphic file (type png)
 <use Figures/nidps_fig6_2.png>
-Package pdftex.def Info: Figures/nidps_fig6_2.png  used on input line 134.
+Package pdftex.def Info: Figures/nidps_fig6_2.png  used on input line 133.
 (pdftex.def)             Requested size: 369.66798pt x 284.80411pt.
  [93 <./Figures/nidps_fig6_2.png (PNG copy)>]
-<Figures/nidps_fig6_3.png, id=1723, 2964.07375pt x 1217.54875pt>
+<Figures/nidps_fig6_3.png, id=1722, 2964.07375pt x 1217.54875pt>
 File: Figures/nidps_fig6_3.png Graphic file (type png)
 <use Figures/nidps_fig6_3.png>
-Package pdftex.def Info: Figures/nidps_fig6_3.png  used on input line 163.
+Package pdftex.def Info: Figures/nidps_fig6_3.png  used on input line 162.
 (pdftex.def)             Requested size: 391.40768pt x 160.77638pt.
  [94 <./Figures/nidps_fig6_3.png (PNG copy)>] [95] [96] [97]
-<Figures/nidps_fig6_4.png, id=1753, 2996.19376pt x 7342.43124pt>
+<Figures/nidps_fig6_4.png, id=1752, 2996.19376pt x 7342.43124pt>
 File: Figures/nidps_fig6_4.png Graphic file (type png)
 <use Figures/nidps_fig6_4.png>
-Package pdftex.def Info: Figures/nidps_fig6_4.png  used on input line 256.
+Package pdftex.def Info: Figures/nidps_fig6_4.png  used on input line 254.
 (pdftex.def)             Requested size: 242.94638pt x 595.4351pt.
  [98] [99 <./Figures/nidps_fig6_4.png (PNG copy)>] [100]
 [101]) [102] (main.bbl [103] [104
@@ -1210,10 +1210,10 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 933489D129C7CD13D57BD27D575FF6E2;33954.
  ) 
 Here is how much of TeX's memory you used:
- 17958 strings out of 467871
- 281882 string characters out of 5418375
+ 17959 strings out of 467871
+ 281889 string characters out of 5418375
  756157 words of memory out of 5000000
- 46016 multiletter control sequences out of 15000+600000
+ 46017 multiletter control sequences out of 15000+600000
  715969 words of font info for 161 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  90i,17n,97p,1187b,685s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1230,9 +1230,9 @@ MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/ryyan/AppData/Local/Programs/
 MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/ryyan/AppData/Local/Programs
 /MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/ryyan/AppData/Local/Programs
 /MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (117 pages, 4577915 bytes).
+Output written on main.pdf (117 pages, 4578033 bytes).
 PDF statistics:
- 2063 PDF objects out of 2073 (max. 8388607)
+ 2062 PDF objects out of 2073 (max. 8388607)
  529 named destinations out of 1000 (max. 500000)
  1377 words of extra memory for PDF output out of 10000 (max. 10000000)
 
