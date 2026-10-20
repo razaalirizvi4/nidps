@@ -116,16 +116,16 @@
 \contentsline {section}{\numberline {4.6}Use Cases}{39}{section.4.6}%
 \contentsline {section}{\numberline {4.7}Hardware and Software Requirements}{51}{section.4.7}%
 \contentsline {subsection}{\numberline {4.7.1}Hardware Requirements}{51}{subsection.4.7.1}%
-\contentsline {subsection}{\numberline {4.7.2}Software Requirements}{51}{subsection.4.7.2}%
+\contentsline {subsection}{\numberline {4.7.2}Software Requirements}{52}{subsection.4.7.2}%
 \contentsline {section}{\numberline {4.8}Graphical User Interface}{53}{section.4.8}%
 \contentsline {subsection}{\numberline {4.8.1}Login Screen}{53}{subsection.4.8.1}%
 \contentsline {subsection}{\numberline {4.8.2}Overview Screen}{53}{subsection.4.8.2}%
-\contentsline {subsection}{\numberline {4.8.3}Alerts Screen}{53}{subsection.4.8.3}%
+\contentsline {subsection}{\numberline {4.8.3}Alerts Screen}{54}{subsection.4.8.3}%
 \contentsline {subsection}{\numberline {4.8.4}Blocked Hosts and Allowlist Screen}{55}{subsection.4.8.4}%
 \contentsline {subsection}{\numberline {4.8.5}Settings Screen}{55}{subsection.4.8.5}%
 \contentsline {subsection}{\numberline {4.8.6}System Health Screen}{56}{subsection.4.8.6}%
 \contentsline {section}{\numberline {4.9}Database Design}{56}{section.4.9}%
-\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{56}{subsection.4.9.1}%
+\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{57}{subsection.4.9.1}%
 \contentsline {subsection}{\numberline {4.9.2}Data Dictionary}{59}{subsection.4.9.2}%
 \contentsline {section}{\numberline {4.10}Risk Analysis}{64}{section.4.10}%
 \contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{67}{chapter.5}%

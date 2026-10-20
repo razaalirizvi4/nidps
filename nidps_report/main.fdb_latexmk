@@ -1,13 +1,13 @@
 # Fdb version 4
-["bibtex main"] 1792423900.764 "main.aux" "main.bbl" "main" 1792424379.90681 0
+["bibtex main"] 1792520456.0594 "main.aux" "main.bbl" "main" 1792520753.39888 0
   "./fypbib.bib" 1792422883.29387 8737 d95ee5fbd3e2403780c189a083158255 ""
   "C:/Users/ryyan/AppData/Local/Programs/MiKTeX/bibtex/bst/bibtex/ieeetr.bst" 1291864344 18361 1a00e58565e7f19bf2b3e1bfb82254ae ""
-  "main.aux" 1792424378.72782 77327 b945c05be1a29990ca77408c9b69a470 "pdflatex"
+  "main.aux" 1792520751.89246 77592 42f3c43d4997e0ce52e54b2222532136 "pdflatex"
   (generated)
   "main.bbl"
   "main.blg"
   (rewritten before read)
-["pdflatex"] 1792424375.11598 "main.tex" "main.pdf" "main" 1792424379.90828 0
+["pdflatex"] 1792520747.57227 "main.tex" "main.pdf" "main" 1792520753.40076 0
   "C:/Users/ryyan/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1792423888.02152 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/ryyan/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ectt1000.pk" 1792423897.79827 20028 b457f5693defc0ca02c2d171de145271 ""
   "C:/Users/ryyan/AppData/Local/MiKTeX/fonts/pk/ljfour/jknappen/ec/dpi600/ectt1200.pk" 1792423899.37308 24152 5ad46b01ab70755f881f5a10725bed04 ""
@@ -150,6 +150,7 @@
   "Figures/gui_login.jpg" 1792422883.24094 17354 e09f14f88d16ed8aef63a1627a130ddf ""
   "Figures/gui_overview.jpg" 1792422883.24294 41860 a6e471588cd0b497c4cd223f38076566 ""
   "Figures/gui_settings.jpg" 1792422883.24394 43412 a8dc2d40b4a309d19194371cb8bde4bb ""
+  "Figures/navigation.png" 1792422883.24494 12362 cabf470c948d872f2ceb5e1530128729 ""
   "Figures/nidps_erd_chen.png" 1792422883.25225 834609 628fdf39184853f660da3d4626dbdbeb ""
   "Figures/nidps_fig5_1.png" 1792422883.25577 259768 4ac5b163e4b5887e3b238d38fb2c63f2 ""
   "Figures/nidps_fig5_2.png" 1792422883.25877 283938 79a3abab6a9c40fcc77a1378577821b0 ""
@@ -166,16 +167,16 @@
   "Figures/sig_raza.png" 1792422883.28484 7776 111dbd1d87edbb9f6bb37f6877785a7b ""
   "Figures/sig_ryyan.png" 1792422883.28606 37511 1e5ae726943510d62c285e03023ff847 ""
   "Figures/usecase.png" 1792422883.28864 144716 63dba3d9b0b1bb9b2f1ec6ea1375ee28 ""
-  "chapters/ch1to4.tex" 1792424374.44955 166679 9cc6c113251d6b4e318a7eb6e3333e7d ""
+  "chapters/ch1to4.tex" 1792520746.64676 167692 b58b2f34e8902e2cf83d5faea3fe30df ""
   "chapters/ch5.tex" 1792424374.45056 46862 ce9f4a5725729e788b6b3c7b7758dece ""
-  "chapters/ch6.tex" 1792422883.29287 33468 3add7ec7731d159ee02c4174b0b43ce5 ""
-  "main.aux" 1792424378.72782 77327 b945c05be1a29990ca77408c9b69a470 "pdflatex"
-  "main.bbl" 1792423901.09031 5801 e8cc530b1fe7f0c3bbfb97772d99da06 "bibtex main"
-  "main.lof" 1792424378.73783 2283 762e119ff559e8ba0ddc67ec627b372a "pdflatex"
-  "main.lot" 1792424378.73783 5102 d3a94435765e7aa47338392d5ed824a8 "pdflatex"
-  "main.out" 1792424378.73482 33954 933489d129c7cd13d57bd27d575ff6e2 "pdflatex"
+  "chapters/ch6.tex" 1792520449.53182 33474 2b818bb3c2f05cd553a83e6e55d77ce5 ""
+  "main.aux" 1792520751.89246 77592 42f3c43d4997e0ce52e54b2222532136 "pdflatex"
+  "main.bbl" 1792520456.40703 5801 e8cc530b1fe7f0c3bbfb97772d99da06 "bibtex main"
+  "main.lof" 1792520751.90656 2410 42b7e57a0ec04cb7507a7dbfcb4d6394 "pdflatex"
+  "main.lot" 1792520751.90656 5102 a0bcb5c0e81db94b23e89c09571b970c "pdflatex"
+  "main.out" 1792520751.90284 33954 933489d129c7cd13d57bd27d575ff6e2 "pdflatex"
   "main.tex" 1792422883.33988 6582 f69afc481c54981deea0e99b1975981e ""
-  "main.toc" 1792424378.73783 21166 c8606d86d92c44438a6853e213886ff4 "pdflatex"
+  "main.toc" 1792520751.90656 21166 b90150b162ffd99a0d82fc5e3c638603 "pdflatex"
   (generated)
   "main.aux"
   "main.lof"

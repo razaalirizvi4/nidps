@@ -24,7 +24,7 @@
 \subsection{Assumptions and Dependencies}\label{sec:6.2.1}
 \label{sec:assumptions}
 \begin{itemize}
-    \item \textbf{Hardware:} the host has at least a quad-core 64-bit ARM or x86 CPU, 4\,GB of RAM, a wireless adapter that supports AP mode and an Ethernet port for the uplink.
+    \item \textbf{Hardware:} the host is a mid-range laptop or a Raspberry Pi with at least 4\,GB of RAM, a wireless adapter that supports AP mode and an Ethernet port for the uplink.
     \item \textbf{Operating system:} Debian based Linux distribution with systemd, iptables (use of nftables is accepted, but not required), ipset (use of NFQUEUE is accepted, but not required) and support in the kernel.
     \item \textbf{Network position:} NIDPS is the only wireless network clients access. Devices which are connected directly to the ISP router via cable or directly by the ISP router's Wi-Fi are not protected. Turning off the ISP router's WiFi is a part of the set-up process.
     \item \textbf{Third-party software:} Suricata 7 or later with Emerging Threats Open ruleset, hostapd, dnsmasq, Python 3.11+ with scikit-learn and XGBoost. Periodic Internet access is required for ruleset updates.

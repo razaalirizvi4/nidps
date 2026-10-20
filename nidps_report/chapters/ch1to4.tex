@@ -674,7 +674,7 @@ Cross-dataset generalisation of deep IDS models~\cite{lr:xin2025} & 2025 & Trans
 \begin{itemize}
 \item \textbf{Complete system:} Previous works either propose a design or only detect traffic. The proposed system detects, blocks and applies safeguards, while keeping forwarding latency close to that of a regular router.
 \item \textbf{Three layers with fusion:} Suricata catches known attacks first, an Isolation Forest tuned to local traffic spots anomalous behaviour, and a Random Forest/XGBoost classifier identifies the attack family. Their outputs are fused so that the system records what each layer decided and why.
-\item \textbf{Lightweight models:} Unlike many deep learning systems, the proposed system uses lightweight tree models on the forwarding path, and latency, throughput and resource use are measured.
+\item \textbf{Lightweight models:} Unlike many deep learning systems, the proposed system uses lightweight tree models that run beside the forwarding path rather than in it. They check each flow once it is complete, or every few seconds for long-running flows, so they add no delay to forwarded traffic. Latency, throughput and resource use are measured.
 \item \textbf{Cross-dataset evaluation:} Because most models fail on unseen datasets, the system is trained on CIC-IDS-2017, CSE-CIC-IDS2018 and CIC-IoT-2023 using one flow extractor and validated on self-collected household traffic.
 \item \textbf{Encrypted traffic and failure handling:} The system analyses encrypted connections using JA3/JA3S fingerprints and flow metadata without decryption, and uses a watchdog with configurable fail-open, fail-closed and degraded modes. None of the reviewed systems addresses either problem.
 \end{itemize}
@@ -974,7 +974,7 @@ Portability & The system should run on different low-cost Linux devices. & Only 
 
 \begin{itemize}
 \item The NIDPS is the only wireless network that client devices use. The ISP router's own Wi-Fi is disabled, and devices connected by cable directly to the ISP router are outside the protection of the system.
-\item The host has at least a quad-core 64-bit CPU, 4 GB of RAM, a wireless adapter that supports access point mode and an Ethernet port for the uplink.
+\item The host is a mid-range laptop or a Raspberry Pi with at least 4 GB of RAM, a wireless adapter that supports access point mode and an Ethernet port for the uplink.
 \item The ISP router works correctly and provides internet access, but it is not relied on for any security function.
 \item The NIDPS host and the administrator's devices are trusted and have not been compromised.
 \item The administrator is not a security expert. Default settings must therefore be safe without tuning.
@@ -1300,14 +1300,14 @@ Portability & The system should run on different low-cost Linux devices. & Only 
 \hline
 \textbf{Component} & \textbf{Minimum / reference specification} & \textbf{Purpose} \\ \hline
 \endhead
-NIDPS host & Raspberry Pi 4 Model B, 4 GB RAM (reference); any quad-core 64-bit ARM or x86 device with $\geq$ 4 GB RAM & Runs the access point, Suricata, flow extractor, ML scorer, decision engine, enforcer, watchdog and dashboard \\ \hline
+NIDPS host & Any mid-level device, e.g. a laptop with 8 GB RAM or a Raspberry Pi 4 with 4 GB RAM & This device will function as the access point and will run Suricata, flow extraction, the scoring system, the decision system, enforcement and the watchdog, and will serve the dashboard \\ \hline
 Storage & 32 GB microSD (A2 class) or SSD & Operating system, rulesets, model packages, event database and logs \\ \hline
-Wireless adapter & Built-in Wi-Fi or USB Wi-Fi adapter supporting AP mode (802.11ac recommended) & Client-facing access point (wlan0) \\ \hline
+Wireless adapter & Pre-installed Wi-Fi card or USB Wi-Fi adapter that supports AP mode & Client-facing access point (wlan0) \\ \hline
 Wired uplink & Gigabit Ethernet port and Cat5e/Cat6 cable & Connection to the ISP router (eth0) \\ \hline
 Cooling and power & Official 5 V/3 A power supply; heatsink or fan case & Stable operation under sustained load without thermal throttling \\ \hline
-ISP router / ONT & Existing ISP device (e.g. Huawei HG8546M), built-in Wi-Fi disabled & Upstream internet gateway \\ \hline
-Attack host & Laptop or VM running Kali Linux & Generating controlled attacks on the isolated test network \\ \hline
-Test client devices & At least two phones/laptops and one IoT device & Benign traffic, victims for lateral movement and spoofing tests \\ \hline
+ISP router / ONT & Existing ISP device (e.g. Huawei HG8546M) with built-in Wi-Fi disabled, or a mobile data source for testing & Upstream internet gateway \\ \hline
+Attack host & Laptop or VM running Linux & Generating controlled attacks on the isolated test network \\ \hline
+Test client devices & At least two phones/laptops & Benign traffic, victims of lateral movement and spoofing tests \\ \hline
 Training workstation & Laptop/PC with $\geq$ 16 GB RAM (32 GB recommended), $\geq$ 200 GB free disk & Regenerating datasets from PCAPs and training models offline \\ \hline
 \end{longtable}
 }
@@ -1333,7 +1333,7 @@ Packet processing & Scapy / libpcap bindings; CICFlowMeter-compatible feature de
 Event bus and storage & Redis (Streams); SQLite 3 & Messaging between services; event database \\ \hline
 Dashboard & FastAPI (or Flask) with WebSocket support; HTML/CSS/JavaScript with a charting library & Web interface and API \\ \hline
 Supervision & systemd units and hardware watchdog & Process supervision and automatic restart \\ \hline
-Testing and evaluation & pytest, tcpreplay, iperf3, Wireshark/tcpdump, Kali Linux tools (nmap, hydra, hping3, arpspoof, dnsspoof) & Unit, integration, performance and live attack tests \\ \hline
+Testing and evaluation & pytest, tcpreplay, iperf3, Wireshark/tcpdump, Linux attack tools (nmap, hydra, hping3, arpspoof, dnsspoof) & Unit, integration, performance and live attack tests \\ \hline
 Development tools & Git and GitHub, VS Code, Jupyter Notebook & Version control, coding and data analysis \\ \hline
 Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing the dashboard \\ \hline
 \end{longtable}
@@ -1341,7 +1341,14 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 
 \section{Graphical User Interface}\label{sec:4.8}
 
-\noindent The NIDPS has one graphical user interface: the web dashboard used by the Network Administrator. It is served by the NIDPS host and is reachable only from the protected network. Network users have no interface, because protection is transparent to them. The interface has six main screens.
+\noindent The NIDPS has one graphical user interface: the web dashboard used by the Network Administrator. It is served by the NIDPS host and is reachable only from the protected network. Network users have no interface, because protection is transparent to them. The interface has several main screens. Figure~\ref{fig:4.2} shows a proposed navigation flow between the pages.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/navigation.png}
+\caption{Navigation flow of the Network Administrator.}
+\label{fig:4.2}
+\end{figure}
 
 \subsection{Login Screen}\label{sec:4.8.1}
 
@@ -1352,7 +1359,7 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 \label{fig:4.3}
 \end{figure}
 
-\noindent The login screen authenticates the administrator before any information is shown. Error messages do not reveal whether the username or the password was wrong, and the account is locked after repeated failures. Covers: UC-01.
+\noindent The login screen makes sure a person is authenticated before they are shown any information. Error messages do not indicate what was wrong. Accounts will be locked after multiple failures. (UC-01)
 
 \subsection{Overview Screen}\label{sec:4.8.2}
 
@@ -1363,7 +1370,7 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 \label{fig:4.4}
 \end{figure}
 
-\noindent The overview screen is the home page. It answers the questions "is my network safe right now?" and "is the NIDPS working?" at a glance. Counters and charts update live. Selecting a device shows its traffic summary and risk history. Covers: UC-02.
+\noindent The overview screen will cover basic information on the home page. It shows statuses such as network safety and NIDPS functionality. It will have counters and charts that update periodically. A specific device can also be selected to view its history. (UC-02)
 
 \subsection{Alerts Screen}\label{sec:4.8.3}
 
@@ -1374,7 +1381,7 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 \label{fig:4.5}
 \end{figure}
 
-\noindent The alerts screen lists every ALERT and BLOCK verdict. Selecting an alert opens the evidence panel, which explains in plain language what was detected and shows the evidence from each layer, so the administrator can judge whether the alert is genuine. Covers: UC-03, UC-04 (results).
+\noindent The alerts screen will list any detections and alerts that appear, along with verdicts such as pass or block. If one of the alerts is selected, it will open a small evidence section, which will explain in simple terms what threat was detected and show the evidence from every layer, so the admin can judge it and blacklist/whitelist the host as well. (UC-03/04)
 
 \subsection{Blocked Hosts and Allowlist Screen}\label{sec:4.8.4}
 
@@ -1385,7 +1392,7 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 \label{fig:4.6}
 \end{figure}
 
-\noindent This screen lets the administrator see who is blocked and why, release hosts blocked by mistake and maintain the allowlist. A warning banner appears here if the block rate limit has been reached. Covers: UC-05, UC-06.
+\noindent This screen will let the network administrator see who has been blocked, either by decision of the system or manually. Hosts can also be released if they were blocked by mistake, and there is an allowlist to see and edit all currently allowed hosts. A warning will pop up if the block rate limit is reached. (UC-05/06)
 
 \subsection{Settings Screen}\label{sec:4.8.5}
 
@@ -1396,7 +1403,7 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 \label{fig:4.7}
 \end{figure}
 
-\noindent The settings screen groups all runtime configuration. Every change is validated, applied without restarting services and recorded in the audit log. Current values are shown next to their defaults. Covers: UC-07, UC-08, UC-09, UC-10, UC-12 (model version display).
+\noindent The settings screen will allow the administrator to change all settings and configurations. Whenever a change is made, it will be validated and then applied without restarting the system, and a record will be added to the logs. Current values and defaults are shown as well. (UC-07/08/09/10/12)
 
 \subsection{System Health Screen}\label{sec:4.8.6}
 
@@ -1407,11 +1414,11 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 \label{fig:4.8}
 \end{figure}
 
-\noindent The health screen shows whether every component is running and how the system has behaved over time, including periods in which it was not fully protecting the network. Covers: UC-11.
+\noindent The health screen will show a detailed log of every running component and of system behaviour. It will also show the time periods in which the system was active or inactive. (UC-11)
 
 \section{Database Design}\label{sec:4.9}
 
-\noindent The NIDPS stores derived data only: hosts, flow records for a short retention window, evidence, verdicts, blocks, the allowlist, model packages, calibration state, configuration, component health events and an audit log. A relational database is used because these records are strongly linked (for example, a block refers to a verdict, which refers to a flow and its evidence) and because the dashboard needs filtered, joined queries. SQLite is chosen because it runs in-process with no server, stores everything in one file and is sufficient for the write rate of a single home device. Raw packets and payloads are never stored. Live counters shown on the dashboard are kept in memory and on the event bus rather than in the database.
+\noindent The NIDPS does not store any direct data such as packets or extra information. It will only store data points such as hosts, flow records, black/white lists, model packages, configuration state, verdicts and logs for a period. An RDBMS is used as the records are linked to each other, e.g. blocks happen in response to a verdict on a flow, and so on. The dashboard view may also need filtered entries. SQLite is chosen because it runs in-process with no server, stores everything in one file and is sufficient for the write rate of a single home device. Raw packets and payloads are never stored. Live counters shown on the dashboard are kept in memory and on the event bus rather than in the database.
 
 \subsection{ER Diagram}\label{sec:4.9.1}
 
@@ -1662,7 +1669,7 @@ timestamp & DATETIME & NOT NULL & Time of the action \\ \hline
 
 \section{Risk Analysis}\label{sec:4.10}
 
-\noindent The main risks to the project are listed below with their category, likelihood, impact and mitigation. Technical risks concern whether the system can meet its requirements; resource, schedule and project risks concern whether the team can deliver it; legal and ethical risks concern how attack testing is carried out. The risk register is reviewed at every sprint review and updated as risks change.
+\noindent The possible risks that can be faced in the project are listed below, along with their likelihood, impact, category and mitigation. Technical risks decide whether the system will meet the proposed requirements. The other risks, which are resource, schedule and project risks, concern the team being able to deliver the project. Legal and ethical risks cover how testing and data privacy are maintained. Risks are reviewed and updated as the project carries on.
 
 {\footnotesize\setlength{\tabcolsep}{3.5pt}
 \begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.073\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.235\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.140\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.133\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.117\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.302\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
@@ -1673,20 +1680,20 @@ timestamp & DATETIME & NOT NULL & Time of the action \\ \hline
 \hline
 \textbf{ID} & \textbf{Risk} & \textbf{Category} & \textbf{Likelihood} & \textbf{Impact} & \textbf{Mitigation} \\ \hline
 \endhead
-R1 & Raspberry Pi cannot sustain household throughput with all layers enabled & Technical & Medium & High & Keep ML off the forwarding path; trim rule groups; degraded mode; measure saturation early and switch to a mini-PC if needed. \\ \hline
-R2 & Models trained on public datasets perform poorly on real home traffic (dataset shift) & Technical & High & High & Harmonised flow regeneration; per-network threshold calibration; Suricata as a baseline; self-collected test set; report results honestly. \\ \hline
+R1 & Lower-end PCs or Raspberry Pis may not be able to handle the throughput of a household with all layers enabled & Technical & Medium & High & Only Suricata runs inline; ML checks finished flows; disable unneeded rules; use degraded mode under load; move to a stronger device if needed. \\ \hline
+R2 & Models trained on various public datasets may perform inaccurately on household traffic & Technical & High & High & Extract features uniformly across datasets; tune thresholds for new networks; keep Suricata as a baseline; collect traffic on home networks and test honestly. \\ \hline
 R3 & High false positive rate causes legitimate devices to be blocked & Technical / Business & Medium & High & Fusion requires strong or corroborated evidence; allowlist; rate limit; short first blocks; one-week alert-only soak test before enabling blocking. \\ \hline
-R4 & Wireless adapter or driver does not support stable AP mode or client isolation & Technical & Medium & Medium & Test hardware early; use a supported USB adapter; fall back to bridging lateral traffic where needed. \\ \hline
-R5 & Encrypted traffic and JA3 randomisation reduce detection coverage & Technical & High & Medium & Rely on flow metadata; combine JA3 with JA3S and SNI; isolate fingerprinting so JA4 can be adopted. \\ \hline
-R6 & Errors in public dataset labels or flow construction distort training & Technical & Medium & Medium & Regenerate flows from raw PCAPs; relabel from attack schedules; prefer corrected dataset versions where available. \\ \hline
-R7 & Large dataset PCAPs exceed available storage or memory for training & Resource & Medium & Medium & Process captures in chunks; sample benign traffic; use external storage or university lab machines. \\ \hline
-R8 & The NIDPS becomes a single point of failure and causes network outages & Operational & Low & High & Kernel-enforced fail-open default; watchdog; automatic restarts; timed blocks. \\ \hline
-R9 & An attacker poisons calibration or evades the models & Security & Low & High & Exclude flagged flows from calibration; bound threshold shift; no online retraining; signatures remain active. \\ \hline
+R4 & Wireless adapters or devices do not support AP mode or client isolation & Technical & Medium & Medium & Test hardware functionality first; use a supported device; use Linux bridging if needed. \\ \hline
+R5 & Traffic encryption and JA3 randomisation reduce the ability to detect attacks properly & Technical & High & Medium & Rely on flow metadata; combine JA3, JA3S and SNI; keep the fingerprinting algorithm modular so it can be upgraded to JA4 later. \\ \hline
+R6 & Errors in publicly available datasets or the flow algorithm will disrupt training & Technical & Medium & Medium & Rebuild flows from PCAPs; relabel them using attack schedules; prefer corrected or improved dataset versions. \\ \hline
+R7 & PCAPs from large datasets can exceed memory limits for training & Resource & Medium & Medium & Process captures in chunks; sample benign traffic; use external storage or university lab machines. \\ \hline
+R8 & If the NIDPS fails, the whole network could go down & Operational & Low & High & Kernel-enforced fail-open by default; watchdog to catch crashes; automatic restart attempts; timed blocks. \\ \hline
+R9 & An attack could be mistaken for normal traffic during calibration, letting an attacker evade the models & Security & Low & High & Flagged flows are excluded from calibration; threshold shifts are capped; retraining only happens offline; signatures remain active. \\ \hline
 R10 & Attack experiments affect devices or networks outside the project & Legal / Ethical & Low & High & Run attacks only on an isolated lab network owned by the team; capture only the team's own traffic. \\ \hline
-R11 & Schedule slippage due to integration complexity of many services & Schedule & Medium & Medium & Incremental delivery of vertical slices; Layer 1 delivered first; sprint reviews with the supervisor. \\ \hline
-R12 & Hardware damage or failure (SD card corruption, overheating) & Resource & Medium & Medium & Use quality storage and cooling; keep image backups; keep a spare SD card. \\ \hline
-R13 & Team member unavailability & Project & Low & Medium & Shared repository and documentation; pair work on critical components; clear task ownership. \\ \hline
+R11 & Schedule slippage due to integration complexity of many services & Schedule & Medium & Medium & Delivery will happen methodically along the pipeline, with lower layers such as the AP and Layer 1 delivered first. \\ \hline
+R12 & Damage to hardware such as corruption or overheating & Resource & Medium & Medium & Use a trustworthy storage device and monitor temperatures; employ backups as well. \\ \hline
+R13 & Emergency unavailability of a team member & Project & Low & Medium & Shared repository and documentation; pair work on critical components; clear task ownership. \\ \hline
 \end{longtable}
 }
 
-\noindent The two risks rated most serious are R2 and R3, because they determine whether the system is useful on a real network. Both are addressed by design (harmonised features, local calibration and cautious decision fusion) and are measured directly in the evaluation, so that their real effect is known rather than assumed.
+\noindent The primary risks to be aware of in this project are R2 and R3, as they will decide if the system will be usable and worthwhile in a real network environment. These are countered by design decisions such as local calibration and cautious decision fusion. They are also measured directly while evaluating the system so they can be addressed properly.

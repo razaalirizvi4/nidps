@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.19)  19 OCT 2026 20:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.19)  20 OCT 2026 23:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -832,12 +832,12 @@ LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 [6] [7]
-<Figures/sdg9.png, id=1023, 536.0025pt x 517.935pt>
+<Figures/sdg9.png, id=1025, 536.0025pt x 517.935pt>
 File: Figures/sdg9.png Graphic file (type png)
 <use Figures/sdg9.png>
 Package pdftex.def Info: Figures/sdg9.png  used on input line 171.
 (pdftex.def)             Requested size: 121.77158pt x 117.66048pt.
-<Figures/sdg16.png, id=1024, 391.4625pt x 379.4175pt>
+<Figures/sdg16.png, id=1026, 391.4625pt x 379.4175pt>
 File: Figures/sdg16.png Graphic file (type png)
 <use Figures/sdg16.png>
 Package pdftex.def Info: Figures/sdg16.png  used on input line 173.
@@ -877,7 +877,7 @@ Underfull \hbox (badness 1400) in paragraph at lines 761--762
 [31] [32] [33] [34]
 ignored error: Infinite glue shrinkage found in box being split [35] [36]
 [37] [38]
-<Figures/usecase.png, id=1289, 746.79pt x 612.2875pt>
+<Figures/usecase.png, id=1291, 746.79pt x 612.2875pt>
 File: Figures/usecase.png Graphic file (type png)
 <use Figures/usecase.png>
 Package pdftex.def Info: Figures/usecase.png  used on input line 995.
@@ -1069,62 +1069,69 @@ Overfull \hbox (0.5666pt too wide) in alignment at lines 1271--1285
  []
 
 [50] [51] [52]
-<Figures/gui_login.jpg, id=1353, 1284.8pt x 697.60625pt>
+<Figures/navigation.png, id=1356, 722.7pt x 168.63pt>
+File: Figures/navigation.png Graphic file (type png)
+<use Figures/navigation.png>
+Package pdftex.def Info: Figures/navigation.png  used on input line 1348.
+(pdftex.def)             Requested size: 430.5577pt x 100.46346pt.
+<Figures/gui_login.jpg, id=1357, 1284.8pt x 697.60625pt>
 File: Figures/gui_login.jpg Graphic file (type jpg)
 <use Figures/gui_login.jpg>
-Package pdftex.def Info: Figures/gui_login.jpg  used on input line 1350.
+Package pdftex.def Info: Figures/gui_login.jpg  used on input line 1357.
 (pdftex.def)             Requested size: 387.05054pt x 210.15634pt.
-<Figures/gui_overview.jpg, id=1354, 1284.8pt x 699.61375pt>
+<Figures/gui_overview.jpg, id=1358, 1284.8pt x 699.61375pt>
 File: Figures/gui_overview.jpg Graphic file (type jpg)
 <use Figures/gui_overview.jpg>
-Package pdftex.def Info: Figures/gui_overview.jpg  used on input line 1361.
+Package pdftex.def Info: Figures/gui_overview.jpg  used on input line 1368.
 (pdftex.def)             Requested size: 430.5528pt x 234.44945pt.
-<Figures/gui_alerts.jpg, id=1355, 1284.8pt x 700.6175pt>
+<Figures/gui_alerts.jpg, id=1359, 1284.8pt x 700.6175pt>
 File: Figures/gui_alerts.jpg Graphic file (type jpg)
 <use Figures/gui_alerts.jpg>
-Package pdftex.def Info: Figures/gui_alerts.jpg  used on input line 1372.
+Package pdftex.def Info: Figures/gui_alerts.jpg  used on input line 1379.
 (pdftex.def)             Requested size: 430.5528pt x 234.78581pt.
-<Figures/gui_blocked.jpg, id=1356, 1284.8pt x 699.61375pt>
+ [53 <./Figures/navigation.png> <./Figures/gui_login.jpg>]
+<Figures/gui_blocked.jpg, id=1365, 1284.8pt x 699.61375pt>
 File: Figures/gui_blocked.jpg Graphic file (type jpg)
 <use Figures/gui_blocked.jpg>
-Package pdftex.def Info: Figures/gui_blocked.jpg  used on input line 1383.
+Package pdftex.def Info: Figures/gui_blocked.jpg  used on input line 1390.
 (pdftex.def)             Requested size: 430.5528pt x 234.44945pt.
- [53 <./Figures/gui_login.jpg>] [54 <./Figures/gui_overview.jpg> <./Figures/gui
-_alerts.jpg>]
-<Figures/gui_settings.jpg, id=1365, 1284.8pt x 700.6175pt>
+
+[54 <./Figures/gui_overview.jpg> <./Figures/gui_alerts.jpg>]
+<Figures/gui_settings.jpg, id=1370, 1284.8pt x 700.6175pt>
 File: Figures/gui_settings.jpg Graphic file (type jpg)
 <use Figures/gui_settings.jpg>
-Package pdftex.def Info: Figures/gui_settings.jpg  used on input line 1394.
+Package pdftex.def Info: Figures/gui_settings.jpg  used on input line 1401.
 (pdftex.def)             Requested size: 430.5528pt x 234.78581pt.
  [55 <./Figures/gui_blocked.jpg> <./Figures/gui_settings.jpg>]
-<Figures/gui_health.jpg, id=1371, 1284.8pt x 698.61pt>
+<Figures/gui_health.jpg, id=1376, 1284.8pt x 698.61pt>
 File: Figures/gui_health.jpg Graphic file (type jpg)
 <use Figures/gui_health.jpg>
-Package pdftex.def Info: Figures/gui_health.jpg  used on input line 1405.
+Package pdftex.def Info: Figures/gui_health.jpg  used on input line 1412.
 (pdftex.def)             Requested size: 430.5528pt x 234.11308pt.
  [56 <./Figures/gui_health.jpg>]
-<Figures/nidps_erd_chen.png, id=1377, 5370.0625pt x 3814.25pt>
+<Figures/nidps_erd_chen.png, id=1382, 5370.0625pt x 3814.25pt>
 File: Figures/nidps_erd_chen.png Graphic file (type png)
 <use Figures/nidps_erd_chen.png>
-Package pdftex.def Info: Figures/nidps_erd_chen.png  used on input line 1422.
+Package pdftex.def Info: Figures/nidps_erd_chen.png  used on input line 1429.
 (pdftex.def)             Requested size: 700.50891pt x 497.55774pt.
- [57] [58 <./Figures/nidps_erd_chen.png (PNG copy)>]
-Overfull \hbox (0.35133pt too wide) in alignment at lines 1470--1474
+
+[57] [58 <./Figures/nidps_erd_chen.png (PNG copy)>]
+Overfull \hbox (0.35133pt too wide) in alignment at lines 1477--1481
  [] [] [] [] 
  []
 
 
-Overfull \hbox (0.35133pt too wide) in alignment at lines 1474--1477
+Overfull \hbox (0.35133pt too wide) in alignment at lines 1481--1484
  [] [] [] [] 
  []
 
 
-Overfull \hbox (0.35133pt too wide) in alignment at lines 1477--1486
+Overfull \hbox (0.35133pt too wide) in alignment at lines 1484--1493
  [] [] [] [] 
  []
 
 ignored error: Infinite glue shrinkage found in box being split [59]
-Overfull \hbox (2.49542pt too wide) in paragraph at lines 1507--1507
+Overfull \hbox (2.49542pt too wide) in paragraph at lines 1514--1514
 \T1/ptm/m/n/10.95 MODEL_PACKAGE, 
  []
 
@@ -1135,7 +1142,7 @@ ignored error: Infinite glue shrinkage found in box being split [63] [64]
 ignored error: Infinite glue shrinkage found in box being split [65])
 (chapters/ch5.tex [66]
 Chapter 5.
-<Figures/nidps_fig5_1.png, id=1420, 4035.075pt x 1480.53125pt>
+<Figures/nidps_fig5_1.png, id=1425, 4035.075pt x 1480.53125pt>
 File: Figures/nidps_fig5_1.png Graphic file (type png)
 <use Figures/nidps_fig5_1.png>
 Package pdftex.def Info: Figures/nidps_fig5_1.png  used on input line 20.
@@ -1144,14 +1151,14 @@ Package pdftex.def Info: Figures/nidps_fig5_1.png  used on input line 20.
 
 ] [68 <./Figures/nidps_fig5_1.png (PNG copy)>] [69] [70] [71] [72] [73]
 [74] [75] [76] [77] [78]
-<Figures/nidps_fig5_2.png, id=1587, 2296.58pt x 5073.95625pt>
+<Figures/nidps_fig5_2.png, id=1592, 2296.58pt x 5073.95625pt>
 File: Figures/nidps_fig5_2.png Graphic file (type png)
 <use Figures/nidps_fig5_2.png>
 Package pdftex.def Info: Figures/nidps_fig5_2.png  used on input line 408.
 (pdftex.def)             Requested size: 269.63611pt x 595.6867pt.
  [79] [80 <./Figures/nidps_fig5_2.png (PNG copy)>]
 [81] [82]
-<Figures/nidps_fig5_3.png, id=1636, 1380.15625pt x 1395.2125pt>
+<Figures/nidps_fig5_3.png, id=1641, 1380.15625pt x 1395.2125pt>
 File: Figures/nidps_fig5_3.png Graphic file (type png)
 <use Figures/nidps_fig5_3.png>
 Package pdftex.def Info: Figures/nidps_fig5_3.png  used on input line 497.
@@ -1162,25 +1169,25 @@ Chapter 6.
 [87
 
 ] [88] [89]
-<Figures/nidps_fig6_1.png, id=1685, 4501.81876pt x 3385.64874pt>
+<Figures/nidps_fig6_1.png, id=1690, 4501.81876pt x 3385.64874pt>
 File: Figures/nidps_fig6_1.png Graphic file (type png)
 <use Figures/nidps_fig6_1.png>
 Package pdftex.def Info: Figures/nidps_fig6_1.png  used on input line 91.
 (pdftex.def)             Requested size: 434.90039pt x 327.06436pt.
  [90] [91 <./Figures/nidps_fig6_1.png (PNG copy)>] [92]
-<Figures/nidps_fig6_2.png, id=1704, 2798.455pt x 2156.055pt>
+<Figures/nidps_fig6_2.png, id=1709, 2798.455pt x 2156.055pt>
 File: Figures/nidps_fig6_2.png Graphic file (type png)
 <use Figures/nidps_fig6_2.png>
 Package pdftex.def Info: Figures/nidps_fig6_2.png  used on input line 134.
 (pdftex.def)             Requested size: 369.66798pt x 284.80411pt.
  [93 <./Figures/nidps_fig6_2.png (PNG copy)>]
-<Figures/nidps_fig6_3.png, id=1718, 2964.07375pt x 1217.54875pt>
+<Figures/nidps_fig6_3.png, id=1723, 2964.07375pt x 1217.54875pt>
 File: Figures/nidps_fig6_3.png Graphic file (type png)
 <use Figures/nidps_fig6_3.png>
 Package pdftex.def Info: Figures/nidps_fig6_3.png  used on input line 163.
 (pdftex.def)             Requested size: 391.40768pt x 160.77638pt.
  [94 <./Figures/nidps_fig6_3.png (PNG copy)>] [95] [96] [97]
-<Figures/nidps_fig6_4.png, id=1748, 2996.19376pt x 7342.43124pt>
+<Figures/nidps_fig6_4.png, id=1753, 2996.19376pt x 7342.43124pt>
 File: Figures/nidps_fig6_4.png Graphic file (type png)
 <use Figures/nidps_fig6_4.png>
 Package pdftex.def Info: Figures/nidps_fig6_4.png  used on input line 256.
@@ -1203,10 +1210,10 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 933489D129C7CD13D57BD27D575FF6E2;33954.
  ) 
 Here is how much of TeX's memory you used:
- 17949 strings out of 467871
- 281654 string characters out of 5418375
- 756079 words of memory out of 5000000
- 46008 multiletter control sequences out of 15000+600000
+ 17958 strings out of 467871
+ 281882 string characters out of 5418375
+ 756157 words of memory out of 5000000
+ 46016 multiletter control sequences out of 15000+600000
  715969 words of font info for 161 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  90i,17n,97p,1187b,685s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1223,9 +1230,9 @@ MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/ryyan/AppData/Local/Programs/
 MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/ryyan/AppData/Local/Programs
 /MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/ryyan/AppData/Local/Programs
 /MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (117 pages, 4566183 bytes).
+Output written on main.pdf (117 pages, 4577915 bytes).
 PDF statistics:
- 2057 PDF objects out of 2073 (max. 8388607)
- 528 named destinations out of 1000 (max. 500000)
- 1372 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2063 PDF objects out of 2073 (max. 8388607)
+ 529 named destinations out of 1000 (max. 500000)
+ 1377 words of extra memory for PDF output out of 10000 (max. 10000000)
 
