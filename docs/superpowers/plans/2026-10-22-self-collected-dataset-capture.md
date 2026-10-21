@@ -171,7 +171,15 @@ git commit -m "feat: bring Suricata config into repo for lab capture (passive ID
   `run_subprocess(cmd: list[str], timeout: float | None = None) -> None` — all imported by every
   later attack module and by Task 3's `run_attack`.
 
-- [ ] **Step 1: Create package `__init__.py` files**
+- [ ] **Step 1: Create package `__init__.py` files, and pytest config to collect tests without
+  test-directory `__init__.py` files**
+
+`tests/` directories do NOT get `__init__.py` files — giving `tests/training/` its own
+`__init__.py` makes it importable as a second, conflicting top-level `training` package
+alongside the real one at repo root, breaking pytest collection. Instead, add `pytest.ini`
+(`--import-mode=importlib`) and `tests/conftest.py` (adds repo root to `sys.path`), which make
+`__init__.py`-free test directories collectible. This applies to every later task's test
+directories too (Tasks 4-17) — none of them add `tests/.../__init__.py` either.
 
 ```bash
 mkdir -p training/selfcollected/attacks/common
@@ -179,8 +187,22 @@ touch training/__init__.py training/selfcollected/__init__.py \
       training/selfcollected/attacks/__init__.py \
       training/selfcollected/attacks/common/__init__.py
 mkdir -p tests/training/selfcollected/attacks
-touch tests/training/__init__.py tests/training/selfcollected/__init__.py \
-      tests/training/selfcollected/attacks/__init__.py
+```
+
+Create `pytest.ini` at the repo root:
+```ini
+[pytest]
+testpaths = tests
+addopts = --import-mode=importlib
+```
+
+Create `tests/conftest.py`:
+```python
+import os
+import sys
+
+repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, repo_root)
 ```
 
 - [ ] **Step 2: Write the failing tests**
@@ -2073,7 +2095,6 @@ git commit -m "feat: run_attack.py CLI dispatcher for all 10 attack modules"
 **Files:**
 - Create: `training/selfcollected/capture/__init__.py`
 - Create: `training/selfcollected/capture/eve_parser.py`
-- Test: `tests/training/selfcollected/capture/__init__.py`
 - Test: `tests/training/selfcollected/capture/test_eve_parser.py`
 
 **Interfaces:**
@@ -2082,11 +2103,18 @@ git commit -m "feat: run_attack.py CLI dispatcher for all 10 attack modules"
   `build_benign_manifest(eve_path: Path, session_start: str, session_end: str) -> dict` —
   used by Task 17's `capture_session.py`.
 
+**Note (ruling from Task 2's review):** `tests/` directories do NOT get `__init__.py` files —
+one was created under `tests/training/...` in Task 2 and conflicted with the real `training`
+package (two things importable as top-level `training`, breaking pytest collection). Task 2
+fixed this repo-wide with `pytest.ini` (`--import-mode=importlib`) and `tests/conftest.py`
+(adds repo root to `sys.path`), which make `__init__.py`-free test directories collectible.
+Do not add one under `tests/training/selfcollected/capture/` either.
+
 - [ ] **Step 1: Write the failing tests**
 
 ```bash
 mkdir -p training/selfcollected/capture tests/training/selfcollected/capture
-touch training/selfcollected/capture/__init__.py tests/training/selfcollected/capture/__init__.py
+touch training/selfcollected/capture/__init__.py
 ```
 
 Create `tests/training/selfcollected/capture/test_eve_parser.py`:
