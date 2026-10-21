@@ -24,8 +24,9 @@ Suricata 7+.
 - External tools (hydra, nmap, arpspoof, dnsspoof, hping3, tcpdump, suricata) are assumed
   installed on PATH; every attack module checks for its own tools before running and fails fast
   with a named error if missing, rather than a buried subprocess error.
-- Every real (non-dry-run) attack invocation prints a one-line safety banner naming the isolated
-  lab network requirement (risk R10).
+- Every attack invocation (dry-run included — Task 3's `run_attack` prints it before branching
+  on `dry_run`) prints a one-line safety banner naming the isolated lab network requirement
+  (risk R10).
 - `attacks.jsonl` record schema is fixed: `attack`, `tool`, `attacker_ip`, `victim_ip`,
   `start_time`, `end_time` (UTC ISO 8601, trailing `Z`), `status`
   (`completed`|`failed`|`interrupted`|`dry_run`), `params` (dict), `notes`, `stderr_tail`. No
@@ -1460,8 +1461,10 @@ git commit -m "feat: syn_flood and ddos attack modules"
 - Test: `tests/training/selfcollected/attacks/test_ja3_c2.py`
 
 **Interfaces:**
-- Consumes: `check_tools`, `run_attack`, `AttackRecord` from the runner;
-  `start_listener`, `generate_self_signed_cert` from Task 5's `listener.py`.
+- Consumes: `run_attack`, `AttackRecord` from the runner. (`start_listener` and
+  `generate_self_signed_cert` from Task 5's `listener.py` are consumed only by this task's own
+  test, as a fixture to connect against — `ja3_c2.py` itself is a plain TLS client and does not
+  import them; it connects to whatever `listener_host`/`listener_port` it's given.)
 - Produces: `connect(victim_ip_or_listener_host, port) -> str` (returns the negotiated TLS
   version string, used as evidence the handshake completed),
   `run(victim_ip, attacker_ip, out_dir, listener_host="127.0.0.1", listener_port=8443, dry_run=False) -> AttackRecord`.
@@ -1598,8 +1601,8 @@ git commit -m "feat: ja3_c2 attack module"
 - Test: `tests/training/selfcollected/attacks/test_c2_beacon.py`
 
 **Interfaces:**
-- Consumes: `check_tools`, `run_attack`, `AttackRecord` from the runner; `connect` from Task 11
-  (reused as the per-beacon connection primitive).
+- Consumes: `run_attack`, `AttackRecord` from the runner; `connect` from Task 11 (reused as the
+  per-beacon connection primitive).
 - Produces: `jitter_intervals(base_interval, jitter_fraction, count, rng) -> list[float]`,
   `run(victim_ip, attacker_ip, out_dir, listener_host="127.0.0.1", listener_port=8443, base_interval=5.0, jitter_fraction=0.1, count=5, dry_run=False) -> AttackRecord`.
 
@@ -1954,7 +1957,11 @@ git commit -m "feat: lateral_movement attack module"
 - Test: `tests/training/selfcollected/attacks/test_run_attack_cli.py`
 
 **Interfaces:**
-- Consumes: `run(...)` and `parse_extra_args(...)` from every module built in Tasks 6-14.
+- Consumes: `run(...)` from every module built in Tasks 6-14, and `parse_extra_args(...)` from
+  the 7 of those 10 that define it (`ssh_bruteforce`, `port_scan`, `arp_spoof`, `dns_spoof`,
+  `syn_flood`, `ddos`, `lateral_movement`). `ja3_c2`, `c2_beacon`, and `exfiltration` have no
+  `parse_extra_args` — the dispatcher checks `hasattr(module, "parse_extra_args")` and falls
+  back to `{}` (their own `run()` defaults) for those three.
 - Produces: `main(argv=None) -> int`, the single entrypoint used manually from the command line
   and by Task 18's capture pipeline.
 
