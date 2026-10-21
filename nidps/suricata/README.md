@@ -10,11 +10,12 @@ Test the config without running it:
 
     suricata -T -c nidps/suricata/suricata.yaml -i <host-only-interface>
 
-## Emerging Threats Open ruleset
+## Prerequisites
 
-The configuration references the ET Open ruleset at its standard `suricata-update` location: `/var/lib/suricata/rules/suricata.rules`. 
-Install or update it with:
+**Custom rules (4 active rules):** Included in `custom.rules` — work immediately with no setup required.
 
-    suricata-update --suricata-conf nidps/suricata/suricata.yaml
+**Emerging Threats Open ruleset:** Optional; commented out by default because it requires a one-time setup step this environment cannot verify:
 
-If your ET rules location differs, update the rule-files entry in suricata.yaml accordingly.
+    sudo suricata-update --suricata-conf nidps/suricata/suricata.yaml
+
+This downloads ET Open rules to `/var/lib/suricata/rules/suricata.rules`. Once installed, uncomment the ET entry in `nidps/suricata/suricata.yaml` line 84-85 to enable ET coverage.
