@@ -7,7 +7,6 @@ import subprocess
 from pathlib import Path
 import signal
 import sys
-import time
 from datetime import datetime, timezone
 from typing import Callable
 
@@ -81,9 +80,10 @@ def run_attack(
     if dry_run:
         print(f"[DRY RUN] Would run '{attack_name}' (tool={tool}) "
               f"attacker={attacker_ip} victim={victim_ip} params={params}")
+        timestamp = _utc_now_iso()
         record = AttackRecord(
             attack=attack_name, tool=tool, attacker_ip=attacker_ip,
-            victim_ip=victim_ip, start_time="", end_time="",
+            victim_ip=victim_ip, start_time=timestamp, end_time=timestamp,
             status="dry_run", params=params,
         )
         append_record(out_dir, record)
