@@ -76,10 +76,9 @@ nfqueue:
 # Rule files configuration
 rule-files:
   - custom.rules
-  # Emerging Threats Open ruleset (standard suricata-update output path)
-  # Uncomment after installing via: suricata-update --suricata-conf nidps/suricata/suricata.yaml
-  # (Note: Currently commented to allow config validation without ET rules installed; remove comment when available)
-  # - /var/lib/suricata/rules/suricata.rules
+  # Emerging Threats Open ruleset - standard suricata-update default output path.
+  # Verify/adjust if your installation differs (global config was not readable to confirm).
+  - /var/lib/suricata/rules/suricata.rules
 
 # Fragmentation/reassembly settings for passive IDS
 defrag:
