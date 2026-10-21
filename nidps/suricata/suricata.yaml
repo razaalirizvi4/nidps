@@ -20,10 +20,13 @@ vars:
     FTP_PORTS: "[21]"
     VXLAN_PORTS: "[4789]"
 
-# Classification and reference config files (disable reference/threshold configs which require /etc/suricata access)
-classification-file: /home/raza/Desktop/nidps/nidps/suricata/classification.config
+# Default rule path for this repo's suricata config directory
+default-rule-path: nidps/suricata
+
+# Classification, threshold, and reference config files (paths relative to repo root when running from repo root)
+classification-file: nidps/suricata/classification.config
+threshold-file: nidps/suricata/threshold.config
 reference-config-file: /dev/null
-threshold-config-file: /home/raza/Desktop/nidps/nidps/suricata/threshold.config
 
 # Logging configuration
 logging:
@@ -72,10 +75,11 @@ nfqueue:
 
 # Rule files configuration
 rule-files:
-  - /home/raza/Desktop/nidps/nidps/suricata/custom.rules
-  # Emerging Threats Open rules (if available on system)
-  # - /usr/share/suricata/rules/suricata.rules
-  # - /usr/share/suricata/rules/emerging.rules
+  - custom.rules
+  # Emerging Threats Open ruleset (standard suricata-update output path)
+  # Uncomment after installing via: suricata-update --suricata-conf nidps/suricata/suricata.yaml
+  # (Note: Currently commented to allow config validation without ET rules installed; remove comment when available)
+  # - /var/lib/suricata/rules/suricata.rules
 
 # Fragmentation/reassembly settings for passive IDS
 defrag:
@@ -116,6 +120,10 @@ detect:
   custom-values:
     toclient-groups: 3
     toserver-groups: 25
+
+# Statistics (disabled for passive lab IDS mode with no runtime stats consumption)
+stats:
+  enabled: no
 
 # HTTP parsing settings
 http-log:
