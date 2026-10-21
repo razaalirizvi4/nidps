@@ -42,6 +42,12 @@ def test_run_benign_session_writes_pcap_placeholder_and_manifest(tmp_path, monke
         lambda interface, pcap_path: pcap_path.write_bytes(b"") or _FakeProc(),
     )
     monkeypatch.setattr("time.sleep", lambda s: None)
+    # Fix "now" so the session window brackets the fixture alert above,
+    # regardless of the real wall-clock date the test happens to run on.
+    monkeypatch.setattr(
+        "training.selfcollected.capture.capture_session._utc_now_iso",
+        lambda: "2026-10-22T10:00:00Z",
+    )
 
     session_dir = run_benign_session(tmp_path, "vboxnet0", duration_s=0.1, eve_path=eve_path)
     assert (session_dir / "session.pcap").exists()

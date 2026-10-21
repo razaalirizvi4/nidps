@@ -68,7 +68,7 @@ def run_attack(
     victim_ip: str,
     out_dir: Path,
     params: dict,
-    body: Callable[[], None],
+    body: Callable[[], dict | None],
     dry_run: bool = False,
 ) -> AttackRecord:
     print(
@@ -98,8 +98,9 @@ def run_attack(
     start = _utc_now_iso()
     status = "completed"
     stderr_tail = ""
+    extra = None
     try:
-        body()
+        extra = body()
     except AttackInterrupted:
         status = "interrupted"
     except subprocess.CalledProcessError as exc:
@@ -112,11 +113,16 @@ def run_attack(
         signal.signal(signal.SIGINT, old_int)
         signal.signal(signal.SIGTERM, old_term)
 
+    notes = ""
+    if status == "completed" and isinstance(extra, dict):
+        notes = extra.pop("notes", "")
+        params.update(extra)
+
     end = _utc_now_iso()
     record = AttackRecord(
         attack=attack_name, tool=tool, attacker_ip=attacker_ip,
         victim_ip=victim_ip, start_time=start, end_time=end,
-        status=status, params=params, stderr_tail=stderr_tail,
+        status=status, params=params, notes=notes, stderr_tail=stderr_tail,
     )
     append_record(out_dir, record)
     return record

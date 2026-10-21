@@ -43,7 +43,6 @@ def run(
             connect(listener_host, listener_port)
             sent["n"] += 1
             time.sleep(interval)
+        return {"beacons_sent": sent["n"]}
 
-    record = run_attack("c2_beacon", "python-ssl", attacker_ip, victim_ip, out_dir, params, body, dry_run)
-    record.params["beacons_sent"] = sent["n"]
-    return record
+    return run_attack("c2_beacon", "python-ssl", attacker_ip, victim_ip, out_dir, params, body, dry_run)

@@ -1,3 +1,4 @@
+import json
 import random
 
 from training.selfcollected.attacks.c2_beacon import jitter_intervals, run
@@ -38,3 +39,19 @@ def test_run_sends_count_beacons(tmp_path, monkeypatch):
     record = run("10.0.0.3", "10.0.0.2", tmp_path, count=3)
     assert len(called) == 3
     assert record.params["beacons_sent"] == 3
+
+
+def test_run_persists_beacons_sent_to_attacks_jsonl(tmp_path, monkeypatch):
+    called = []
+    monkeypatch.setattr(
+        "training.selfcollected.attacks.c2_beacon.connect",
+        lambda host, port: called.append((host, port)) or "TLSv1.3",
+    )
+    monkeypatch.setattr("time.sleep", lambda s: None)  # don't actually wait in tests
+    run("10.0.0.3", "10.0.0.2", tmp_path, count=3)
+    assert len(called) == 3
+
+    lines = (tmp_path / "attacks.jsonl").read_text().strip().splitlines()
+    assert len(lines) == 1
+    persisted = json.loads(lines[0])
+    assert persisted["params"]["beacons_sent"] == 3

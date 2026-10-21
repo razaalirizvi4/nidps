@@ -38,3 +38,19 @@ def test_build_benign_manifest_counts_and_lists_excluded_windows(tmp_path):
         {"start": "2026-10-22T10:01:00.000000+0000", "end": "2026-10-22T10:01:00.000000+0000"},
     ]
     assert manifest["session_start"] == "2026-10-22T10:00:00Z"
+
+
+def test_build_benign_manifest_only_counts_alerts_inside_session_window(tmp_path):
+    eve_path = _write_eve(tmp_path, [
+        # before session_start -- must be excluded from the manifest
+        {"event_type": "alert", "timestamp": "2026-10-22T09:00:00.000000+0000"},
+        # inside [session_start, session_end] -- must be the only one counted
+        {"event_type": "alert", "timestamp": "2026-10-22T10:05:00.000000+0000"},
+        # after session_end -- must be excluded from the manifest
+        {"event_type": "alert", "timestamp": "2026-10-22T11:00:00.000000+0000"},
+    ])
+    manifest = build_benign_manifest(eve_path, "2026-10-22T10:00:00Z", "2026-10-22T10:10:00Z")
+    assert manifest["excluded_count"] == 1
+    assert manifest["excluded_windows"] == [
+        {"start": "2026-10-22T10:05:00.000000+0000", "end": "2026-10-22T10:05:00.000000+0000"},
+    ]

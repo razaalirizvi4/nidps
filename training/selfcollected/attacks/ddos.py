@@ -42,7 +42,6 @@ def run(
     def body():
         check_tools(["hping3"])
         run_timed_subprocess(build_command(victim_ip, port), duration)
+        return {"notes": SINGLE_SOURCE_NOTE}
 
-    record = run_attack("ddos", "hping3", attacker_ip, victim_ip, out_dir, params, body, dry_run)
-    record.notes = SINGLE_SOURCE_NOTE
-    return record
+    return run_attack("ddos", "hping3", attacker_ip, victim_ip, out_dir, params, body, dry_run)

@@ -1,9 +1,9 @@
 """Orchestrates one benign or attack capture session (§5.2.2).
 
-Every session directory ends up with session.pcap + eve.json +
-(attacks.jsonl for attack sessions, or benign_session_manifest.json for
-benign sessions). This module does not produce labelled flow records —
-that is deferred to the flow extractor (Phase 2), out of scope here.
+Every session directory ends up with session.pcap plus either
+attacks.jsonl (attack sessions) or benign_session_manifest.json (benign
+sessions). This module does not produce labelled flow records — that is
+deferred to the flow extractor (Phase 2), out of scope here.
 """
 
 import json
@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from training.selfcollected.attacks.common.runner import AttackRecord
 from training.selfcollected.capture.eve_parser import build_benign_manifest
 
 
@@ -62,7 +63,15 @@ def run_attack_session(
     attack_kwargs: dict,
     eve_path: Path,
     settle_s: float = 3.0,
-) -> tuple[Path, Any]:
+) -> tuple[Path, AttackRecord]:
+    """Runs one attack capture session and returns (session_dir, AttackRecord).
+
+    `eve_path` is accepted for API symmetry with `run_benign_session`, but
+    attack sessions do not currently copy or trim eve.json into the session
+    directory, nor do they build a manifest from it -- that only happens for
+    benign sessions. It is unused here today; wiring it up is out of scope
+    for this fix.
+    """
     attack_name = attack_kwargs.get("attack_name") or getattr(attack_module, "__name__", "attack")
     session_dir = new_session_dir(base_dir, attack_name.rsplit(".", 1)[-1])
     capture = start_capture(interface, session_dir / "session.pcap")
