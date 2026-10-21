@@ -1,0 +1,83 @@
+### LaTeX (nidps_report) ###
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.toc
+*.run.xml
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+*.xdv
+# Keep the compiled/submission PDFs and the pre-built bibliography — README.txt
+# says they're meant to be tracked for reference even without a rebuild.
+!nidps_report/main.pdf
+!nidps_report/main.bbl
+!nidps_report/F26-030.pdf
+!nidps_report/F26-0302.pdf
+
+### Python (common/, services/*, training/) ###
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.coverage
+htmlcov/
+
+### Node (dashboard frontend, if/when it lands) ###
+node_modules/
+dist/
+build/
+.vite/
+.next/
+
+### Secrets / local config ###
+.env
+.env.*
+*.local
+config.local.*
+
+### Data, models, datasets ###
+data/
+datasets/
+*.pcap
+*.pcapng
+*.csv.gz
+models/*.pkl
+models/*.joblib
+models/*.h5
+*.ckpt
+
+### Databases ###
+*.db
+*.sqlite
+*.sqlite3
+dump.rdb
+
+### Logs ###
+*.log
+logs/
+eve.json
+fast.log
+stats.log
+
+### OS / editor ###
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
