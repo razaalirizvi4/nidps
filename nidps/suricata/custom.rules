@@ -1,0 +1,16 @@
+# SSH brute force: >=5 new connections to tcp/22 from one source in 60s
+alert tcp any any -> any 22 (msg:"NIDPS-CUSTOM SSH brute force attempt"; flags:S; threshold:type threshold, track by_src, count 5, seconds 60; sid:9000001; rev:1;)
+
+# Port scan: >=20 distinct destination ports from one source in 10s
+alert tcp any any -> any any (msg:"NIDPS-CUSTOM Port scan detected"; flags:S; threshold:type threshold, track by_src, count 20, seconds 10; sid:9000002; rev:1;)
+
+# DNS spoofing: a DNS response arriving from any source other than the AP's own resolver
+# NOTE: replace 192.168.56.1 with this host's actual IP on the lab network before use.
+alert udp !192.168.56.1 53 -> any any (msg:"NIDPS-CUSTOM Unexpected DNS response source"; sid:9000003; rev:1;)
+
+# SYN flood: SYNs to one destination well above a calibrated baseline rate
+alert tcp any any -> any any (msg:"NIDPS-CUSTOM Possible SYN flood"; flags:S; threshold:type threshold, track by_dst, count 100, seconds 10; sid:9000004; rev:1;)
+
+# Known-bad JA3: placeholder entry, filled in once Task 11's one-time
+# capture step records this lab's actual "known-bad" JA3 hash.
+# alert tls any any -> any any (msg:"NIDPS-CUSTOM Known-bad JA3 client"; ja3_hash; content:"<FILL_IN_AFTER_TASK_11>"; sid:9000005; rev:1;)

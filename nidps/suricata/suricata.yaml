@@ -1,0 +1,167 @@
+%YAML 1.1
+---
+
+# Suricata configuration for passive/IDS lab capture on VirtualBox host-only network
+# Adapted for no inline NFQUEUE/IPS mode (see Phase-0 dataplane work for that)
+
+vars:
+  address-groups:
+    HOME_NET: "[192.168.56.0/24]"
+    EXTERNAL_NET: "!$HOME_NET"
+    ALICE_NET: "[192.168.56.0/24]"
+    BOB_NET: "[192.168.56.0/24]"
+  port-groups:
+    HTTP_PORTS: "[80,8080]"
+    SHELLCODE_PORTS: "!80"
+    SSH_PORTS: "[22]"
+    DNP3_PORTS: "[20000]"
+    MODBUS_PORTS: "[502]"
+    FILE_DATA_PORTS: "[80,110,143]"
+    FTP_PORTS: "[21]"
+    VXLAN_PORTS: "[4789]"
+
+# Classification and reference config files (disable reference/threshold configs which require /etc/suricata access)
+classification-file: /home/raza/Desktop/nidps/nidps/suricata/classification.config
+reference-config-file: /dev/null
+threshold-config-file: /home/raza/Desktop/nidps/nidps/suricata/threshold.config
+
+# Logging configuration
+logging:
+  default-log-level: notice
+
+# Outputs for passive IDS mode
+outputs:
+  - eve-log:
+      enabled: yes
+      filename: eve.json
+      pcap-file: false
+      community-id: false
+      community-id-seed: 0
+      types:
+        - alert:
+            payload: yes
+            payload-printable: yes
+            http-body: yes
+            http-body-printable: yes
+        - dns:
+            formats: [detailed]
+        - http:
+            extended: yes
+        - files:
+            force-magic: yes
+        - flow:
+            netflow: yes
+            fingerprint: yes
+
+# Passive IDS mode: use af-packet for live interface capture
+af-packet:
+  - interface: vboxnet0
+    threads: 1
+    cluster-id: 99
+    cluster-type: cluster_flow
+    use-mmap: yes
+    tpacket-v3: yes
+    ring-size: 32768
+    block-size: 32768
+    block-timeout: 10
+    checksum-checks: kernel
+
+# Don't use NFQUEUE in this config (passive/IDS only)
+nfqueue:
+  enabled: no
+
+# Rule files configuration
+rule-files:
+  - /home/raza/Desktop/nidps/nidps/suricata/custom.rules
+  # Emerging Threats Open rules (if available on system)
+  # - /usr/share/suricata/rules/suricata.rules
+  # - /usr/share/suricata/rules/emerging.rules
+
+# Fragmentation/reassembly settings for passive IDS
+defrag:
+  memcap: 32mb
+  hash-size: 65536
+  prealloc: yes
+  timeout: 60
+
+# Stream settings for passive IDS
+stream:
+  memcap: 64mb
+  checksum-validation: yes
+  inline: no
+  reassembly:
+    memcap: 256mb
+    depth: 1mb
+    toserver-chunk-size: 2560
+    toclient-chunk-size: 2560
+    stream-cache:
+      update-tail: yes
+      forward: yes
+    ip-only-stream: auto
+    max-synack-queued: 5
+
+# TCP/UDP settings
+tcp:
+  policy: bsd
+  max-synack-queued: 5
+  detect-flags: yes
+  drop-invalid-ack: no
+
+udp:
+  max-sessions: 200000
+
+# Detect settings
+detect:
+  profile: medium
+  custom-values:
+    toclient-groups: 3
+    toserver-groups: 25
+
+# HTTP parsing settings
+http-log:
+  extended: yes
+
+# File data extraction for HTTP payloads
+filedata-buffer-size: 32mb
+
+# DNS settings
+dns:
+  request-log: yes
+  drop-log: no
+
+# PCAP settings
+pcap:
+  filename: traffic.pcap
+  limit: 1000mb
+  max-files: 5
+
+# Threading configuration
+threading:
+  set-cpu-affinity: no
+  cpu-affinity:
+    - management-cpu-set:
+        cpu: [ "0" ]
+    - receive-cpu-set:
+        cpu: [ "0" ]
+    - decode-cpu-set:
+        cpu: [ "0" ]
+    - stream-cpu-set:
+        cpu: [ "0" ]
+    - detect-cpu-set:
+        cpu: [ "0" ]
+    - output-cpu-set:
+        cpu: [ "0" ]
+
+# Runmode (use single-threaded for simplicity on lab network)
+runmode: single
+
+# Profiling
+profiling:
+  rules:
+    enabled: yes
+    filename: rule-timings.log
+    append: yes
+  packets:
+    enabled: yes
+    filename: packet-timings.log
+    append: yes
