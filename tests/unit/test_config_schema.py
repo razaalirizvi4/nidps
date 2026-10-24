@@ -28,3 +28,17 @@ def test_validate_value_rejects_wrong_type():
 def test_validate_value_rejects_unknown_key():
     with pytest.raises(KeyError):
         validate_value("no.such.key", 1)
+
+
+def test_validate_value_rejects_float_for_int_typed_key():
+    with pytest.raises(ValueError):
+        validate_value("network.active_timeout_s", 10.5)
+
+
+def test_validate_value_rejects_failure_mode_not_in_allowed_set():
+    with pytest.raises(ValueError):
+        validate_value("failure_mode", "banana")
+
+
+def test_validate_value_accepts_failure_mode_in_allowed_set():
+    validate_value("failure_mode", "FAIL_CLOSED")  # must not raise

@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS host (
     first_seen  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now')),
     last_seen   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
-CREATE INDEX IF NOT EXISTS idx_host_ip ON host (ip_address);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_host_ip ON host (ip_address);
 
 CREATE TABLE IF NOT EXISTS model_package (
     model_id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS config_setting (
 CREATE TABLE IF NOT EXISTS component_event (
     event_id         INTEGER PRIMARY KEY AUTOINCREMENT,
     component        TEXT NOT NULL,
-    state            TEXT NOT NULL CHECK (state IN ('RUNNING', 'DEGRADED', 'FAILED', 'RECOVERING')),
+    state            TEXT NOT NULL CHECK (state IN ('NORMAL', 'DEGRADED', 'FAILED', 'RECOVERING')),
     failure_mode     TEXT,
     detected_at      TEXT,
     recovered_at     TEXT,
@@ -158,3 +158,5 @@ CREATE TABLE IF NOT EXISTS audit_log (
     new_value TEXT,
     timestamp TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 );
+
+PRAGMA user_version = 1;

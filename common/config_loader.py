@@ -49,6 +49,8 @@ def update(conn: sqlite3.Connection, key: str, value, user_id: int | None = None
     old = conn.execute(
         "SELECT value FROM config_setting WHERE setting_key = ?", (key,)
     ).fetchone()
+    if old is None:
+        raise KeyError(key)
     conn.execute(
         "UPDATE config_setting SET value = ?, updated_by = ?, updated_at = ? WHERE setting_key = ?",
         (str(value), user_id, utc_now_iso(), key),
@@ -56,6 +58,6 @@ def update(conn: sqlite3.Connection, key: str, value, user_id: int | None = None
     conn.execute(
         """INSERT INTO audit_log (user_id, action, target, old_value, new_value, timestamp)
            VALUES (?, 'CONFIG_CHANGE', ?, ?, ?, ?)""",
-        (user_id, key, old[0] if old else None, str(value), utc_now_iso()),
+        (user_id, key, old[0], str(value), utc_now_iso()),
     )
     conn.commit()

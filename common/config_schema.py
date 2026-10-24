@@ -19,6 +19,7 @@ class ConfigKey:
     default: Union[Number, str, bool]
     min_value: Optional[Number] = None
     max_value: Optional[Number] = None
+    allowed: Optional[tuple] = None
 
 
 CONFIG_KEYS: list[ConfigKey] = [
@@ -61,7 +62,7 @@ CONFIG_KEYS: list[ConfigKey] = [
     ConfigKey("auth.lockout_attempts", int, 5, 3, 10),
     ConfigKey("auth.lockout_duration_s", int, 300, 60, 3600),
     ConfigKey("rules.update_interval_hours", int, 24, 1, 168),
-    ConfigKey("failure_mode", str, "FAIL_OPEN"),
+    ConfigKey("failure_mode", str, "FAIL_OPEN", allowed=("FAIL_OPEN", "FAIL_CLOSED", "DEGRADED")),
 ]
 
 CONFIG_KEYS_BY_NAME: dict[str, ConfigKey] = {k.key: k for k in CONFIG_KEYS}
@@ -73,7 +74,15 @@ def validate_value(key: str, value) -> None:
         if not isinstance(value, bool):
             raise ValueError(f"{key} must be a bool")
         return
-    if spec.value_type in (int, float):
+    if spec.value_type is int:
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise ValueError(f"{key} must be an int")
+        if spec.min_value is not None and value < spec.min_value:
+            raise ValueError(f"{key}={value} below min {spec.min_value}")
+        if spec.max_value is not None and value > spec.max_value:
+            raise ValueError(f"{key}={value} above max {spec.max_value}")
+        return
+    if spec.value_type is float:
         if not isinstance(value, (int, float)) or isinstance(value, bool):
             raise ValueError(f"{key} must be numeric")
         if spec.min_value is not None and value < spec.min_value:
@@ -84,4 +93,6 @@ def validate_value(key: str, value) -> None:
     if spec.value_type is str:
         if not isinstance(value, str):
             raise ValueError(f"{key} must be a string")
+        if spec.allowed is not None and value not in spec.allowed:
+            raise ValueError(f"{key}={value!r} not in allowed values {spec.allowed}")
         return

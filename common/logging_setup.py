@@ -6,11 +6,13 @@ import json
 import logging
 import sys
 
+from common.schemas import utc_now_iso
+
 
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         payload = {
-            "time": self.formatTime(record, "%Y-%m-%dT%H:%M:%S%z"),
+            "time": utc_now_iso(),
             "level": record.levelname,
             "component": record.name,
             "message": record.getMessage(),

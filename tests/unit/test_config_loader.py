@@ -34,3 +34,14 @@ def test_update_writes_audit_log():
     ).fetchone()
     assert row == ("CONFIG_CHANGE", "7.5")
     assert get(conn, "risk.block_threshold") == 7.5
+
+
+def test_update_on_unseeded_key_raises_and_writes_no_audit_row():
+    conn = connect(":memory:")
+    # deliberately do NOT call seed_defaults()
+
+    with pytest.raises(KeyError):
+        update(conn, "risk.block_threshold", 7.0)
+
+    audit_count = conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0]
+    assert audit_count == 0
