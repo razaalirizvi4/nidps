@@ -17,6 +17,7 @@ class MessageType(str, enum.Enum):
     VERDICT = "verdict"
     HEARTBEAT = "heartbeat"
     CONFIG_CHANGE = "config_change"
+    FLOW_READY = "flow_ready"
 
 
 def _default(obj: Any):

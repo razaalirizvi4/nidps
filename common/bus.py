@@ -9,6 +9,7 @@ STREAM_EVIDENCE = "nidps:evidence"
 STREAM_VERDICTS = "nidps:verdicts"
 STREAM_HEARTBEATS = "nidps:heartbeats"
 STREAM_CONFIG_CHANGES = "nidps:config_changes"
+STREAM_FLOWS = "nidps:flows"
 
 
 class EventBus:

@@ -35,3 +35,11 @@ def test_decode_rejects_unknown_schema_version():
     raw = '{"schema_version": "9.9", "payload": {}}'
     with pytest.raises(ValueError):
         decode_envelope(raw)
+
+
+def test_flow_ready_round_trip():
+    raw = encode_envelope(MessageType.FLOW_READY, {"flow_id": 42, "host_ip": "10.10.0.5"})
+    envelope = decode_envelope(raw)
+
+    assert envelope["type"] == "flow_ready"
+    assert envelope["payload"] == {"flow_id": 42, "host_ip": "10.10.0.5"}
