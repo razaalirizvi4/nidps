@@ -1,0 +1,3 @@
+# dnsspoof hosts file format: one "ip   hostname" pair per line.
+# Example: redirect the victim's resolution of a benign-looking domain to the attacker.
+10.0.0.2    example-lab-target.local

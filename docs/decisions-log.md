@@ -20,13 +20,13 @@ classes.
 
 | Day(s) | Attack(s) | Decision | Why |
 |---|---|---|---|
-| Thu-22-02, Fri-23-02-2018 | Brute Force-Web, Brute Force-XSS, SQL Injection | **Cut** | Not a class in the project's unified taxonomy (Table 3.2) at all |
+| Thu-22-02, Fri-23-02-2018 | Brute Force-Web, Brute Force-XSS, SQL Injection | **Cut** | Not a class in the project's unified taxonomy (Table 5.2) at all |
 | Wed-14-02-2018 | FTP-BruteForce, SSH-Bruteforce | **Cut** | Brute force already explicit in both CIC-IDS-2017 and CIC-IoT-2023 (Table 5.1) |
 | Thu-15-02, Fri-16-02, Tue-20-02, Wed-21-02-2018 (4 days) | DoS-GoldenEye/Slowloris/SlowHTTPTest/Hulk, DDoS-LOIC-HTTP/UDP/HOIC | **Cut** | DoS/DDoS already explicit in both other datasets; this was 4 of CSE-CIC-IDS2018's 10 days for one class |
 | Wed-28-02, Thu-01-03-2018 (2 days) | Infiltration | **Cut** | CIC-IDS-2017's own Infiltration scenario (Thu 6 Jul 2017, ~14:19–15:00: Dropbox/USB-delivered Metasploit exploit → attacker runs Nmap/portscan across the internal victim network from the compromised host) is **structurally identical** — same "post-compromise internal lateral recon" shape the taxonomy defines, same CIC research group. Verified by pulling the actual attack description, not assumed. **Accepted trade-off:** CIC-IDS-2017's infiltration window is only ~40 min vs. CSE-CIC-IDS2018's ~75+155 min — roughly 5x less volume of an already-rare class (<1% of CSE-CIC-IDS2018 traffic). Accepted anyway. |
-| Fri-02-03-2018 (1 day) | Bot (Zeus + Ares) | **Kept** | NOT redundant with CIC-IoT-2023's "Mirai" despite both nominally mapping to Botnet/C2 in Table 3.2. Verified the actual CICIoT2023 paper: its "Mirai" category is three DDoS flood sub-attacks (Mirai-greeth_flood, Mirai-greip_flood, Mirai-udpplain) — GRE/UDP packet floods, not bot-to-C2 check-in traffic. It exercises the DoS/DDoS detector, not C2 beaconing. CSE-CIC-IDS2018's Zeus/Ares day is the **only** dataset in the whole pipeline with genuine periodic C2 check-in traffic to validate the JA3/CV-beaconing detector (§5.5.4) against. |
+| Fri-02-03-2018 (1 day) | Bot (Zeus + Ares) | **Kept** | NOT redundant with CIC-IoT-2023's "Mirai" despite both nominally mapping to Botnet/C2 in Table 5.2. Verified the actual CICIoT2023 paper: its "Mirai" category is three DDoS flood sub-attacks (Mirai-greeth_flood, Mirai-greip_flood, Mirai-udpplain) — GRE/UDP packet floods, not bot-to-C2 check-in traffic. It exercises the DoS/DDoS detector, not C2 beaconing. CSE-CIC-IDS2018's Zeus/Ares day is the **only** dataset in the whole pipeline with genuine periodic C2 check-in traffic to validate the JA3/CV-beaconing detector (§5.5.4) against. |
 
-**Open item flagged, not yet acted on:** this also means Table 3.2 of the report (which lists
+**Open item flagged, not yet acted on:** this also means Table 5.2 of the report (which lists
 "Mirai variants" as an example under Botnet/C2 without qualification) is slightly imprecise for
 CICIoT2023 specifically — worth a one-line clarification in the report if there's time, but not
 blocking.

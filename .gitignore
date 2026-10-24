@@ -75,6 +75,9 @@ eve.json
 fast.log
 stats.log
 
+### Agentic workflow scratch (per-plan SDD workspaces: ledgers, briefs, review packages) ###
+.superpowers/
+
 ### OS / editor ###
 .DS_Store
 Thumbs.db
