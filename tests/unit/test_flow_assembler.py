@@ -67,8 +67,42 @@ def test_expire_idle_emits_full_flow_and_removes_key():
     expired = asm.expireIdle(now=31.0)
 
     assert len(expired) == 1
-    assert expired[0].is_partial is False
+    # Reaching expireIdle means this flow never saw a full FIN/RST close -- it is always
+    # partial (C2, item 4): a flow that *did* close fully is emitted and removed by onPacket
+    # itself and is already gone from flow_table by the time expireIdle would see it.
+    assert expired[0].is_partial is True
     assert len(asm.flow_table) == 0
+
+
+def test_expire_idle_does_not_fabricate_flow_for_empty_rollover_segment():
+    # Cross one active-timeout rollover, then go idle with zero packets in the new segment.
+    asm = FlowAssembler(active_timeout=10, idle_timeout=30)
+    first = PacketMeta(0.0, "10.0.0.5", "1.2.3.4", 51000, 80, "TCP", 60, 0, frozenset({"SYN"}))
+    second = PacketMeta(15.0, "10.0.0.5", "1.2.3.4", 51000, 80, "TCP", 60, 10, frozenset({"ACK"}))
+
+    assert asm.onPacket(first) == []
+    rollover_emitted = asm.onPacket(second)
+    assert len(rollover_emitted) == 1  # the active-timeout partial emission for segment 0
+
+    assert len(asm.flow_table) == 1
+    kept_state = next(iter(asm.flow_table.values()))
+    assert kept_state.accumulator.all_len.count == 0  # segment 1 never saw a packet
+
+    expired = asm.expireIdle(now=100.0)
+
+    assert expired == []  # no fabricated all-zero flow_record
+    assert len(asm.flow_table) == 0  # the stale key is still removed
+
+
+def test_expire_idle_marks_flow_with_real_packets_as_partial():
+    asm = FlowAssembler(active_timeout=10, idle_timeout=30)
+    asm.onPacket(PacketMeta(0.0, "10.0.0.5", "1.2.3.4", 51000, 80, "TCP", 60, 0, frozenset({"SYN"})))
+    asm.onPacket(PacketMeta(0.01, "1.2.3.4", "10.0.0.5", 80, 51000, "TCP", 60, 0, frozenset({"ACK"})))
+
+    expired = asm.expireIdle(now=31.0)
+
+    assert len(expired) == 1
+    assert expired[0].is_partial is True
 
 
 def test_tls_client_hello_attaches_ja3_to_flow():

@@ -24,81 +24,94 @@ def _remove_grease(values: list) -> list:
 
 
 def parse_client_hello_body(body: bytes) -> dict:
-    offset = 0
-    version = struct.unpack_from("!H", body, offset)[0]
-    offset += 2
-    offset += 32  # random
-    session_id_len = body[offset]
-    offset += 1 + session_id_len
-    cipher_len = struct.unpack_from("!H", body, offset)[0]
-    offset += 2
-    cipher_suites = [
-        struct.unpack_from("!H", body, offset + i)[0] for i in range(0, cipher_len, 2)
-    ]
-    offset += cipher_len
-    comp_len = body[offset]
-    offset += 1 + comp_len
-
-    groups: list = []
-    point_formats: list = []
-    extensions: list = []
-    server_name: Optional[str] = None
-
-    if offset < len(body):
-        ext_total_len = struct.unpack_from("!H", body, offset)[0]
+    try:
+        offset = 0
+        version = struct.unpack_from("!H", body, offset)[0]
         offset += 2
-        end = offset + ext_total_len
-        while offset < end:
-            ext_type, ext_len = struct.unpack_from("!HH", body, offset)
-            offset += 4
-            ext_data = body[offset : offset + ext_len]
-            offset += ext_len
-            extensions.append(ext_type)
-            if ext_type == _EXT_SUPPORTED_GROUPS:
-                glen = struct.unpack_from("!H", ext_data, 0)[0]
-                groups = [
-                    struct.unpack_from("!H", ext_data, 2 + i)[0] for i in range(0, glen, 2)
-                ]
-            elif ext_type == _EXT_EC_POINT_FORMATS:
-                plen = ext_data[0]
-                point_formats = list(ext_data[1 : 1 + plen])
-            elif ext_type == _EXT_SERVER_NAME:
-                if len(ext_data) >= 5:
-                    name_len = struct.unpack_from("!H", ext_data, 3)[0]
-                    server_name = ext_data[5 : 5 + name_len].decode("ascii", errors="replace")
+        offset += 32  # random
+        session_id_len = body[offset]
+        offset += 1 + session_id_len
+        cipher_len = struct.unpack_from("!H", body, offset)[0]
+        offset += 2
+        cipher_suites = [
+            struct.unpack_from("!H", body, offset + i)[0] for i in range(0, cipher_len, 2)
+        ]
+        offset += cipher_len
+        comp_len = body[offset]
+        offset += 1 + comp_len
 
-    return {
-        "version": version,
-        "cipher_suites": cipher_suites,
-        "extensions": extensions,
-        "groups": groups,
-        "point_formats": point_formats,
-        "server_name": server_name,
-    }
+        groups: list = []
+        point_formats: list = []
+        extensions: list = []
+        server_name: Optional[str] = None
+
+        if offset < len(body):
+            ext_total_len = struct.unpack_from("!H", body, offset)[0]
+            offset += 2
+            end = offset + ext_total_len
+            while offset < end:
+                ext_type, ext_len = struct.unpack_from("!HH", body, offset)
+                offset += 4
+                ext_data = body[offset : offset + ext_len]
+                offset += ext_len
+                extensions.append(ext_type)
+                if ext_type == _EXT_SUPPORTED_GROUPS:
+                    glen = struct.unpack_from("!H", ext_data, 0)[0]
+                    groups = [
+                        struct.unpack_from("!H", ext_data, 2 + i)[0] for i in range(0, glen, 2)
+                    ]
+                elif ext_type == _EXT_EC_POINT_FORMATS:
+                    plen = ext_data[0]
+                    point_formats = list(ext_data[1 : 1 + plen])
+                elif ext_type == _EXT_SERVER_NAME:
+                    if len(ext_data) >= 5:
+                        name_len = struct.unpack_from("!H", ext_data, 3)[0]
+                        server_name = ext_data[5 : 5 + name_len].decode("ascii", errors="replace")
+
+        return {
+            "version": version,
+            "cipher_suites": cipher_suites,
+            "extensions": extensions,
+            "groups": groups,
+            "point_formats": point_formats,
+            "server_name": server_name,
+        }
+    except (struct.error, IndexError, ValueError):
+        return {
+            "version": 0,
+            "cipher_suites": [],
+            "extensions": [],
+            "groups": [],
+            "point_formats": [],
+            "server_name": None,
+        }
 
 
 def parse_server_hello_body(body: bytes) -> dict:
-    offset = 0
-    version = struct.unpack_from("!H", body, offset)[0]
-    offset += 2
-    offset += 32  # random
-    session_id_len = body[offset]
-    offset += 1 + session_id_len
-    cipher_suite = struct.unpack_from("!H", body, offset)[0]
-    offset += 2
-    offset += 1  # compression method
-
-    extensions: list = []
-    if offset < len(body):
-        ext_total_len = struct.unpack_from("!H", body, offset)[0]
+    try:
+        offset = 0
+        version = struct.unpack_from("!H", body, offset)[0]
         offset += 2
-        end = offset + ext_total_len
-        while offset < end:
-            ext_type, ext_len = struct.unpack_from("!HH", body, offset)
-            offset += 4 + ext_len
-            extensions.append(ext_type)
+        offset += 32  # random
+        session_id_len = body[offset]
+        offset += 1 + session_id_len
+        cipher_suite = struct.unpack_from("!H", body, offset)[0]
+        offset += 2
+        offset += 1  # compression method
 
-    return {"version": version, "cipher_suites": [cipher_suite], "extensions": extensions}
+        extensions: list = []
+        if offset < len(body):
+            ext_total_len = struct.unpack_from("!H", body, offset)[0]
+            offset += 2
+            end = offset + ext_total_len
+            while offset < end:
+                ext_type, ext_len = struct.unpack_from("!HH", body, offset)
+                offset += 4 + ext_len
+                extensions.append(ext_type)
+
+        return {"version": version, "cipher_suites": [cipher_suite], "extensions": extensions}
+    except (struct.error, IndexError, ValueError):
+        return {"version": 0, "cipher_suites": [], "extensions": []}
 
 
 def compute_tls_fingerprint(

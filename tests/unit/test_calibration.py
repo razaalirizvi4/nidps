@@ -6,7 +6,12 @@ from common.config_loader import seed_defaults, update
 from common.db.migrate import connect
 from services.flowextract.features import FEATURE_NAMES
 from services.flowextract.persistence import upsert_host
-from services.mlscorer.calibration import CalibrationState, recalibrate_if_due
+from services.mlscorer.calibration import (
+    ANOMALY_TAU_GLOBAL_BOOTSTRAP,
+    CalibrationState,
+    load_calibration_state,
+    recalibrate_if_due,
+)
 
 _FWD_BYTES_IDX = FEATURE_NAMES.index("total_fwd_bytes")
 
@@ -64,15 +69,19 @@ def test_recalibrate_if_due_excludes_alerted_and_blocked_flows_and_writes_row():
     model_id = _insert_model_package(conn)
     host_id = upsert_host(conn, "10.0.0.5")
     other_host_id = upsert_host(conn, "10.0.0.9")
+    # Distinct host for the alerted flow (I12 added a host-level exclusion fallback -- if this
+    # shared host_id with eligible_flow_id, the eligible flow would now also be excluded, since
+    # exclusion is host-scoped, not just flow-scoped).
+    alerted_host_id = upsert_host(conn, "10.0.0.7")
 
     eligible_flow_id = _insert_flow(conn, host_id, "2026-01-05T00:00:00.000000Z", 1000.0)
-    alerted_flow_id = _insert_flow(conn, host_id, "2026-01-05T00:00:01.000000Z", 5000.0)
+    alerted_flow_id = _insert_flow(conn, alerted_host_id, "2026-01-05T00:00:01.000000Z", 5000.0)
     blocked_flow_id = _insert_flow(conn, other_host_id, "2026-01-05T00:00:02.000000Z", 9000.0)
 
     conn.execute(
         "INSERT INTO evidence (flow_id, host_id, layer, evidence_type, weight) "
         "VALUES (?, ?, 'L1', 'SIGNATURE', 1.0)",
-        (alerted_flow_id, host_id),
+        (alerted_flow_id, alerted_host_id),
     )
     conn.execute(
         "INSERT INTO verdict (flow_id, host_id, decision, layers, explanation) "
@@ -110,6 +119,94 @@ def test_recalibrate_if_due_excludes_alerted_and_blocked_flows_and_writes_row():
     assert new_state.threshold == 0.75  # local percentile 0.9 clipped to [0.45, 0.75]
     assert new_state.u_max == 1000
     assert conn.execute("SELECT COUNT(*) FROM calibration_state").fetchone()[0] == 1
+
+
+def test_recalibrate_if_due_excludes_flows_by_host_even_when_evidence_flow_id_is_null():
+    # SignatureDetector.ingestEveAlert() always sets Evidence.flow_id = None (Task 15), so the
+    # flow_id-based exclusion is permanently inert in practice. The host-level fallback (I12)
+    # must still exclude this host's flows from the calibration sample.
+    conn = connect(":memory:")
+    seed_defaults(conn)
+    conn.execute(
+        "UPDATE config_setting SET value = '1' WHERE setting_key = 'anomaly.calibration_min_samples'"
+    )
+    conn.commit()
+    model_id = _insert_model_package(conn)
+    eligible_host_id = upsert_host(conn, "10.0.0.5")
+    alerted_host_id = upsert_host(conn, "10.0.0.9")
+
+    eligible_flow_id = _insert_flow(conn, eligible_host_id, "2026-01-05T00:00:00.000000Z", 1000.0)
+    _insert_flow(conn, alerted_host_id, "2026-01-05T00:00:01.000000Z", 5000.0)
+
+    conn.execute(
+        "INSERT INTO evidence (flow_id, host_id, layer, evidence_type, weight) "
+        "VALUES (NULL, ?, 'L1', 'SIGNATURE', 1.0)",
+        (alerted_host_id,),
+    )
+    conn.commit()
+
+    current_state = CalibrationState(
+        threshold=0.6, global_threshold=0.6, computed_at="2020-01-01T00:00:00.000000Z", sample_count=0
+    )
+    scored = []
+
+    def score_fn(values):
+        scored.append(values)
+        return 0.9
+
+    new_state = recalibrate_if_due(
+        conn, score_fn, model_id, current_state,
+        window_start_iso="2026-01-01T00:00:00.000000Z", window_end_iso="2026-01-10T00:00:00.000000Z",
+        now_iso="2026-01-10T00:00:00.000000Z",
+    )
+
+    assert new_state.sample_count == 1  # only the eligible host's flow
+    assert len(scored) == 1
+    assert eligible_flow_id is not None
+
+
+def test_load_calibration_state_returns_most_recent_row():
+    conn = connect(":memory:")
+    seed_defaults(conn)
+    model_id = _insert_model_package(conn)
+    conn.execute(
+        """INSERT INTO calibration_state
+               (model_id, tau, tau_global, percentile, sample_count, u_max, window_start,
+                window_end, created_at)
+           VALUES (?, 0.55, 0.6, 99.5, 10, 1234, '2026-01-01T00:00:00.000000Z',
+                   '2026-01-08T00:00:00.000000Z', '2026-01-08T00:00:00.000000Z')""",
+        (model_id,),
+    )
+    conn.execute(
+        """INSERT INTO calibration_state
+               (model_id, tau, tau_global, percentile, sample_count, u_max, window_start,
+                window_end, created_at)
+           VALUES (?, 0.70, 0.6, 99.5, 20, 5678, '2026-01-08T00:00:00.000000Z',
+                   '2026-01-15T00:00:00.000000Z', '2026-01-15T00:00:00.000000Z')""",
+        (model_id,),
+    )
+    conn.commit()
+
+    state = load_calibration_state(conn, model_id)
+
+    assert state.threshold == 0.70
+    assert state.global_threshold == 0.6
+    assert state.computed_at == "2026-01-15T00:00:00.000000Z"
+    assert state.sample_count == 20
+    assert state.u_max == 5678
+
+
+def test_load_calibration_state_bootstraps_when_no_row_exists():
+    conn = connect(":memory:")
+    seed_defaults(conn)
+    model_id = _insert_model_package(conn)
+
+    state = load_calibration_state(conn, model_id)
+
+    assert state.threshold == ANOMALY_TAU_GLOBAL_BOOTSTRAP
+    assert state.global_threshold == ANOMALY_TAU_GLOBAL_BOOTSTRAP
+    assert state.sample_count == 0
+    assert state.u_max is None
 
 
 def test_recalibrate_if_due_returns_unchanged_state_when_not_due():

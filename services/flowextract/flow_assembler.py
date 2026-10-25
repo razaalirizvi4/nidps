@@ -111,6 +111,16 @@ class FlowAssembler:
         for key in list(self.flow_table.keys()):
             state = self.flow_table[key]
             if now - state.last_seen >= self.idle_timeout:
-                emitted.append(self.emit(key))
+                # A flow that rolled over on an active-timeout and then never saw another
+                # packet in its new segment has an accumulator that has seen ZERO packets --
+                # emitting it would fabricate an all-zero-feature flow_record (C2). Just drop
+                # the stale key; there is nothing real to emit.
+                if state.accumulator.all_len.count == 0:
+                    del self.flow_table[key]
+                    continue
+                # Reaching expireIdle at all means this flow never saw a full FIN/RST close
+                # (that path emits via onPacket and removes the key immediately) -- so every
+                # flow emitted here is, by construction, partial.
+                emitted.append(self.emit(key, is_partial=True))
                 del self.flow_table[key]
         return emitted

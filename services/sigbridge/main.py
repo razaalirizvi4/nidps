@@ -9,6 +9,7 @@ from common.bus import STREAM_EVIDENCE, STREAM_HEARTBEATS, EventBus
 from common.bus_messages import MessageType, encode_envelope
 from common.config_loader import get as config_get
 from common.db.migrate import connect
+from common.logging_setup import configure_logging
 from services.sigbridge.eve_tailer import EveTailer
 from services.sigbridge.signature_detector import SignatureDetector
 
@@ -33,21 +34,27 @@ def main() -> None:
     redis_url = os.environ.get("NIDPS_REDIS_URL", "redis://localhost:6379/0")
     eve_path = os.environ.get("NIDPS_EVE_JSON_PATH", "/var/log/suricata/eve.json")
 
+    logger = configure_logging("sigbridge")
+
     conn = connect(db_path)
     bus = EventBus.from_url(redis_url)
     tailer = EveTailer(eve_path)
     detector = SignatureDetector()
 
+    logger.info("sigbridge starting, tailing %s", eve_path)
     last_heartbeat = 0.0
     while True:
-        alerts = tailer.poll()
-        if alerts:
-            process_alerts(conn, bus, detector, alerts)
-        now = time.time()
-        heartbeat_interval = config_get(conn, "watchdog.heartbeat_interval_s")
-        if now - last_heartbeat >= heartbeat_interval:
-            publish_heartbeat(bus, detector)
-            last_heartbeat = now
+        try:
+            alerts = tailer.poll()
+            if alerts:
+                process_alerts(conn, bus, detector, alerts)
+            now = time.time()
+            heartbeat_interval = config_get(conn, "watchdog.heartbeat_interval_s")
+            if now - last_heartbeat >= heartbeat_interval:
+                publish_heartbeat(bus, detector)
+                last_heartbeat = now
+        except Exception:
+            logger.exception("error in sigbridge poll loop")
         time.sleep(1.0)
 
 

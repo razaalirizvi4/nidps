@@ -3,7 +3,12 @@ the pure math (lines 6-11) given an already-filtered score sample. recalibrate_i
 DB-aware wrapper that performs lines 2-5's filtering, computes u_max from the same local sample
 (a documented extension -- see Global Constraints), and writes the new calibration_state row.
 FR-13.2 scope note: this implements the recalibration logic only; a later systemd-timer phase
-calls recalibrate_if_due() on a weekly schedule."""
+calls recalibrate_if_due() on a weekly schedule.
+
+Note (I12): SignatureDetector.ingestEveAlert() (Task 15) always sets Evidence.flow_id = None,
+so the `alerted_flow_ids` exclusion below is permanently empty in practice. As a host-level
+fallback, recalibrate_if_due() also excludes every flow belonging to a host that has ANY L1
+evidence row in the calibration window, regardless of that row's flow_id."""
 from __future__ import annotations
 
 import json
@@ -66,6 +71,31 @@ class CalibrationState:
         )
 
 
+def load_calibration_state(conn, model_id: int) -> CalibrationState:
+    """Reads the most recent calibration_state row for a model back into a CalibrationState.
+    Previously there was no reader at all for this table (I14); falls back to the bootstrap
+    global threshold when no row exists yet for this model_id."""
+    row = conn.execute(
+        """SELECT tau, tau_global, created_at, sample_count, u_max
+           FROM calibration_state WHERE model_id = ?
+           ORDER BY created_at DESC LIMIT 1""",
+        (model_id,),
+    ).fetchone()
+    if row is None:
+        return CalibrationState(
+            threshold=ANOMALY_TAU_GLOBAL_BOOTSTRAP,
+            global_threshold=ANOMALY_TAU_GLOBAL_BOOTSTRAP,
+            computed_at=utc_now_iso(),
+            sample_count=0,
+            u_max=None,
+        )
+    tau, tau_global, created_at, sample_count, u_max = row
+    return CalibrationState(
+        threshold=tau, global_threshold=tau_global, computed_at=created_at,
+        sample_count=sample_count, u_max=u_max,
+    )
+
+
 def recalibrate_if_due(
     conn,
     score_fn: Callable,
@@ -95,6 +125,14 @@ def recalibrate_if_due(
             "SELECT DISTINCT flow_id FROM evidence WHERE layer = 'L1' AND flow_id IS NOT NULL"
         ).fetchall()
     }
+    # Host-level fallback (I12): SignatureDetector never populates flow_id on its evidence, so
+    # alerted_flow_ids above is always empty in practice -- exclude by host instead.
+    alerted_host_ids = {
+        row[0]
+        for row in conn.execute(
+            "SELECT DISTINCT host_id FROM evidence WHERE layer = 'L1' AND host_id IS NOT NULL"
+        ).fetchall()
+    }
     blocked_host_ids = {
         row[0]
         for row in conn.execute(
@@ -105,7 +143,7 @@ def recalibrate_if_due(
     scores = []
     segment_bytes = []
     for flow_id, host_id, features_json in rows:
-        if flow_id in alerted_flow_ids or host_id in blocked_host_ids:
+        if flow_id in alerted_flow_ids or host_id in blocked_host_ids or host_id in alerted_host_ids:
             continue
         values = json.loads(features_json)
         scores.append(score_fn(values))

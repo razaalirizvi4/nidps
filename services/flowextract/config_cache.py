@@ -1,7 +1,6 @@
 """5-second-TTL cache over common.config_loader.get() so FlowAssembler's timeouts (FR-10.6) and
 the retention purge interval can change at runtime without restarting this service. Deliberately
-duplicated (not imported from another phase's package) in services/mlscorer/config_cache.py
-(Task 17) -- each phase in this plan owns its own tiny dependency-free copy, matching the
+kept as flowextract's own tiny dependency-free copy rather than a shared import, matching the
 precedent set by the decision-fusion phase's services/enforcer/config_cache.py."""
 from __future__ import annotations
 

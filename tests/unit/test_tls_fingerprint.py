@@ -66,3 +66,25 @@ def test_compute_ja3s_removes_grease_and_matches_known_md5():
         extensions=parsed["extensions"],
     )
     assert ja3s == "32c243fff40e548be0e9d43d09174766"
+
+
+def test_parse_client_hello_body_returns_safe_default_on_truncated_input():
+    # Far too short to contain version + random + session id length + cipher suites, etc.
+    truncated = b"\x03\x03\x00\x00"
+    parsed = parse_client_hello_body(truncated)
+
+    assert parsed == {
+        "version": 0,
+        "cipher_suites": [],
+        "extensions": [],
+        "groups": [],
+        "point_formats": [],
+        "server_name": None,
+    }
+
+
+def test_parse_server_hello_body_returns_safe_default_on_truncated_input():
+    truncated = b"\x03\x03\x00\x00"
+    parsed = parse_server_hello_body(truncated)
+
+    assert parsed == {"version": 0, "cipher_suites": [], "extensions": []}

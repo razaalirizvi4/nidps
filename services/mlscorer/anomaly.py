@@ -66,7 +66,12 @@ class AnomalyDetector(Detector):
         self.calibration = calibration
         self.model_id = model_id
 
-    def score(self, features: FlowFeatures) -> float:
+    def score(self, features) -> float:
+        # recalibrate_if_due() (services/mlscorer/calibration.py) calls score_fn(values) with a
+        # plain list[float] read straight from flow_record.features JSON -- accept that shape
+        # too so AnomalyDetector.score can be passed directly as that score_fn (I3).
+        if isinstance(features, list):
+            features = FlowFeatures(schema_version=SCHEMA_VERSION, values=features)
         if not features.validate():
             raise FeatureSchemaMismatch(
                 f"expected {FEATURE_COUNT} floats under schema {SCHEMA_VERSION!r}, got "

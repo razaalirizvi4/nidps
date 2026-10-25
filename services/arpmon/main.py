@@ -11,6 +11,7 @@ from common.bus import STREAM_EVIDENCE, STREAM_HEARTBEATS, EventBus
 from common.bus_messages import MessageType, encode_envelope
 from common.config_loader import get as config_get
 from common.db.migrate import connect
+from common.logging_setup import configure_logging
 from services.arpmon.arp_monitor import ArpFrame, ArpMonitor
 from services.arpmon.leases import parse_dnsmasq_leases
 
@@ -44,6 +45,22 @@ def publish_heartbeat(bus: EventBus, monitor: ArpMonitor) -> None:
     bus.publish(STREAM_HEARTBEATS, encode_envelope(MessageType.HEARTBEAT, monitor.heartbeat()))
 
 
+def _refresh_bindings_safely(monitor: ArpMonitor, lease_path: str, logger) -> None:
+    """Refreshes monitor.bindings from the dnsmasq lease file, but never lets a transient
+    read glitch (missing file, permission error) silently wipe out trust bindings that were
+    already successfully loaded -- that would disable ARP-spoof detection with no signal
+    (I9). Only an empty-to-empty transition (the very first refresh, before the lease file
+    is available) is allowed through."""
+    new_bindings = parse_dnsmasq_leases(lease_path)
+    if not new_bindings and monitor.bindings:
+        logger.warning(
+            "lease file %s read as empty; keeping existing %d binding(s)",
+            lease_path, len(monitor.bindings),
+        )
+        return
+    monitor.refreshBindings(new_bindings)
+
+
 def main() -> None:
     db_path = os.environ.get("NIDPS_DB_PATH", "/var/lib/nidps/nidps.sqlite3")
     redis_url = os.environ.get("NIDPS_REDIS_URL", "redis://localhost:6379/0")
@@ -52,29 +69,35 @@ def main() -> None:
     ap_mac = os.environ["NIDPS_AP_MAC"]
     lease_path = os.environ.get("NIDPS_DHCP_LEASE_PATH", "/var/lib/misc/dnsmasq.leases")
 
+    logger = configure_logging("arpmon")
+
     conn = connect(db_path)
     bus = EventBus.from_url(redis_url)
     monitor = ArpMonitor(gateway_ip=gateway_ip, ap_mac=ap_mac)
-    monitor.refreshBindings(parse_dnsmasq_leases(lease_path))
+    _refresh_bindings_safely(monitor, lease_path, logger)
 
     state = {"last_lease_refresh": time.time(), "last_heartbeat": 0.0}
 
     from scapy.all import sniff
 
     def _on_packet(scapy_pkt) -> None:
-        frame = parse_arp_packet(scapy_pkt, timestamp=time.time())
-        if frame is not None:
-            process_frames(conn, bus, monitor, [frame])
+        try:
+            frame = parse_arp_packet(scapy_pkt, timestamp=time.time())
+            if frame is not None:
+                process_frames(conn, bus, monitor, [frame])
 
-        now = time.time()
-        heartbeat_interval = config_get(conn, "watchdog.heartbeat_interval_s")
-        if now - state["last_heartbeat"] >= heartbeat_interval:
-            publish_heartbeat(bus, monitor)
-            state["last_heartbeat"] = now
-        if now - state["last_lease_refresh"] >= 5.0:
-            monitor.refreshBindings(parse_dnsmasq_leases(lease_path))
-            state["last_lease_refresh"] = now
+            now = time.time()
+            heartbeat_interval = config_get(conn, "watchdog.heartbeat_interval_s")
+            if now - state["last_heartbeat"] >= heartbeat_interval:
+                publish_heartbeat(bus, monitor)
+                state["last_heartbeat"] = now
+            if now - state["last_lease_refresh"] >= 5.0:
+                _refresh_bindings_safely(monitor, lease_path, logger)
+                state["last_lease_refresh"] = now
+        except Exception:
+            logger.exception("error processing packet")
 
+    logger.info("arpmon starting on interface %s", interface)
     sniff(iface=interface, filter="arp", prn=_on_packet, store=False)
 
 
