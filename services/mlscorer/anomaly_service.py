@@ -169,6 +169,8 @@ def main() -> None:
 
             if detector is None and now - last_model_attempt >= 60.0:
                 _try_bootstrap_detector()
+                if detector is not None:
+                    tracker._exfil.set_u_max(detector.calibration.u_max)
 
             if detector is not None:
                 window_hours = cached_config.get("anomaly.calibration_window_hours")
@@ -189,6 +191,7 @@ def main() -> None:
                     )
                     if new_state is not detector.calibration:
                         detector.calibration = new_state
+                        tracker._exfil.set_u_max(new_state.u_max)
                     last_recalibration_check = now
 
             heartbeat_interval = config_get(conn, "watchdog.heartbeat_interval_s")

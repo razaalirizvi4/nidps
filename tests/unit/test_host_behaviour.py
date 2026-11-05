@@ -91,6 +91,21 @@ def test_u_max_none_disables_fast_path_entirely():
     assert evidence == []
 
 
+def test_set_u_max_updates_the_fast_path_threshold_in_place():
+    tracker = ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None)
+    # With u_max=None, the fast path stays disabled no matter how large the transfer is.
+    evidence = tracker.observe(_obs("10.0.0.9", "9.9.9.9", 5000.0, 10.0, end_time=10.0, is_partial=True, is_new_destination=True))
+    assert evidence == []
+
+    tracker.set_u_max(1000)
+
+    # Same shape of observation (partial, over the new u_max, new destination) now fires.
+    evidence = tracker.observe(_obs("10.0.0.9", "8.8.8.8", 5000.0, 10.0, end_time=20.0, is_partial=True, is_new_destination=True))
+    assert len(evidence) == 1
+    assert evidence[0].kind == EvidenceType.EXFIL
+    assert evidence[0].strength == 1.0
+
+
 def test_group_below_min_connections_never_computes_cv_or_flags():
     tracker = BeaconTracker(min_connections=5, cv_threshold=0.15)
     for t in (0.0, 10.0, 20.0, 30.0):  # only 4 connections, below min_connections=5

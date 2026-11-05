@@ -59,6 +59,15 @@ class ExfiltrationTracker:
         self._u_max = u_max
         self._state: dict[str, _ExfilState] = {}
 
+    def set_u_max(self, u_max: Optional[int]) -> None:
+        """Update the fast-path threshold in place.
+
+        Lets a long-lived tracker instance pick up a freshly loaded or recalibrated
+        model's u_max without being reconstructed -- e.g. when the model only becomes
+        available after a startup retry, or when recalibration later computes a new value.
+        """
+        self._u_max = u_max
+
     def observe(self, obs: FlowObservation) -> list[Evidence]:
         """Process a flow observation and detect exfiltration anomalies.
 
