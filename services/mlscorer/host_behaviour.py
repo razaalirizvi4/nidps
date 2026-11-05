@@ -1,6 +1,7 @@
 """Host behaviour anomaly detection: ExfiltrationTracker for per-host outbound data volume analysis."""
 import math
 import statistics
+from collections import deque
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -165,7 +166,12 @@ class BeaconTracker:
         """
         self._min_connections = min_connections
         self._cv_threshold = cv_threshold
-        self._group_history: dict[tuple, list[tuple[float, float]]] = {}
+        # Each group's history is a bounded ring: group keys include attacker-controlled
+        # sni/ja3 strings, so an unbounded list per group would grow without limit and make
+        # the per-observe CV scan O(n) (O(n^2) cumulative) for a long-lived group. A window
+        # of a few times min_connections is all the CV computation ever needs.
+        self._history_maxlen = max(min_connections * 4, 32)
+        self._group_history: dict[tuple, deque[tuple[float, float]]] = {}
         self._ja3_hosts: dict[str, set[str]] = {}
 
     def observe(self, obs: FlowObservation) -> Optional[Evidence]:
@@ -185,7 +191,7 @@ class BeaconTracker:
         group_key = (obs.host_ip, dst_key, obs.ja3)
 
         if group_key not in self._group_history:
-            self._group_history[group_key] = []
+            self._group_history[group_key] = deque(maxlen=self._history_maxlen)
 
         total_bytes = obs.fwd_bytes + obs.bwd_bytes
         self._group_history[group_key].append((obs.end_time_epoch, total_bytes))
