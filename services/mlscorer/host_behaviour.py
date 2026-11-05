@@ -26,11 +26,18 @@ class FlowObservation:
 
 
 @dataclass
+class _ExfilBucket:
+    """One host's in-progress totals for a single bucket index."""
+    fwd: float = 0.0
+    bwd: float = 0.0
+
+
+@dataclass
 class _ExfilState:
     """Per-host state for ExfiltrationTracker."""
-    current_bucket_idx: Optional[int] = None
-    current_fwd: float = 0.0
-    current_bwd: float = 0.0
+    # bucket_idx -> accumulator, for every bucket not yet finalized. Bounded by
+    # ExfiltrationTracker._max_open_buckets; see the cap rule.
+    open_buckets: dict[int, _ExfilBucket] = field(default_factory=dict)
     ewma_mean: float = 0.0
     ewma_var: float = 0.0
     initialized: bool = False
@@ -42,9 +49,25 @@ class ExfiltrationTracker:
     Uses exponentially weighted moving average (EWMA) to track typical outbound data volumes,
     flags when a single bucket exceeds threshold both in magnitude (multiple standard deviations
     above mean) and ratio (forward/backward ratio >= threshold).
+
+    Flow observations for a given host do not necessarily arrive in end_time order --
+    concurrent connections on one host are reported independently (on close, on
+    active-timeout rollover, or on idle expiry), so the bucket index a host presents to
+    observe() can walk backwards as well as forwards. Rather than finalize a bucket the
+    instant a different bucket index is seen, this tracker buffers several open buckets per
+    host and finalizes a bucket only once a global watermark (the largest end_time seen
+    across all hosts) proves no further observation can land in it. See
+    .superpowers/sdd/exfil-bucket-watermark-design.md for the full design.
     """
 
-    def __init__(self, ewma_alpha: float, bucket_seconds: int, k_std: float, u_max: Optional[int]):
+    def __init__(
+        self,
+        ewma_alpha: float,
+        bucket_seconds: int,
+        k_std: float,
+        u_max: Optional[int],
+        idle_timeout_s: int,
+    ):
         """Initialize the exfiltration tracker.
 
         Args:
@@ -53,12 +76,26 @@ class ExfiltrationTracker:
             k_std: Number of standard deviations for threshold (e.g., 2.0 for 2-sigma)
             u_max: Threshold for fast-path detection on partial segments to new destinations.
                    None disables fast-path check.
+            idle_timeout_s: network.idle_timeout_s -- the maximum number of seconds a
+                   reported flow's end_time can lag behind the newest end_time already seen
+                   (an expireIdle()-reported flow's end_time is its last_seen). Sizes the
+                   grace margin before a bucket is treated as complete. Pass 0 only to
+                   assert that observations arrive in end_time order (tests).
         """
         self._alpha = ewma_alpha
         self._bucket_seconds = bucket_seconds
         self._k_std = k_std
         self._u_max = u_max
         self._state: dict[str, _ExfilState] = {}
+
+        self._idle_timeout_s = idle_timeout_s
+        self._lag_seconds: float = (
+            0.0 if idle_timeout_s <= 0 else idle_timeout_s + bucket_seconds
+        )
+        self._grace_buckets: int = math.ceil(self._lag_seconds / bucket_seconds)
+        self._max_open_buckets: int = self._grace_buckets + 2
+        self._stream_max_end_time: Optional[float] = None
+        self.dropped_late_observations: int = 0
 
     def set_u_max(self, u_max: Optional[int]) -> None:
         """Update the fast-path threshold in place.
@@ -72,8 +109,9 @@ class ExfiltrationTracker:
     def observe(self, obs: FlowObservation) -> list[Evidence]:
         """Process a flow observation and detect exfiltration anomalies.
 
-        Returns a list of Evidence objects for detected anomalies (0 or 1 from fast path,
-        0 or 1 from bucket finalization, potentially 2 if both fire on same call).
+        Returns a list of Evidence objects for detected anomalies: 0 or 1 from the fast
+        path, plus 0 or more from bucket finalization (watermark-driven, so more than one
+        bucket -- for this host or others -- can finalize on a single call).
         """
         evidence_list: list[Evidence] = []
 
@@ -89,58 +127,99 @@ class ExfiltrationTracker:
                 weight=0.0,
             ))
 
-        # Bucket-based EWMA check
+        # Bucket index of this observation (unchanged formula)
         bucket_idx = math.floor(obs.end_time_epoch / self._bucket_seconds)
 
-        # Initialize or retrieve state for this host
+        # Per-host state
         if obs.host_ip not in self._state:
             self._state[obs.host_ip] = _ExfilState()
-
         state = self._state[obs.host_ip]
 
-        # Handle bucket transition or initialization
-        if state.current_bucket_idx is None:
-            # First observation for this host
-            state.current_bucket_idx = bucket_idx
-            state.current_fwd = obs.fwd_bytes
-            state.current_bwd = obs.bwd_bytes
-        elif state.current_bucket_idx != bucket_idx:
-            # Bucket changed: finalize the previous bucket
-            b_t = state.current_fwd
+        # Advance the global watermark, then derive the cutoff
+        if self._stream_max_end_time is None or obs.end_time_epoch > self._stream_max_end_time:
+            self._stream_max_end_time = obs.end_time_epoch
+        cutoff_idx = math.floor((self._stream_max_end_time - self._lag_seconds) / self._bucket_seconds)
 
-            # Check for exfiltration if we have an established baseline
-            if state.initialized:
-                std = math.sqrt(state.ewma_var)
-                threshold = state.ewma_mean + self._k_std * std
+        # Is this observation too late to place?
+        if bucket_idx < cutoff_idx:
+            self.dropped_late_observations += 1
+            return evidence_list  # fast-path evidence, if any, is still returned
 
-                # Both magnitude and ratio must exceed thresholds
-                ratio = b_t / max(state.current_bwd, 1.0)
-                if b_t > threshold and ratio >= EXFIL_RATIO_THRESHOLD:
-                    evidence_list.append(Evidence(
-                        source=Layer.L2_ANOMALY,
-                        flow_id=None,
-                        host_ip=obs.host_ip,
-                        kind=EvidenceType.EXFIL,
-                        strength=1.0,
-                        weight=0.0,
-                    ))
+        # Accumulate into the right bucket, creating it if needed
+        if bucket_idx not in state.open_buckets:
+            state.open_buckets[bucket_idx] = _ExfilBucket()
+        bucket = state.open_buckets[bucket_idx]
+        bucket.fwd += obs.fwd_bytes
+        bucket.bwd += obs.bwd_bytes
 
-            # Update EWMA with the finalized bucket
-            ewma_mean_before = state.ewma_mean
-            state.ewma_mean = self._alpha * b_t + (1 - self._alpha) * state.ewma_mean
-            state.ewma_var = (self._alpha * (b_t - ewma_mean_before) ** 2 +
-                              (1 - self._alpha) * state.ewma_var)
-            state.initialized = True
+        # Drain every bucket the cutoff has passed, ascending
+        for idx in sorted(state.open_buckets):
+            if idx >= cutoff_idx:
+                break  # sorted: nothing later can qualify either
+            ev = self._finalize_bucket(obs.host_ip, state, state.open_buckets.pop(idx))
+            if ev is not None:
+                evidence_list.append(ev)
 
-            # Start accumulating the new bucket
-            state.current_bucket_idx = bucket_idx
-            state.current_fwd = obs.fwd_bytes
-            state.current_bwd = obs.bwd_bytes
-        else:
-            # Same bucket: accumulate
-            state.current_fwd += obs.fwd_bytes
-            state.current_bwd += obs.bwd_bytes
+        # Hard memory cap (defensive; unreachable via the drain's invariant)
+        while len(state.open_buckets) > self._max_open_buckets:
+            idx = min(state.open_buckets)
+            ev = self._finalize_bucket(obs.host_ip, state, state.open_buckets.pop(idx))
+            if ev is not None:
+                evidence_list.append(ev)
 
+        return evidence_list
+
+    def _finalize_bucket(
+        self, host_ip: str, state: _ExfilState, bucket: _ExfilBucket
+    ) -> Optional[Evidence]:
+        """Finalize one bucket: run the magnitude+ratio check, then fold it into the EWMA.
+
+        Verbatim lift of the pre-watermark finalize logic: same max(bwd, 1.0) zero guard,
+        same EXFIL_RATIO_THRESHOLD gate, same "no check until a baseline exists" rule, same
+        pre-update mean in the variance term.
+        """
+        b_t = bucket.fwd
+        result: Optional[Evidence] = None
+
+        if state.initialized:
+            std = math.sqrt(state.ewma_var)
+            threshold = state.ewma_mean + self._k_std * std
+
+            ratio = b_t / max(bucket.bwd, 1.0)
+            if b_t > threshold and ratio >= EXFIL_RATIO_THRESHOLD:
+                result = Evidence(
+                    source=Layer.L2_ANOMALY,
+                    flow_id=None,
+                    host_ip=host_ip,
+                    kind=EvidenceType.EXFIL,
+                    strength=1.0,
+                    weight=0.0,
+                )
+
+        ewma_mean_before = state.ewma_mean
+        state.ewma_mean = self._alpha * b_t + (1 - self._alpha) * state.ewma_mean
+        state.ewma_var = (self._alpha * (b_t - ewma_mean_before) ** 2 +
+                          (1 - self._alpha) * state.ewma_var)
+        state.initialized = True
+
+        return result
+
+    def flush_all(self) -> list[Evidence]:
+        """Finalize every open bucket for every host, in ascending bucket order per host.
+
+        Caller contract: only call this when no further observation can arrive for the
+        buckets currently buffered -- i.e. when the FLOW_READY stream has been quiescent for
+        at least network.idle_timeout_s + 2 * exfil.bucket_seconds wall-clock seconds, or at
+        shutdown. Calling it while the stream is live would finalize partial buckets, which
+        is the bug this class's watermark exists to avoid.
+        """
+        evidence_list: list[Evidence] = []
+        for host_ip, state in self._state.items():
+            for idx in sorted(state.open_buckets):
+                ev = self._finalize_bucket(host_ip, state, state.open_buckets[idx])
+                if ev is not None:
+                    evidence_list.append(ev)
+            state.open_buckets.clear()
         return evidence_list
 
 
