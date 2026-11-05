@@ -152,20 +152,25 @@ class ExfiltrationTracker:
         bucket.fwd += obs.fwd_bytes
         bucket.bwd += obs.bwd_bytes
 
-        # Drain every bucket the cutoff has passed, ascending
-        for idx in sorted(state.open_buckets):
-            if idx >= cutoff_idx:
-                break  # sorted: nothing later can qualify either
-            ev = self._finalize_bucket(obs.host_ip, state, state.open_buckets.pop(idx))
-            if ev is not None:
-                evidence_list.append(ev)
+        # The watermark is global (§4.2), so the cutoff it produces must be applied to
+        # EVERY host's open_buckets -- including hosts that have gone dark and will never
+        # call observe() again. self._state is not mutated here (only the inner dicts are),
+        # and obs.host_ip was already inserted above, so iterating it is safe.
+        for h_ip, h_state in self._state.items():  # insertion order: deterministic
+            # Drain every bucket the cutoff has passed, ascending
+            for idx in sorted(h_state.open_buckets):
+                if idx >= cutoff_idx:
+                    break  # sorted: nothing later can qualify either
+                ev = self._finalize_bucket(h_ip, h_state, h_state.open_buckets.pop(idx))
+                if ev is not None:
+                    evidence_list.append(ev)
 
-        # Hard memory cap (defensive; unreachable via the drain's invariant)
-        while len(state.open_buckets) > self._max_open_buckets:
-            idx = min(state.open_buckets)
-            ev = self._finalize_bucket(obs.host_ip, state, state.open_buckets.pop(idx))
-            if ev is not None:
-                evidence_list.append(ev)
+            # Hard memory cap (defensive; unreachable via the drain's invariant)
+            while len(h_state.open_buckets) > self._max_open_buckets:
+                idx = min(h_state.open_buckets)
+                ev = self._finalize_bucket(h_ip, h_state, h_state.open_buckets.pop(idx))
+                if ev is not None:
+                    evidence_list.append(ev)
 
         return evidence_list
 

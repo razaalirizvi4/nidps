@@ -420,6 +420,76 @@ def test_single_bucket_host_never_finalizes_like_legacy():
     assert set(state.open_buckets) == {0}
 
 
+def test_global_watermark_closes_a_quiet_hosts_bucket_via_another_hosts_observe_call():
+    # idle_timeout_s=30, bucket_seconds=60 -> L=90. This pins the all-host drain loop
+    # (design doc Sec 4.2 / Sec 7 STEP 7): host A goes dark after filling some buckets, and
+    # its buckets must still be finalized -- purely as a side effect of host B's observe()
+    # calls advancing the global watermark -- with no further host A observation and no
+    # flush_all() call anywhere in this test (that would exercise the backstop, not the
+    # all-host drain this test is pinning).
+    host_a, host_b = "10.0.0.30", "10.0.0.31"
+    tracker = ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None, idle_timeout_s=30)
+
+    # Host A: baseline (buckets 0, 1, 2), then a heavy one-sided flow in bucket 5 (end_time=305
+    # advances the watermark enough -- cutoff=floor((305-90)/60)=3 -- to finalize 0, 1, 2 right
+    # away, establishing the baseline with no flag). Then an unrelated expireIdle-style flow in
+    # bucket 3 (end_time=190, behind the watermark but still >= the cutoff of 3, so it
+    # accumulates instead of dropping). Host A ends this block with buckets 3 and 5 both open.
+    tracker.observe(_obs(host_a, "1.2.3.4", 100.0, 100.0, end_time=10.0))
+    tracker.observe(_obs(host_a, "1.2.3.4", 120.0, 110.0, end_time=70.0))
+    tracker.observe(_obs(host_a, "1.2.3.4", 130.0, 120.0, end_time=130.0))
+    ev = tracker.observe(_obs(host_a, "1.2.3.4", 5000.0, 10.0, end_time=305.0))
+    assert ev == []
+    ev = tracker.observe(_obs(host_a, "1.2.3.4", 50.0, 45.0, end_time=190.0))
+    assert ev == []
+    assert set(tracker._state[host_a].open_buckets) == {3, 5}
+    assert tracker._state[host_a].initialized is True
+    mean_before = tracker._state[host_a].ewma_mean
+
+    # Host A goes dark: no further observe() call for host A anywhere in this test.
+
+    # Record finalize order (across all hosts) from here on, to confirm host A's own
+    # ascending-order guarantee (requirement 4) holds even though host A itself never calls
+    # observe() again -- the finalize calls below are all driven by host B's traffic.
+    finalize_calls = []
+    original_finalize = tracker._finalize_bucket
+
+    def _recording_finalize(host_ip, state, bucket):
+        finalize_calls.append((host_ip, bucket.fwd))
+        return original_finalize(host_ip, state, bucket)
+
+    tracker._finalize_bucket = _recording_finalize
+
+    # Host B, call 1: end_time=400 -> watermark=400, cutoff=floor((400-90)/60)=5. This passes
+    # host A's bucket 3 (3 < 5) but not yet bucket 5 (5 is not < 5): bucket 3 finalizes here,
+    # with no flag (small, unrelated totals), purely from host B's call.
+    ev = tracker.observe(_obs(host_b, "9.9.9.9", 10.0, 10.0, end_time=400.0))
+    assert ev == []
+    assert set(tracker._state[host_a].open_buckets) == {5}  # bucket 3 closed, 5 still open
+
+    # Host B, call 2: end_time=460 -> watermark=460, cutoff=floor((460-90)/60)=6. Now host A's
+    # bucket 5 (5 < 6) finalizes too -- and its summed heavy, one-sided total trips the
+    # magnitude+ratio gate. The returned Evidence's host_ip is host A's, even though this
+    # call's own obs.host_ip is host B.
+    evidence = tracker.observe(_obs(host_b, "9.9.9.9", 10.0, 10.0, end_time=460.0))
+    assert len(evidence) == 1
+    assert evidence[0].kind == EvidenceType.EXFIL
+    assert evidence[0].host_ip == host_a
+    assert tracker._state[host_a].open_buckets == {}
+
+    # Host B, call 3: end_time=520 -> watermark=520, cutoff=floor((520-90)/60)=7. Host A has
+    # nothing left to finalize; this call only drains host B's own earlier bucket, confirming
+    # the all-host loop does not disturb a host with no open buckets.
+    ev = tracker.observe(_obs(host_b, "9.9.9.9", 1.0, 1.0, end_time=520.0))
+    assert all(e.host_ip != host_a for e in ev)
+
+    # Host A's own finalize order was strictly ascending (bucket 3 then bucket 5), and both
+    # finalizations were driven entirely by host B's calls.
+    host_a_finalizes = [(h, fwd) for h, fwd in finalize_calls if h == host_a]
+    assert host_a_finalizes == [(host_a, 50.0), (host_a, 5000.0)]
+    assert tracker._state[host_a].ewma_mean != mean_before  # baseline moved with no host-A call
+
+
 def test_flush_all_finalizes_every_open_bucket_for_every_host_then_is_idempotent():
     tracker = ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None, idle_timeout_s=30)
     host_a, host_b = "10.0.0.9", "10.0.0.10"
