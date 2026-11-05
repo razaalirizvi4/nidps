@@ -21,14 +21,17 @@ _FWD_IDX = FEATURE_NAMES.index("total_fwd_bytes")
 _BWD_IDX = FEATURE_NAMES.index("total_bwd_bytes")
 
 
-def _write_flow(conn, host_id, dst_ip="1.2.3.4", fwd=10.0, bwd=10.0, ja3=None, sni=None):
+def _write_flow(
+    conn, host_id, dst_ip="1.2.3.4", fwd=10.0, bwd=10.0, ja3=None, sni=None,
+    src_port=1, dst_port=2, segment_no=0,
+):
     values = [0.0] * FEATURE_COUNT
     values[_FWD_IDX] = fwd
     values[_BWD_IDX] = bwd
     emitted = EmittedFlow(
-        src_ip="10.0.0.5", dst_ip=dst_ip, src_port=1, dst_port=2, protocol="TCP",
-        start_time=1_700_000_000.0, end_time=1_700_000_000.5, segment_no=0, is_partial=False,
-        feature_values=values, tls=TLSFingerprint(ja3=ja3, server_name=sni),
+        src_ip="10.0.0.5", dst_ip=dst_ip, src_port=src_port, dst_port=dst_port, protocol="TCP",
+        start_time=1_700_000_000.0, end_time=1_700_000_000.5, segment_no=segment_no,
+        is_partial=False, feature_values=values, tls=TLSFingerprint(ja3=ja3, server_name=sni),
     )
     return write_flow_record(conn, emitted, host_id)
 
@@ -38,15 +41,35 @@ def test_is_new_destination_excludes_the_flows_own_row():
     host_id = upsert_host(conn, "10.0.0.5")
     flow_id = _write_flow(conn, host_id, dst_ip="9.9.9.9")
     # The only flow_record row for this (host_id, dst_ip) pair IS this flow itself.
-    assert is_new_destination(conn, host_id, "9.9.9.9", flow_id) is True
+    assert is_new_destination(conn, host_id, "9.9.9.9", flow_id, 1, 2, "TCP") is True
 
 
 def test_is_new_destination_false_when_a_different_flow_already_visited():
     conn = connect(":memory:")
     host_id = upsert_host(conn, "10.0.0.5")
-    _write_flow(conn, host_id, dst_ip="9.9.9.9")
+    # A genuinely separate earlier conversation (different source port) to the same destination.
+    _write_flow(conn, host_id, dst_ip="9.9.9.9", src_port=40000)
     newer_flow_id = _write_flow(conn, host_id, dst_ip="9.9.9.9")
-    assert is_new_destination(conn, host_id, "9.9.9.9", newer_flow_id) is False
+    assert is_new_destination(conn, host_id, "9.9.9.9", newer_flow_id, 1, 2, "TCP") is False
+
+
+def test_is_new_destination_ignores_earlier_segments_of_the_same_five_tuple():
+    conn = connect(":memory:")
+    host_id = upsert_host(conn, "10.0.0.5")
+    # A brand new destination with no prior rows at all is new.
+    first_segment = _write_flow(conn, host_id, dst_ip="9.9.9.9", segment_no=0)
+    assert is_new_destination(conn, host_id, "9.9.9.9", first_segment, 1, 2, "TCP") is True
+
+    # Segment 1 of the SAME logical conversation (same five-tuple) must not make the
+    # destination look already-visited -- otherwise FR-4.5's fast path, which requires
+    # is_partial (i.e. a non-first segment), could never fire.
+    second_segment = _write_flow(conn, host_id, dst_ip="9.9.9.9", segment_no=1)
+    assert is_new_destination(conn, host_id, "9.9.9.9", second_segment, 1, 2, "TCP") is True
+
+    # But a genuinely different earlier flow to the same destination still counts as a visit.
+    _write_flow(conn, host_id, dst_ip="9.9.9.9", src_port=40000)
+    third_segment = _write_flow(conn, host_id, dst_ip="9.9.9.9", segment_no=2)
+    assert is_new_destination(conn, host_id, "9.9.9.9", third_segment, 1, 2, "TCP") is False
 
 
 def test_process_flow_ready_runs_host_behaviour_tracker_without_a_detector():
@@ -93,6 +116,39 @@ def test_process_flow_ready_scores_with_detector_and_publishes_weighted_evidence
     assert payload["kind"] == "ANOMALY"
     assert payload["weight"] == 2.0  # risk.weight_anomaly default
     assert payload["model_id"] == 7
+
+
+def test_process_flow_ready_fires_exfil_fast_path_for_a_partial_flow_to_a_new_destination():
+    # Regression guard for FR-4.5: the fast path requires is_partial AND is_new_destination
+    # at the same time. is_partial now arrives on the FLOW_READY message (the real
+    # FlowAssembler flag) rather than being inferred from segment_no, and
+    # is_new_destination no longer counts earlier segments of this same conversation --
+    # so the combination is reachable from the real DB-backed loader.
+    conn = connect(":memory:")
+    seed_defaults(conn)
+    bus = EventBus(fakeredis.FakeRedis(decode_responses=True))
+    host_id = upsert_host(conn, "10.0.0.5")
+    # A huge one-sided upload, still in progress (segment 1 of an active-timeout split).
+    _write_flow(conn, host_id, dst_ip="9.9.9.9", fwd=5_000_000.0, bwd=100.0, segment_no=0)
+    flow_id = _write_flow(conn, host_id, dst_ip="9.9.9.9", fwd=5_000_000.0, bwd=100.0, segment_no=1)
+    body = encode_envelope(
+        MessageType.FLOW_READY,
+        {"flow_id": flow_id, "host_ip": "10.0.0.5", "is_partial": True},
+    )
+
+    tracker = HostBehaviourTracker(
+        exfil=ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=1_000_000),
+        beacon=BeaconTracker(min_connections=5, cv_threshold=0.15),
+    )
+    published = process_flow_ready(conn, bus, detector=None, tracker=tracker, body=body)
+    assert published == 1
+
+    received = []
+    bus.consume(STREAM_EVIDENCE, group="decision", consumer="c1", handler=received.append, block_ms=100)
+    assert len(received) == 1
+    payload = decode_envelope(received[0])["payload"]
+    assert payload["kind"] == "EXFIL"
+    assert payload["weight"] == 2.0  # risk.weight_exfil default
 
 
 def test_process_flow_ready_returns_zero_for_missing_flow_record():

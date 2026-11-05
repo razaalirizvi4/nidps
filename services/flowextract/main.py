@@ -24,7 +24,8 @@ def _persist_and_publish(conn, bus: EventBus, emitted, extractor_version: str = 
     host_id = upsert_host(conn, emitted.src_ip)
     flow_id = write_flow_record(conn, emitted, host_id, extractor_version)
     body = encode_envelope(
-        MessageType.FLOW_READY, {"flow_id": flow_id, "host_ip": emitted.src_ip}
+        MessageType.FLOW_READY,
+        {"flow_id": flow_id, "host_ip": emitted.src_ip, "is_partial": emitted.is_partial},
     )
     # A bus.publish failure here is NOT caught locally -- it propagates up through run_once()
     # into _on_packet()'s try/except in main(), which logs it instead of crashing the service.
