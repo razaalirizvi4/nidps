@@ -1,7 +1,7 @@
 import math
 
 from common.schemas import EvidenceType, Layer
-from services.mlscorer.host_behaviour import ExfiltrationTracker, FlowObservation
+from services.mlscorer.host_behaviour import BeaconTracker, ExfiltrationTracker, FlowObservation
 
 
 def _obs(host_ip, dst_ip, fwd, bwd, end_time, is_partial=False, is_new_destination=False, sni=None, ja3=None):
@@ -89,3 +89,56 @@ def test_u_max_none_disables_fast_path_entirely():
     tracker = ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None)
     evidence = tracker.observe(_obs("10.0.0.8", "9.9.9.9", 1_000_000.0, 1.0, end_time=10.0, is_partial=True, is_new_destination=True))
     assert evidence == []
+
+
+def test_group_below_min_connections_never_computes_cv_or_flags():
+    tracker = BeaconTracker(min_connections=5, cv_threshold=0.15)
+    for t in (0.0, 10.0, 20.0, 30.0):  # only 4 connections, below min_connections=5
+        result = tracker.observe(_obs("10.0.0.5", "1.2.3.4", 100.0, 100.0, end_time=t, ja3="abc"))
+    assert result is None
+
+
+def test_zero_mean_interval_or_bytes_does_not_raise():
+    tracker = BeaconTracker(min_connections=2, cv_threshold=0.15)
+    # Two connections at the exact same timestamp -- mean inter-arrival would be 0.
+    tracker.observe(_obs("10.0.0.6", "1.2.3.4", 0.0, 0.0, end_time=5.0, ja3="abc"))
+    result = tracker.observe(_obs("10.0.0.6", "1.2.3.4", 0.0, 0.0, end_time=5.0, ja3="abc"))
+    assert result is None  # must not raise ZeroDivisionError
+
+
+def test_periodic_group_with_rare_ja3_and_low_byte_variance_is_flagged():
+    tracker = BeaconTracker(min_connections=5, cv_threshold=0.15)
+    # 5 connections, 60s apart exactly (CV_time = 0.0), each carrying ~100 bytes total
+    # (fwd+bwd), varying by at most 1 byte (CV_bytes well under 0.15), same rare JA3.
+    result = None
+    sizes = [100.0, 99.0, 100.0, 101.0, 100.0]
+    for i, size in enumerate(sizes):
+        result = tracker.observe(
+            _obs("10.0.0.5", "9.9.9.9", size / 2, size / 2, end_time=i * 60.0, ja3="rare-fingerprint")
+        )
+    assert result is not None
+    assert result.kind.value == "BEACON"
+    assert result.host_ip == "10.0.0.5"
+    assert result.weight == 0.0
+
+
+def test_common_ja3_used_by_many_hosts_is_never_flagged_even_if_perfectly_periodic():
+    tracker = BeaconTracker(min_connections=5, cv_threshold=0.15)
+    # A common JA3 (e.g. a mainstream browser) seen from 3 distinct hosts -- not rare.
+    for host in ("10.0.0.1", "10.0.0.2", "10.0.0.3"):
+        tracker.observe(_obs(host, "9.9.9.9", 50.0, 50.0, end_time=0.0, ja3="common-browser"))
+    result = None
+    for i in range(5):
+        result = tracker.observe(
+            _obs("10.0.0.1", "9.9.9.9", 50.0, 50.0, end_time=i * 60.0, ja3="common-browser")
+        )
+    assert result is None
+
+
+def test_irregular_human_driven_timing_is_never_flagged():
+    tracker = BeaconTracker(min_connections=5, cv_threshold=0.15)
+    irregular_times = [0.0, 12.0, 95.0, 97.0, 400.0]  # high-variance gaps
+    result = None
+    for t in irregular_times:
+        result = tracker.observe(_obs("10.0.0.5", "9.9.9.9", 100.0, 0.0, end_time=t, ja3="rare-fingerprint"))
+    assert result is None
