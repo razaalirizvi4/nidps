@@ -114,6 +114,13 @@ def process_flow_ready(
     if detector is not None:
         evidence_list = evidence_list + (detector.analyse((host_ip, flow_id, features)) or [])
 
+    return publish_evidence(conn, bus, evidence_list)
+
+
+def publish_evidence(conn, bus: EventBus, evidence_list) -> int:
+    """Attach a config-sourced weight to each Evidence and publish it. Shared by
+    process_flow_ready() and the quiescence flush path in main(), so both paths weight and
+    publish identically."""
     published = 0
     for ev in evidence_list:
         ev.weight = config_get(conn, _WEIGHT_CONFIG_KEY[ev.kind])
@@ -176,6 +183,7 @@ def main() -> None:
             bucket_seconds=cached_config.get("exfil.bucket_seconds"),
             k_std=cached_config.get("exfil.k_std"),
             u_max=detector.calibration.u_max if detector is not None else None,
+            idle_timeout_s=cached_config.get("network.idle_timeout_s"),
         ),
         beacon=BeaconTracker(
             min_connections=cached_config.get("beacon.min_connections"),
@@ -186,8 +194,13 @@ def main() -> None:
     logger.info("mlscorer-anomaly starting, consumer=%s", consumer_name)
     last_heartbeat = 0.0
     last_recalibration_check = 0.0
+    last_flow_wall: Optional[float] = None
+    flushed_since_last_flow = False
 
     def _handle(body: str) -> None:
+        nonlocal last_flow_wall, flushed_since_last_flow
+        last_flow_wall = time.time()
+        flushed_since_last_flow = False
         try:
             process_flow_ready(conn, bus, detector, tracker, body)
         except Exception:
@@ -234,6 +247,19 @@ def main() -> None:
                         last_recalibration_check = now
             except Exception:
                 logger.exception("error during anomaly recalibration check")
+
+            try:
+                if last_flow_wall is not None and not flushed_since_last_flow:
+                    quiescent_s = (cached_config.get("network.idle_timeout_s")
+                                   + 2 * cached_config.get("exfil.bucket_seconds"))
+                    if now - last_flow_wall >= quiescent_s:
+                        # The FLOW_READY stream has been silent long enough that no further
+                        # observation can land in any buffered bucket: close them so a
+                        # host's last pre-silence window still gets its magnitude+ratio check.
+                        publish_evidence(conn, bus, tracker._exfil.flush_all())
+                        flushed_since_last_flow = True
+            except Exception:
+                logger.exception("error during exfil stale-bucket flush")
 
             heartbeat_interval = config_get(conn, "watchdog.heartbeat_interval_s")
             if now - last_heartbeat >= heartbeat_interval:

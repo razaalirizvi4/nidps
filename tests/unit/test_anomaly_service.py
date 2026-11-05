@@ -13,8 +13,18 @@ from services.flowextract.persistence import upsert_host, write_flow_record
 from services.flowextract.flow_assembler import EmittedFlow
 from services.mlscorer.anomaly import AnomalyDetector, fit_bootstrap_model
 from services.mlscorer.calibration import CalibrationState
-from services.mlscorer.host_behaviour import BeaconTracker, ExfiltrationTracker, HostBehaviourTracker
-from services.mlscorer.anomaly_service import is_new_destination, process_flow_ready, publish_heartbeat
+from services.mlscorer.host_behaviour import (
+    BeaconTracker,
+    ExfiltrationTracker,
+    FlowObservation,
+    HostBehaviourTracker,
+)
+from services.mlscorer.anomaly_service import (
+    is_new_destination,
+    process_flow_ready,
+    publish_evidence,
+    publish_heartbeat,
+)
 from common.schemas import FEATURE_COUNT, TLSFingerprint
 
 _FWD_IDX = FEATURE_NAMES.index("total_fwd_bytes")
@@ -81,7 +91,7 @@ def test_process_flow_ready_runs_host_behaviour_tracker_without_a_detector():
     body = encode_envelope(MessageType.FLOW_READY, {"flow_id": flow_id, "host_ip": "10.0.0.5"})
 
     tracker = HostBehaviourTracker(
-        exfil=ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None),
+        exfil=ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None, idle_timeout_s=0),
         beacon=BeaconTracker(min_connections=5, cv_threshold=0.15),
     )
     published = process_flow_ready(conn, bus, detector=None, tracker=tracker, body=body)
@@ -101,7 +111,7 @@ def test_process_flow_ready_scores_with_detector_and_publishes_weighted_evidence
     calibration = CalibrationState(threshold=0.0, global_threshold=0.0, computed_at="x", sample_count=0)
     detector = AnomalyDetector(model=model, calibration=calibration, model_id=7)
     tracker = HostBehaviourTracker(
-        exfil=ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None),
+        exfil=ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None, idle_timeout_s=0),
         beacon=BeaconTracker(min_connections=5, cv_threshold=0.15),
     )
     body = encode_envelope(MessageType.FLOW_READY, {"flow_id": flow_id, "host_ip": "10.0.0.5"})
@@ -137,7 +147,7 @@ def test_process_flow_ready_fires_exfil_fast_path_for_a_partial_flow_to_a_new_de
     )
 
     tracker = HostBehaviourTracker(
-        exfil=ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=1_000_000),
+        exfil=ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=1_000_000, idle_timeout_s=0),
         beacon=BeaconTracker(min_connections=5, cv_threshold=0.15),
     )
     published = process_flow_ready(conn, bus, detector=None, tracker=tracker, body=body)
@@ -156,11 +166,46 @@ def test_process_flow_ready_returns_zero_for_missing_flow_record():
     seed_defaults(conn)
     bus = EventBus(fakeredis.FakeRedis(decode_responses=True))
     tracker = HostBehaviourTracker(
-        exfil=ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None),
+        exfil=ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None, idle_timeout_s=0),
         beacon=BeaconTracker(min_connections=5, cv_threshold=0.15),
     )
     body = encode_envelope(MessageType.FLOW_READY, {"flow_id": 9999, "host_ip": "10.0.0.5"})
     assert process_flow_ready(conn, bus, detector=None, tracker=tracker, body=body) == 0
+
+
+def test_publish_evidence_weights_and_publishes_flushed_exfil_evidence():
+    # Covers main()'s quiescence flush wiring (publish_evidence(conn, bus,
+    # tracker._exfil.flush_all())) without exercising main()'s infinite loop: drive the
+    # exfil tracker directly to a flagged, still-buffered state, flush it the same way the
+    # periodic quiescence block does, and confirm the flushed evidence gets a config-sourced
+    # weight and is published exactly like process_flow_ready()'s evidence is.
+    conn = connect(":memory:")
+    seed_defaults(conn)
+    bus = EventBus(fakeredis.FakeRedis(decode_responses=True))
+    exfil = ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None, idle_timeout_s=30)
+    host_ip = "10.0.0.5"
+
+    def obs(fwd, bwd, end_time):
+        return FlowObservation(
+            host_ip=host_ip, dst_ip="1.2.3.4", sni=None, ja3=None, fwd_bytes=fwd, bwd_bytes=bwd,
+            end_time_epoch=end_time, is_partial=False, is_new_destination=False,
+        )
+
+    exfil.observe(obs(100.0, 100.0, 10.0))
+    exfil.observe(obs(120.0, 110.0, 70.0))
+    exfil.observe(obs(130.0, 120.0, 130.0))
+    exfil.observe(obs(5000.0, 10.0, 190.0))  # heavy, one-sided -- will flag once flushed
+
+    published = publish_evidence(conn, bus, exfil.flush_all())
+    assert published == 1
+
+    received = []
+    bus.consume(STREAM_EVIDENCE, group="decision", consumer="c1", handler=received.append, block_ms=100)
+    assert len(received) == 1
+    payload = decode_envelope(received[0])["payload"]
+    assert payload["kind"] == "EXFIL"
+    assert payload["weight"] == 2.0  # risk.weight_exfil default
+    assert payload["host_ip"] == host_ip
 
 
 def test_publish_heartbeat_sends_component_health():
