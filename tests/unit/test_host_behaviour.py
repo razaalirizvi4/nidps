@@ -142,3 +142,29 @@ def test_irregular_human_driven_timing_is_never_flagged():
     for t in irregular_times:
         result = tracker.observe(_obs("10.0.0.5", "9.9.9.9", 100.0, 0.0, end_time=t, ja3="rare-fingerprint"))
     assert result is None
+
+
+from services.mlscorer.host_behaviour import HostBehaviourTracker
+
+
+def test_host_behaviour_tracker_combines_both_trackers_results():
+    exfil = ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=1000)
+    beacon = BeaconTracker(min_connections=2, cv_threshold=0.15)
+    combined = HostBehaviourTracker(exfil=exfil, beacon=beacon)
+
+    # A fast-path-triggering observation: partial, over u_max, new destination. BeaconTracker
+    # will see only 1 connection in this group (below its min_connections=2), so it contributes
+    # nothing -- the combined result should have exactly the 1 EXFIL item.
+    result = combined.observe(_obs(
+        "10.0.0.5", "9.9.9.9", 5000.0, 10.0, end_time=10.0,
+        is_partial=True, is_new_destination=True, ja3="rare-fp",
+    ))
+    assert len(result) == 1
+    assert result[0].kind.value == "EXFIL"
+
+
+def test_host_behaviour_tracker_returns_empty_list_when_neither_tracker_flags():
+    exfil = ExfiltrationTracker(ewma_alpha=0.5, bucket_seconds=60, k_std=2.0, u_max=None)
+    beacon = BeaconTracker(min_connections=5, cv_threshold=0.15)
+    combined = HostBehaviourTracker(exfil=exfil, beacon=beacon)
+    assert combined.observe(_obs("10.0.0.5", "1.2.3.4", 10.0, 10.0, end_time=0.0)) == []

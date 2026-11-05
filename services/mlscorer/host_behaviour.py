@@ -234,3 +234,38 @@ class BeaconTracker:
             )
 
         return None
+
+
+class HostBehaviourTracker:
+    """Composition of exfiltration and beacon trackers for host behaviour anomaly detection.
+
+    Combines results from both ExfiltrationTracker and BeaconTracker into a single
+    observation interface.
+    """
+
+    def __init__(self, exfil: ExfiltrationTracker, beacon: BeaconTracker):
+        """Initialize the host behaviour tracker.
+
+        Args:
+            exfil: ExfiltrationTracker instance for volume-based anomaly detection.
+            beacon: BeaconTracker instance for periodic beaconing detection.
+        """
+        self._exfil = exfil
+        self._beacon = beacon
+
+    def observe(self, obs: FlowObservation) -> list[Evidence]:
+        """Process a flow observation using both trackers.
+
+        Concatenates results from exfiltration tracking with beaconing tracking.
+
+        Args:
+            obs: Flow observation to process.
+
+        Returns:
+            Combined list of Evidence objects from both trackers (0 to 2+ items).
+        """
+        evidence_list = self._exfil.observe(obs)
+        beacon_result = self._beacon.observe(obs)
+        if beacon_result is not None:
+            evidence_list.append(beacon_result)
+        return evidence_list
