@@ -1470,13 +1470,12 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 
 \noindent Figure~\ref{fig:erd} shows the entity-relationship diagram. HOST is the central entity: a host has many flow records, evidence items, verdicts and blocks. Each flow record can have several evidence items (one per layer) and at most one final verdict, and a BLOCK verdict creates at most one block entry. Evidence produced by an ML layer refers to the model package that produced it, and calibration states belong to the anomaly model. Administrative actions are linked to the admin user who performed them.
 
-\begin{sidewaysfigure}
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=\textheight,height=0.92\textwidth,keepaspectratio]{Figures/nidps_erd_chen.png}
+\includegraphics[width=\textwidth,height=0.55\textheight,keepaspectratio]{Figures/nidps_erd_chen.png}
 \caption{Entity-relationship diagram of the NIDPS database.}
 \label{fig:erd}
-\end{sidewaysfigure}
-\FloatBarrier
+\end{figure}
 
 \subsection{Data Dictionary}\label{sec:4.9.2}
 

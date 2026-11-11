@@ -15,14 +15,14 @@
 \contentsline {figure}{\numberline {4.10}{\ignorespaces Configuration screen -- Prevention and Failure tab.}}{58}{figure.caption.11}%
 \contentsline {figure}{\numberline {4.11}{\ignorespaces Configuration screen -- Rules, Calibration and Models tab.}}{59}{figure.caption.12}%
 \contentsline {figure}{\numberline {4.12}{\ignorespaces System Health screen.}}{59}{figure.caption.13}%
-\contentsline {figure}{\numberline {4.13}{\ignorespaces Entity-relationship diagram of the NIDPS database.}}{61}{figure.caption.14}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Entity-relationship diagram of the NIDPS database.}}{60}{figure.caption.14}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Proposed three-layer NIDPS pipeline. The inline packet path is represented by the solid line, whereas the dotted line represents the analysis and the supervision path.}}{71}{figure.caption.15}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Decision-fusion flow for one flow record.}}{83}{figure.caption.20}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Watchdog state machine for each supervised component.}}{87}{figure.caption.22}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Proposed three-layer NIDPS pipeline. The inline packet path is represented by the solid line, whereas the dotted line represents the analysis and the supervision path.}}{70}{figure.caption.15}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Decision-fusion flow for one flow record.}}{82}{figure.caption.20}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Watchdog state machine for each supervised component.}}{86}{figure.caption.22}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces System architecture of the NIDPS.}}{94}{figure.caption.26}%
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Packet path through the data plane.}}{96}{figure.caption.28}%
-\contentsline {figure}{\numberline {6.3}{\ignorespaces Offline training pipeline and model hand-over to the device.}}{97}{figure.caption.29}%
-\contentsline {figure}{\numberline {6.4}{\ignorespaces Class diagram of the NIDPS runtime.}}{102}{figure.caption.31}%
+\contentsline {figure}{\numberline {6.1}{\ignorespaces System architecture of the NIDPS.}}{93}{figure.caption.26}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Packet path through the data plane.}}{94}{figure.caption.28}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Offline training pipeline and model hand-over to the device.}}{95}{figure.caption.29}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Class diagram of the NIDPS runtime.}}{100}{figure.caption.31}%
 \addvspace {10\p@ }

@@ -86,16 +86,16 @@ Testability & Attacks cannot be run on real users & Isolated lab network and att
 \label{sec:sysarch}
 \noindent The system is decomposed into five runtime subsystems on the NIDPS host and one offline subsystem used for training. Figure~\ref{fig:architecture} shows the external architecture (how the NIDPS sits between clients, the ISP router and the administrator) together with the internal subsystems and their main data flows.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=\textwidth]{Figures/nidps_fig6_1.png}
+    \includegraphics[width=\textwidth]{Figures/nidps_fig6_1.pdf}
     \caption{System architecture of the NIDPS.}
     \label{fig:architecture}
 \end{figure}
 
 \noindent The responsibilities are partitioned as shown in Table~\ref{tab:subsystems}.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \caption{Subsystem responsibilities.}
 \label{tab:subsystems}
@@ -127,9 +127,9 @@ Offline: training & Regenerate datasets, train and validate models, publish vers
 \subsubsection{Network Access and Data Plane}\label{sec:6.3.1.1}
 \noindent This subsystem is mostly configuration of existing Linux components; the new parts are the netfilter rule layout and its management. Figure~\ref{fig:packetpath} traces one packet from a client to the internet.
 
-\begin{figure}[H]
+\begin{figure}[!htbp]
     \centering
-    \includegraphics[width=0.85\textwidth]{Figures/nidps_fig6_2.png}
+    \includegraphics[width=\textwidth]{Figures/nidps_fig6_2.pdf}
     \caption{Packet path through the data plane.}
     \label{fig:packetpath}
 \end{figure}
@@ -248,12 +248,12 @@ Firewall & iptables + ipset & Stated in the proposal; well documented; ipset han
 \label{sec:classdiagram}
 \noindent Figure~\ref{fig:classdiagram} shows the main classes of the runtime system. A Flow is the core class that passes along its properties and TLS fingerprint if present. Each detector creates Evidence and all implement the same Detector interface. Evidence is converted into a Verdict by the DecisionEngine and BLOCK verdicts are converted into BlockEntry entries by the Enforcer.
 
-\begin{figure}[H]
+\begin{sidewaysfigure}
     \centering
-    \includegraphics[height=0.85\textheight,keepaspectratio]{Figures/nidps_fig6_4.png}
+    \includegraphics[width=0.96\textheight]{Figures/nidps_fig6_4.pdf}
     \caption{Class diagram of the NIDPS runtime.}
     \label{fig:classdiagram}
-\end{figure}
+\end{sidewaysfigure}
 
 \noindent The Detector interface is the main extension point. A new detection technique is added by implementing it and publishing its Evidence, without changes to the DecisionEngine. The Enforcer is the only class that changes firewall state, which keeps that responsibility in one small, auditable place.
 \section{Policies and Tactics}\label{sec:6.6}
