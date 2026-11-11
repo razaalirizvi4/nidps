@@ -7,17 +7,22 @@
 \contentsline {figure}{\numberline {4.2}{\ignorespaces Navigation flow of the Network Administrator.}}{53}{figure.caption.3}%
 \contentsline {figure}{\numberline {4.3}{\ignorespaces Login screen.}}{53}{figure.caption.4}%
 \contentsline {figure}{\numberline {4.4}{\ignorespaces Overview screen.}}{54}{figure.caption.5}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Alerts screen with the evidence panel.}}{54}{figure.caption.6}%
-\contentsline {figure}{\numberline {4.6}{\ignorespaces Blocked Hosts and Allowlist screen.}}{55}{figure.caption.7}%
-\contentsline {figure}{\numberline {4.7}{\ignorespaces Settings screen.}}{55}{figure.caption.8}%
-\contentsline {figure}{\numberline {4.8}{\ignorespaces System Health screen.}}{56}{figure.caption.9}%
-\contentsline {figure}{\numberline {4.9}{\ignorespaces Entity-relationship diagram of the NIDPS database.}}{58}{figure.caption.10}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Network Traffic screen.}}{55}{figure.caption.6}%
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Intrusion Alerts screen with the Alert Evidence panel.}}{55}{figure.caption.7}%
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Blocked Hosts and Allowlist screen.}}{56}{figure.caption.8}%
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Configuration screen -- Detection Layers tab.}}{57}{figure.caption.9}%
+\contentsline {figure}{\numberline {4.9}{\ignorespaces Configuration screen -- Detection Thresholds tab.}}{58}{figure.caption.10}%
+\contentsline {figure}{\numberline {4.10}{\ignorespaces Configuration screen -- Prevention and Failure tab.}}{58}{figure.caption.11}%
+\contentsline {figure}{\numberline {4.11}{\ignorespaces Configuration screen -- Rules, Calibration and Models tab.}}{59}{figure.caption.12}%
+\contentsline {figure}{\numberline {4.12}{\ignorespaces System Health screen.}}{59}{figure.caption.13}%
+\contentsline {figure}{\numberline {4.13}{\ignorespaces Entity-relationship diagram of the NIDPS database.}}{61}{figure.caption.14}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {5.1}{\ignorespaces Proposed three-layer NIDPS pipeline. The inline packet path is represented by the solid line, whereas the dotted line represents the analysis and the supervision path.}}{68}{figure.caption.11}%
-\contentsline {figure}{\numberline {5.2}{\ignorespaces Decision-fusion flow for one flow record.}}{80}{figure.caption.16}%
-\contentsline {figure}{\numberline {5.3}{\ignorespaces Watchdog state machine for each supervised component.}}{84}{figure.caption.18}%
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Proposed three-layer NIDPS pipeline. The inline packet path is represented by the solid line, whereas the dotted line represents the analysis and the supervision path.}}{71}{figure.caption.15}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Decision-fusion flow for one flow record.}}{83}{figure.caption.20}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Watchdog state machine for each supervised component.}}{87}{figure.caption.22}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces System architecture of the NIDPS.}}{91}{figure.caption.22}%
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Packet path through the data plane.}}{93}{figure.caption.24}%
-\contentsline {figure}{\numberline {6.3}{\ignorespaces Offline training pipeline and model hand-over to the device.}}{94}{figure.caption.25}%
-\contentsline {figure}{\numberline {6.4}{\ignorespaces Class diagram of the NIDPS runtime.}}{99}{figure.caption.27}%
+\contentsline {figure}{\numberline {6.1}{\ignorespaces System architecture of the NIDPS.}}{94}{figure.caption.26}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Packet path through the data plane.}}{96}{figure.caption.28}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Offline training pipeline and model hand-over to the device.}}{97}{figure.caption.29}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Class diagram of the NIDPS runtime.}}{102}{figure.caption.31}%
+\addvspace {10\p@ }

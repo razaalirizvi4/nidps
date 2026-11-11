@@ -119,90 +119,119 @@
 \contentsline {subsection}{\numberline {4.7.2}Software Requirements}{52}{subsection.4.7.2}%
 \contentsline {section}{\numberline {4.8}Graphical User Interface}{53}{section.4.8}%
 \contentsline {subsection}{\numberline {4.8.1}Login Screen}{53}{subsection.4.8.1}%
-\contentsline {subsection}{\numberline {4.8.2}Overview Screen}{53}{subsection.4.8.2}%
-\contentsline {subsection}{\numberline {4.8.3}Alerts Screen}{54}{subsection.4.8.3}%
-\contentsline {subsection}{\numberline {4.8.4}Blocked Hosts and Allowlist Screen}{55}{subsection.4.8.4}%
-\contentsline {subsection}{\numberline {4.8.5}Settings Screen}{55}{subsection.4.8.5}%
-\contentsline {subsection}{\numberline {4.8.6}System Health Screen}{56}{subsection.4.8.6}%
-\contentsline {section}{\numberline {4.9}Database Design}{56}{section.4.9}%
-\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{57}{subsection.4.9.1}%
-\contentsline {subsection}{\numberline {4.9.2}Data Dictionary}{59}{subsection.4.9.2}%
-\contentsline {section}{\numberline {4.10}Risk Analysis}{64}{section.4.10}%
-\contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{67}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Overview of the Proposed Framework}{67}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Datasets}{68}{section.5.2}%
-\contentsline {subsection}{\numberline {5.2.1}Public Benchmark Datasets}{68}{subsection.5.2.1}%
-\contentsline {subsection}{\numberline {5.2.2}Self-Collected Real-World Dataset}{69}{subsection.5.2.2}%
-\contentsline {subsection}{\numberline {5.2.3}Feature Harmonisation Across Datasets}{69}{subsection.5.2.3}%
-\contentsline {subsection}{\numberline {5.2.4}Pre-processing}{70}{subsection.5.2.4}%
-\contentsline {section}{\numberline {5.3}Traffic Acquisition and Flow Construction}{71}{section.5.3}%
-\contentsline {subsection}{\numberline {5.3.1}Inline Packet Path}{71}{subsection.5.3.1}%
-\contentsline {subsection}{\numberline {5.3.2}Flow Assembly Algorithm}{71}{subsection.5.3.2}%
-\contentsline {subsection}{\numberline {5.3.3}TLS Fingerprint Extraction (JA3/JA3S)}{73}{subsection.5.3.3}%
-\contentsline {section}{\numberline {5.4}Layer 1: Signature-Based Detection}{74}{section.5.4}%
-\contentsline {subsection}{\numberline {5.4.1}Suricata Configuration}{74}{subsection.5.4.1}%
-\contentsline {subsection}{\numberline {5.4.2}Custom Rules for In-Scope Attacks}{74}{subsection.5.4.2}%
-\contentsline {subsection}{\numberline {5.4.3}ARP Spoofing Monitor}{75}{subsection.5.4.3}%
-\contentsline {section}{\numberline {5.5}Layer 2: Unsupervised Anomaly Detection}{75}{section.5.5}%
-\contentsline {subsection}{\numberline {5.5.1}Isolation Forest}{75}{subsection.5.5.1}%
-\contentsline {subsection}{\numberline {5.5.2}Adaptive Threshold Calibration}{76}{subsection.5.5.2}%
-\contentsline {subsection}{\numberline {5.5.3}Data Exfiltration Score}{77}{subsection.5.5.3}%
-\contentsline {subsection}{\numberline {5.5.4}C2 Beaconing Score}{77}{subsection.5.5.4}%
-\contentsline {section}{\numberline {5.6}Layer 3: Supervised Attack Classification}{77}{section.5.6}%
-\contentsline {subsection}{\numberline {5.6.1}Random Forest}{78}{subsection.5.6.1}%
-\contentsline {subsection}{\numberline {5.6.2}XGBoost}{78}{subsection.5.6.2}%
-\contentsline {subsection}{\numberline {5.6.3}Training and Model Selection}{78}{subsection.5.6.3}%
-\contentsline {subsection}{\numberline {5.6.4}Confidence Handling}{79}{subsection.5.6.4}%
-\contentsline {section}{\numberline {5.7}Decision Fusion}{79}{section.5.7}%
-\contentsline {subsection}{\numberline {5.7.1}Verdict Algorithm}{79}{subsection.5.7.1}%
-\contentsline {subsection}{\numberline {5.7.2}Host Evidence Accumulation}{81}{subsection.5.7.2}%
-\contentsline {subsection}{\numberline {5.7.3}Timing of ML Verdicts}{81}{subsection.5.7.3}%
-\contentsline {section}{\numberline {5.8}Automated Prevention}{81}{section.5.8}%
-\contentsline {subsection}{\numberline {5.8.1}Blocking Mechanism}{81}{subsection.5.8.1}%
-\contentsline {subsection}{\numberline {5.8.2}Blocking Procedure}{82}{subsection.5.8.2}%
-\contentsline {section}{\numberline {5.9}Fault Tolerance and Failure Handling}{82}{section.5.9}%
-\contentsline {subsection}{\numberline {5.9.1}Health Monitoring}{82}{subsection.5.9.1}%
-\contentsline {subsection}{\numberline {5.9.2}Failure Modes}{83}{subsection.5.9.2}%
-\contentsline {subsection}{\numberline {5.9.3}State Machine}{83}{subsection.5.9.3}%
-\contentsline {section}{\numberline {5.10}Evaluation Methodology}{83}{section.5.10}%
-\contentsline {subsection}{\numberline {5.10.1}Detection Metrics}{84}{subsection.5.10.1}%
-\contentsline {subsection}{\numberline {5.10.2}Cross-Dataset Generalisation}{84}{subsection.5.10.2}%
-\contentsline {subsection}{\numberline {5.10.3}System Performance on Constrained Hardware}{85}{subsection.5.10.3}%
-\contentsline {section}{\numberline {5.11}Conclusion}{86}{section.5.11}%
-\contentsline {chapter}{\numberline {6}High-Level and Low-Level Design}{87}{chapter.6}%
-\contentsline {section}{\numberline {6.1}System Overview}{87}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Design Considerations}{87}{section.6.2}%
-\contentsline {subsection}{\numberline {6.2.1}Assumptions and Dependencies}{88}{subsection.6.2.1}%
-\contentsline {subsection}{\numberline {6.2.2}General Constraints}{88}{subsection.6.2.2}%
-\contentsline {subsection}{\numberline {6.2.3}Goals and Guidelines}{89}{subsection.6.2.3}%
-\contentsline {subsection}{\numberline {6.2.4}Development Methods}{90}{subsection.6.2.4}%
-\contentsline {section}{\numberline {6.3}System Architecture}{90}{section.6.3}%
-\contentsline {subsection}{\numberline {6.3.1}Subsystem Architecture}{92}{subsection.6.3.1}%
-\contentsline {subsubsection}{\numberline {6.3.1.1}Network Access and Data Plane}{92}{subsubsection.6.3.1.1}%
-\contentsline {subsubsection}{\numberline {6.3.1.2}Detection Subsystem}{93}{subsubsection.6.3.1.2}%
-\contentsline {subsubsection}{\numberline {6.3.1.3}Decision and Response Subsystem}{93}{subsubsection.6.3.1.3}%
-\contentsline {subsubsection}{\numberline {6.3.1.4}Reliability Subsystem}{94}{subsubsection.6.3.1.4}%
-\contentsline {subsubsection}{\numberline {6.3.1.5}Management and Reporting Subsystem}{94}{subsubsection.6.3.1.5}%
-\contentsline {subsubsection}{\numberline {6.3.1.6}Offline Training Pipeline}{94}{subsubsection.6.3.1.6}%
-\contentsline {section}{\numberline {6.4}Architectural Strategies}{95}{section.6.4}%
-\contentsline {subsection}{\numberline {6.4.1}Layered Defence with a Short Fast Path}{95}{subsection.6.4.1}%
-\contentsline {subsection}{\numberline {6.4.2}Metadata-Only Analysis of Encrypted Traffic}{95}{subsection.6.4.2}%
-\contentsline {subsection}{\numberline {6.4.3}Offline Training, Online Inference}{95}{subsection.6.4.3}%
-\contentsline {subsection}{\numberline {6.4.4}Local Services Connected by an Event Bus}{96}{subsection.6.4.4}%
-\contentsline {subsection}{\numberline {6.4.5}Kernel-Enforced Blocking and Failure Semantics}{96}{subsection.6.4.5}%
-\contentsline {subsection}{\numberline {6.4.6}Choice of Languages and Products}{96}{subsection.6.4.6}%
-\contentsline {subsection}{\numberline {6.4.7}Error Detection and Recovery}{97}{subsection.6.4.7}%
-\contentsline {subsection}{\numberline {6.4.8}Data Storage, Persistence and Retention}{98}{subsection.6.4.8}%
-\contentsline {subsection}{\numberline {6.4.9}Future Extension}{98}{subsection.6.4.9}%
-\contentsline {section}{\numberline {6.5}Domain Model/Class Diagram}{98}{section.6.5}%
-\contentsline {section}{\numberline {6.6}Policies and Tactics}{100}{section.6.6}%
-\contentsline {subsection}{\numberline {6.6.1}Rule and Threshold Management}{100}{subsection.6.6.1}%
-\contentsline {subsection}{\numberline {6.6.2}Model Packaging and Versioning}{100}{subsection.6.6.2}%
-\contentsline {subsection}{\numberline {6.6.3}Engineering Trade-offs}{100}{subsection.6.6.3}%
-\contentsline {subsection}{\numberline {6.6.4}Coding Guidelines and Conventions}{100}{subsection.6.6.4}%
-\contentsline {subsection}{\numberline {6.6.5}Requirements Traceability}{101}{subsection.6.6.5}%
-\contentsline {subsection}{\numberline {6.6.6}Testing Plan}{101}{subsection.6.6.6}%
-\contentsline {subsection}{\numberline {6.6.7}Hierarchical Organisation of the Source Code}{102}{subsection.6.6.7}%
-\contentsline {subsection}{\numberline {6.6.8}Build and Deployment}{102}{subsection.6.6.8}%
-\contentsline {subsection}{\numberline {6.6.9}Maintenance}{102}{subsection.6.6.9}%
-\contentsline {section}{\numberline {6.7}Conclusion}{103}{section.6.7}%
+\contentsline {subsection}{\numberline {4.8.2}Overview Screen}{54}{subsection.4.8.2}%
+\contentsline {subsection}{\numberline {4.8.3}Network Traffic Screen}{54}{subsection.4.8.3}%
+\contentsline {subsection}{\numberline {4.8.4}Intrusion Alerts Screen}{55}{subsection.4.8.4}%
+\contentsline {subsection}{\numberline {4.8.5}Blocked Hosts and Allowlist Screen}{56}{subsection.4.8.5}%
+\contentsline {subsection}{\numberline {4.8.6}Detection and Prevention Configuration Screen}{56}{subsection.4.8.6}%
+\contentsline {subsection}{\numberline {4.8.7}System Health Screen}{59}{subsection.4.8.7}%
+\contentsline {section}{\numberline {4.9}Database Design}{60}{section.4.9}%
+\contentsline {subsection}{\numberline {4.9.1}ER Diagram}{60}{subsection.4.9.1}%
+\contentsline {subsection}{\numberline {4.9.2}Data Dictionary}{62}{subsection.4.9.2}%
+\contentsline {section}{\numberline {4.10}Risk Analysis}{67}{section.4.10}%
+\contentsline {chapter}{\numberline {5}Proposed Approach and Methodology}{70}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Overview of the Proposed Framework}{70}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Datasets}{71}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Public Benchmark Datasets}{71}{subsection.5.2.1}%
+\contentsline {subsection}{\numberline {5.2.2}Self-Collected Real-World Dataset}{72}{subsection.5.2.2}%
+\contentsline {subsection}{\numberline {5.2.3}Feature Harmonisation Across Datasets}{72}{subsection.5.2.3}%
+\contentsline {subsection}{\numberline {5.2.4}Pre-processing}{73}{subsection.5.2.4}%
+\contentsline {section}{\numberline {5.3}Traffic Acquisition and Flow Construction}{74}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Inline Packet Path}{74}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Flow Assembly Algorithm}{74}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}TLS Fingerprint Extraction (JA3/JA3S)}{76}{subsection.5.3.3}%
+\contentsline {section}{\numberline {5.4}Layer 1: Signature-Based Detection}{77}{section.5.4}%
+\contentsline {subsection}{\numberline {5.4.1}Suricata Configuration}{77}{subsection.5.4.1}%
+\contentsline {subsection}{\numberline {5.4.2}Custom Rules for In-Scope Attacks}{77}{subsection.5.4.2}%
+\contentsline {subsection}{\numberline {5.4.3}ARP Spoofing Monitor}{78}{subsection.5.4.3}%
+\contentsline {section}{\numberline {5.5}Layer 2: Unsupervised Anomaly Detection}{78}{section.5.5}%
+\contentsline {subsection}{\numberline {5.5.1}Isolation Forest}{78}{subsection.5.5.1}%
+\contentsline {subsection}{\numberline {5.5.2}Adaptive Threshold Calibration}{79}{subsection.5.5.2}%
+\contentsline {subsection}{\numberline {5.5.3}Data Exfiltration Score}{80}{subsection.5.5.3}%
+\contentsline {subsection}{\numberline {5.5.4}C2 Beaconing Score}{80}{subsection.5.5.4}%
+\contentsline {section}{\numberline {5.6}Layer 3: Supervised Attack Classification}{80}{section.5.6}%
+\contentsline {subsection}{\numberline {5.6.1}Random Forest}{81}{subsection.5.6.1}%
+\contentsline {subsection}{\numberline {5.6.2}XGBoost}{81}{subsection.5.6.2}%
+\contentsline {subsection}{\numberline {5.6.3}Training and Model Selection}{81}{subsection.5.6.3}%
+\contentsline {subsection}{\numberline {5.6.4}Confidence Handling}{82}{subsection.5.6.4}%
+\contentsline {section}{\numberline {5.7}Decision Fusion}{82}{section.5.7}%
+\contentsline {subsection}{\numberline {5.7.1}Verdict Algorithm}{82}{subsection.5.7.1}%
+\contentsline {subsection}{\numberline {5.7.2}Host Evidence Accumulation}{84}{subsection.5.7.2}%
+\contentsline {subsection}{\numberline {5.7.3}Timing of ML Verdicts}{84}{subsection.5.7.3}%
+\contentsline {section}{\numberline {5.8}Automated Prevention}{84}{section.5.8}%
+\contentsline {subsection}{\numberline {5.8.1}Blocking Mechanism}{84}{subsection.5.8.1}%
+\contentsline {subsection}{\numberline {5.8.2}Blocking Procedure}{85}{subsection.5.8.2}%
+\contentsline {section}{\numberline {5.9}Fault Tolerance and Failure Handling}{85}{section.5.9}%
+\contentsline {subsection}{\numberline {5.9.1}Health Monitoring}{85}{subsection.5.9.1}%
+\contentsline {subsection}{\numberline {5.9.2}Failure Modes}{86}{subsection.5.9.2}%
+\contentsline {subsection}{\numberline {5.9.3}State Machine}{86}{subsection.5.9.3}%
+\contentsline {section}{\numberline {5.10}Evaluation Methodology}{86}{section.5.10}%
+\contentsline {subsection}{\numberline {5.10.1}Detection Metrics}{87}{subsection.5.10.1}%
+\contentsline {subsection}{\numberline {5.10.2}Cross-Dataset Generalisation}{87}{subsection.5.10.2}%
+\contentsline {subsection}{\numberline {5.10.3}System Performance on Constrained Hardware}{88}{subsection.5.10.3}%
+\contentsline {section}{\numberline {5.11}Conclusion}{89}{section.5.11}%
+\contentsline {chapter}{\numberline {6}High-Level and Low-Level Design}{90}{chapter.6}%
+\contentsline {section}{\numberline {6.1}System Overview}{90}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Design Considerations}{90}{section.6.2}%
+\contentsline {subsection}{\numberline {6.2.1}Assumptions and Dependencies}{91}{subsection.6.2.1}%
+\contentsline {subsection}{\numberline {6.2.2}General Constraints}{91}{subsection.6.2.2}%
+\contentsline {subsection}{\numberline {6.2.3}Goals and Guidelines}{92}{subsection.6.2.3}%
+\contentsline {subsection}{\numberline {6.2.4}Development Methods}{93}{subsection.6.2.4}%
+\contentsline {section}{\numberline {6.3}System Architecture}{93}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Subsystem Architecture}{95}{subsection.6.3.1}%
+\contentsline {subsubsection}{\numberline {6.3.1.1}Network Access and Data Plane}{95}{subsubsection.6.3.1.1}%
+\contentsline {subsubsection}{\numberline {6.3.1.2}Detection Subsystem}{96}{subsubsection.6.3.1.2}%
+\contentsline {subsubsection}{\numberline {6.3.1.3}Decision and Response Subsystem}{96}{subsubsection.6.3.1.3}%
+\contentsline {subsubsection}{\numberline {6.3.1.4}Reliability Subsystem}{97}{subsubsection.6.3.1.4}%
+\contentsline {subsubsection}{\numberline {6.3.1.5}Management and Reporting Subsystem}{97}{subsubsection.6.3.1.5}%
+\contentsline {subsubsection}{\numberline {6.3.1.6}Offline Training Pipeline}{97}{subsubsection.6.3.1.6}%
+\contentsline {section}{\numberline {6.4}Architectural Strategies}{98}{section.6.4}%
+\contentsline {subsection}{\numberline {6.4.1}Layered Defence with a Short Fast Path}{98}{subsection.6.4.1}%
+\contentsline {subsection}{\numberline {6.4.2}Metadata-Only Analysis of Encrypted Traffic}{98}{subsection.6.4.2}%
+\contentsline {subsection}{\numberline {6.4.3}Offline Training, Online Inference}{98}{subsection.6.4.3}%
+\contentsline {subsection}{\numberline {6.4.4}Local Services Connected by an Event Bus}{99}{subsection.6.4.4}%
+\contentsline {subsection}{\numberline {6.4.5}Kernel-Enforced Blocking and Failure Semantics}{99}{subsection.6.4.5}%
+\contentsline {subsection}{\numberline {6.4.6}Choice of Languages and Products}{99}{subsection.6.4.6}%
+\contentsline {subsection}{\numberline {6.4.7}Error Detection and Recovery}{100}{subsection.6.4.7}%
+\contentsline {subsection}{\numberline {6.4.8}Data Storage, Persistence and Retention}{101}{subsection.6.4.8}%
+\contentsline {subsection}{\numberline {6.4.9}Future Extension}{101}{subsection.6.4.9}%
+\contentsline {section}{\numberline {6.5}Domain Model/Class Diagram}{101}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Policies and Tactics}{103}{section.6.6}%
+\contentsline {subsection}{\numberline {6.6.1}Rule and Threshold Management}{103}{subsection.6.6.1}%
+\contentsline {subsection}{\numberline {6.6.2}Model Packaging and Versioning}{103}{subsection.6.6.2}%
+\contentsline {subsection}{\numberline {6.6.3}Engineering Trade-offs}{103}{subsection.6.6.3}%
+\contentsline {subsection}{\numberline {6.6.4}Coding Guidelines and Conventions}{103}{subsection.6.6.4}%
+\contentsline {subsection}{\numberline {6.6.5}Requirements Traceability}{104}{subsection.6.6.5}%
+\contentsline {subsection}{\numberline {6.6.6}Testing Plan}{104}{subsection.6.6.6}%
+\contentsline {subsection}{\numberline {6.6.7}Hierarchical Organisation of the Source Code}{105}{subsection.6.6.7}%
+\contentsline {subsection}{\numberline {6.6.8}Build and Deployment}{105}{subsection.6.6.8}%
+\contentsline {subsection}{\numberline {6.6.9}Maintenance}{105}{subsection.6.6.9}%
+\contentsline {section}{\numberline {6.7}Conclusion}{106}{section.6.7}%
+\contentsline {chapter}{\numberline {7}Implementation and Test Cases}{107}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Implementation}{107}{section.7.1}%
+\contentsline {subsection}{\numberline {7.1.1}Platform and Tools}{107}{subsection.7.1.1}%
+\contentsline {subsection}{\numberline {7.1.2}Implementation Status}{108}{subsection.7.1.2}%
+\contentsline {subsection}{\numberline {7.1.3}Communication Between Services}{108}{subsection.7.1.3}%
+\contentsline {subsection}{\numberline {7.1.4}Shared Foundations}{109}{subsection.7.1.4}%
+\contentsline {subsubsection}{\numberline {7.1.4.1}Database}{109}{subsubsection.7.1.4.1}%
+\contentsline {subsubsection}{\numberline {7.1.4.2}Configuration}{109}{subsubsection.7.1.4.2}%
+\contentsline {subsubsection}{\numberline {7.1.4.3}Detector Interface and Logging}{109}{subsubsection.7.1.4.3}%
+\contentsline {subsection}{\numberline {7.1.5}Flow Extraction Service}{109}{subsection.7.1.5}%
+\contentsline {subsubsection}{\numberline {7.1.5.1}Packet Capture}{109}{subsubsection.7.1.5.1}%
+\contentsline {subsubsection}{\numberline {7.1.5.2}Flow Assembly}{110}{subsubsection.7.1.5.2}%
+\contentsline {subsubsection}{\numberline {7.1.5.3}Feature Computation}{110}{subsubsection.7.1.5.3}%
+\contentsline {subsubsection}{\numberline {7.1.5.4}TLS Fingerprints}{110}{subsubsection.7.1.5.4}%
+\contentsline {subsubsection}{\numberline {7.1.5.5}Storage and Retention}{110}{subsubsection.7.1.5.5}%
+\contentsline {subsection}{\numberline {7.1.6}Layer 1: Signature Detection and ARP Monitoring}{111}{subsection.7.1.6}%
+\contentsline {subsubsection}{\numberline {7.1.6.1}Suricata Rules}{111}{subsubsection.7.1.6.1}%
+\contentsline {subsubsection}{\numberline {7.1.6.2}Suricata Bridge}{111}{subsubsection.7.1.6.2}%
+\contentsline {subsubsection}{\numberline {7.1.6.3}ARP Monitor}{111}{subsubsection.7.1.6.3}%
+\contentsline {subsection}{\numberline {7.1.7}Layer 2: Anomaly Detection Service}{112}{subsection.7.1.7}%
+\contentsline {subsubsection}{\numberline {7.1.7.1}Scoring and Calibration}{112}{subsubsection.7.1.7.1}%
+\contentsline {subsubsection}{\numberline {7.1.7.2}Host Behaviour: Exfiltration and Beaconing}{112}{subsubsection.7.1.7.2}%
+\contentsline {subsubsection}{\numberline {7.1.7.3}Service Loop}{113}{subsubsection.7.1.7.3}%
+\contentsline {subsection}{\numberline {7.1.8}Self-Collected Dataset Tooling}{113}{subsection.7.1.8}%
+\contentsline {subsubsection}{\numberline {7.1.8.1}Attack Scripts}{113}{subsubsection.7.1.8.1}%
+\contentsline {subsubsection}{\numberline {7.1.8.2}Capture Sessions}{113}{subsubsection.7.1.8.2}%
+\contentsline {subsection}{\numberline {7.1.9}Components Not Yet Implemented}{114}{subsection.7.1.9}%
+\contentsline {subsection}{\numberline {7.1.10}Setup and Deployment}{114}{subsection.7.1.10}%

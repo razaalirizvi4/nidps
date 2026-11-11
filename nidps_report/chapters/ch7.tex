@@ -1,0 +1,201 @@
+% Generated from Chapter7_Implementation_clean.docx by tools/docx_to_tex.py - edit the Word file, not this one.
+% (If you decide to hand-edit this file instead, stop regenerating it.)
+
+\chapter{Implementation and Test Cases}\label{chap:7}
+
+\noindent This chapter describes how the design in Chapter \ref{chap:design} was turned into working software. The parts that exist are the shared foundations used by every service, the flow extraction service, the two Layer 1 detectors (the Suricata bridge and the ARP monitor), the Layer 2 anomaly service, and the scripts used to build the self-collected dataset. The classifier, decision engine, enforcer, watchdog and dashboard are not written yet. They are listed in their own section so that nothing in this chapter describes code that does not exist.
+
+\section{Implementation}\label{sec:7.1}
+
+\noindent Each subsection gives the procedure a component follows, the libraries it uses and the decisions that shaped it. Program code is left out.
+
+\subsection{Platform and Tools}\label{sec:7.1.1}
+
+\noindent The services are written in Python 3.11 and run as separate processes. Scapy captures packets, Redis Streams passes messages between services, SQLite holds flow records, settings and calibration state, and scikit-learn supplies the Isolation Forest. Suricata is the one component not written in Python. It runs on its own and the NIDPS reads its alert log. Table \ref{tab:7.1} lists the tools. Capturing packets needs raw socket access, so the flow extractor and the ARP monitor run as root or with the CAP\_NET\_RAW capability.
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.202\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.262\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.536\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Platform and tools used by the implementation.}\label{tab:7.1}\\
+\hline
+\textbf{Need} & \textbf{Tool} & \textbf{Used for} \\ \hline
+\endfirsthead
+\hline
+\textbf{Need} & \textbf{Tool} & \textbf{Used for} \\ \hline
+\endhead
+Packet capture & Scapy & Sniffing frames on the wireless interface. TLS handshakes are parsed by hand from the raw bytes. \\ \hline
+Signature detection & Suricata & Layer 1 rules. Alerts are read from its JSON log. \\ \hline
+Messaging & Redis Streams (redis-py) & Publish and subscribe between the services. \\ \hline
+Storage & SQLite & Flow records, settings, calibration state. \\ \hline
+Anomaly model & scikit-learn, NumPy, joblib & Isolation Forest scoring and model loading. \\ \hline
+\end{longtable}
+}
+
+\subsection{Implementation Status}\label{sec:7.1.2}
+
+\noindent Table \ref{tab:7.2} shows what is built. The access point itself (hostapd, dnsmasq and the netfilter rules) was configured by hand on the device and is not stored in the repository.
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.430\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.570\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Implementation status of the NIDPS components.}\label{tab:7.2}\\
+\hline
+\textbf{Component} & \textbf{Status} \\ \hline
+\endfirsthead
+\hline
+\textbf{Component} & \textbf{Status} \\ \hline
+\endhead
+Shared foundations (bus, database, settings) & Implemented \\ \hline
+Flow extractor & Implemented \\ \hline
+ARP monitor & Implemented \\ \hline
+Suricata bridge & Implemented \\ \hline
+Layer 2 anomaly service & Implemented. Isolation Forest scoring waits for a trained model. \\ \hline
+Self-collected dataset tooling & Implemented \\ \hline
+Layer 3 classifier & Planned \\ \hline
+Decision engine and enforcer & Planned \\ \hline
+Watchdog & Planned \\ \hline
+Dashboard & Planned \\ \hline
+Offline training pipeline & Planned. Only the dataset capture tools exist. \\ \hline
+Access point data plane & Configured on the device \\ \hline
+\end{longtable}
+}
+
+\subsection{Communication Between Services}\label{sec:7.1.3}
+
+\noindent The services do not call each other. They talk through Redis Streams. There are five streams: one for flow-ready notices, one for evidence from the detectors, and one each for verdicts, configuration changes and heartbeats. Nothing uses the last three yet, because the decision engine and the watchdog are not built. A small bus class wraps the Redis calls. A service publishes a message to a stream and reads through a consumer group, and it acknowledges a message only after handling it. A service that restarts therefore carries on from where its group stopped instead of losing messages.
+
+\noindent Every message is a JSON envelope with a schema version, a unique id, a UTC timestamp, a type and a payload. A reader rejects a schema version it does not know, so a producer and a consumer can be upgraded one at a time. A flow-ready message holds only the flow id, the host address and a partial-flow flag. The 78 features stay in SQLite and are read back by id, which keeps messages small.
+
+\subsection{Shared Foundations}\label{sec:7.1.4}
+
+\subsubsection{Database}\label{sec:7.1.4.1}
+
+\noindent The schema holds the twelve tables of the data dictionary (Section \ref{sec:4.9.2}) and indexes on the columns queried most: host and start time for flows, host for evidence, host and status for blocks. Every service opens the database through the same function, which turns on foreign keys, creates any missing tables and checks the schema version. Creating tables is safe to repeat, so whichever service starts first creates the file. Timestamps are stored as UTC text in ISO 8601 form, so comparing them as strings puts them in time order. The retention purge relies on this.
+
+\subsubsection{Configuration}\label{sec:7.1.4.2}
+
+\noindent The 40 tunable settings are declared in one schema, each with a type, a default and an allowed range or set of values. A seeding step copies the defaults into the database without overwriting any value an administrator has changed. A change is checked against its range, saved with the user and time, and written to the audit log in the same transaction (FR-10.6). Services cache settings for five seconds, so a new threshold applies within seconds without a restart.
+
+\subsubsection{Detector Interface and Logging}\label{sec:7.1.4.3}
+
+\noindent The value types used across services (flow, features, evidence, verdict, block entry and component health) are defined in one module. Evidence has a strength between 0 and 1 and a separate weight, which the decision engine will add to a host\textquotesingle s risk score. Each service fills in the weight from the settings before publishing. Every detector implements one interface with two methods: analyse an input and return zero or more pieces of evidence, and report its health. The ARP monitor, the Suricata bridge and the anomaly detector all implement it, so a new detector can be added without changing the decision engine (Figure \ref{fig:classdiagram}). Each service writes one JSON object per line to standard output, so the systemd journal can collect them all in one format.
+
+\subsection{Flow Extraction Service}\label{sec:7.1.5}
+
+\subsubsection{Packet Capture}\label{sec:7.1.5.1}
+
+\noindent The service captures with Scapy on the configured interface and does not keep packets in memory. Each IPv4 TCP or UDP packet is reduced to a small record holding the timestamp, addresses, ports, protocol, sizes, TCP flags and window. Scapy is used only in this step, so the rest of the extractor can be tested with hand-made records. A flow is identified by its 5-tuple, with the two endpoints ordered so that both directions of a conversation share one key. The first packet seen defines the forward direction.
+
+\subsubsection{Flow Assembly}\label{sec:7.1.5.2}
+
+\noindent Active flows sit in a table keyed by the 5-tuple. For each packet the assembler updates the flow and then applies the rules of Algorithm \ref{alg:flow}. A flow ends when both sides have sent FIN or when an RST is seen. A flow that stays open past the active timeout (10 s by default) is emitted as a partial flow and starts a new segment under the same key, so a long upload is analysed while it happens and not after it ends. An idle check, run about once a second, emits flows that have been silent for the idle timeout (30 s by default). These are marked partial because they did not close cleanly. A segment that starts after a rollover but never receives another packet is dropped, so the service never emits an all-zero record. An error on one packet is logged and the loop carries on.
+
+\subsubsection{Feature Computation}\label{sec:7.1.5.3}
+
+\noindent The 78 features are computed in one pass as packets arrive, without storing the packets (NFR-14). The extractor keeps running statistics for packet lengths, inter-arrival times, header lengths and active and idle periods, each updated with Welford\textquotesingle s method (Equation \ref{eq:welford}), so memory per flow stays constant. It also counts TCP flags and records the initial window sizes. When a flow is emitted the values are placed in a fixed order. Rates are divided by the flow duration, with a minimum of one microsecond so that single-packet flows do not divide by zero. A gap of one second or more between packets ends an active burst and counts as an idle period.
+
+\noindent The feature names and groups are modelled on CICFlowMeter so that the inputs are familiar. The values are single-pass statistics and will not match the published dataset files exactly. This matters little, because the public datasets are regenerated from their raw captures with this same extractor (Section \ref{sec:harmonisation}).
+
+\subsubsection{TLS Fingerprints}\label{sec:7.1.5.4}
+
+\noindent TLS hellos are read by hand from the raw bytes. When a TCP payload starts with a handshake record, the extractor checks for a ClientHello or ServerHello and parses it with Python\textquotesingle s struct module. This avoids Scapy\textquotesingle s TLS layer and its extra dependencies. A hello split across several segments is not reassembled. The JA3 and JA3S fingerprints follow Algorithm \ref{alg:ja3}: GREASE values are removed, each field list is written as decimal numbers joined by hyphens, the fields are joined by commas, and the string is hashed with MD5. The ClientHello parser also reads the server name. A truncated or malformed hello gives an empty default and not an exception, so a damaged packet cannot stop capture. Fingerprinting sits behind a single function, so switching from JA3 to JA4 changes one file.
+
+\subsubsection{Storage and Retention}\label{sec:7.1.5.5}
+
+\noindent Each emitted flow is stored with its 5-tuple, UTC start and end times, segment number, fingerprints, server name, feature list and extractor version. A feature vector that does not have exactly 78 values is rejected. The 5-tuple is kept for investigation and is not a model input. A flow-ready message is then published. Records older than the retention window (7 days by default) are deleted about once a minute (FR-13.3), and the service publishes a heartbeat at a set interval.
+
+\noindent Two limits apply. The idle check, the deletion and the heartbeat are triggered by arriving packets, so on a silent network none of them run. The host record is created from the source address of the first packet, which is an outside host for inbound connections.
+
+\subsection{Layer 1: Signature Detection and ARP Monitoring}\label{sec:7.1.6}
+
+\subsubsection{Suricata Rules}\label{sec:7.1.6.1}
+
+\noindent The Suricata setup in the repository is the one used for the lab captures. It watches the lab host-only network in passive IDS mode, writes alerts and flow records to a JSON log, and loads only our custom rules. The Emerging Threats ruleset can be added with suricata-update but is switched off by default. Inline blocking through NFQUEUE belongs to the data plane on the device and is not part of the repository.
+
+\noindent Four custom rules are active, each counting events per address inside a time window. SSH brute force is five SYNs to port 22 from one source within 60 s. A port scan is SYNs to twenty ports within 10 s. A SYN flood is 100 SYNs to one destination within 10 s. DNS spoofing is any DNS reply from a source other than the access point\textquotesingle s resolver. The DNS rule contains the lab resolver\textquotesingle s address, which has to be edited for each deployment. A fifth rule for known-bad JA3 hashes is written but commented out until a lab hash has been recorded.
+
+\subsubsection{Suricata Bridge}\label{sec:7.1.6.2}
+
+\noindent The bridge turns Suricata\textquotesingle s log into evidence. It polls the log once a second and remembers its position and the identity of the file, so it starts over when the log is rotated or truncated. It reads only complete lines, so a line Suricata is still writing is picked up on the next poll. Blank and malformed lines are skipped and only alert events are kept. Each alert becomes Layer 1 evidence with the alert\textquotesingle s source address as the host. The strength depends on severity: 1.0 for a drop action or severity 1, 0.6 for severity 2, 0.3 for severity 3 and 0.25 otherwise. The signature weight is 3.0 by default. Alerts are not tied to a flow record, so this evidence carries no flow id and is matched to hosts later.
+
+\subsubsection{ARP Monitor}\label{sec:7.1.6.3}
+
+\noindent The ARP monitor follows Algorithm \ref{alg:arp}. It looks only at ARP replies and at gratuitous requests, which are requests whose sender and target address are the same. It raises evidence of strength 1.0 in three cases. An address with a known MAC appears with a different one. A host claims the gateway address with a MAC other than the access point\textquotesingle s. One MAC sends more than ten replies in ten seconds. A second window across all MACs catches a storm in which every packet uses a new random MAC.
+
+\noindent The known address-to-MAC bindings come from the dnsmasq lease file, which is reread every five seconds. If a reread returns nothing after bindings were loaded, the old ones are kept and a warning is logged, so a read failure cannot quietly switch detection off. Memory is bounded because old entries are removed as they age. The gateway address and the access point MAC are required settings, and the service will not start without them.
+
+\subsection{Layer 2: Anomaly Detection Service}\label{sec:7.1.7}
+
+\subsubsection{Scoring and Calibration}\label{sec:7.1.7.1}
+
+\noindent The anomaly detector wraps a scikit-learn Isolation Forest. It checks that each feature vector has 78 values under the expected schema version and skips the flow if it does not. scikit-learn returns the negative of the anomaly score in the original paper, so the result is negated and clipped to the range 0 to 1 to match Equations \ref{eq:cpsi} and \ref{eq:ifscore}. A flow produces anomaly evidence only if its score is above the calibrated threshold.
+
+\noindent The model is loaded from the database, taking the newest active package of the Isolation Forest type. No trained model exists yet, so the service logs a warning, runs without scoring and tries again every 60 seconds. The host-behaviour checks need no model and keep working in the meantime.
+
+\noindent The threshold is recalibrated as in Algorithm \ref{alg:calibration}. It starts at a bootstrap value of 0.6 until a trained model supplies a global threshold. With fewer than 2000 scores the global value is kept. Otherwise the 99.5th percentile of the local scores is used, limited to within 0.15 of the global threshold. Recalibration runs once seven days have passed. It leaves out every flow from a host that has Layer 1 evidence or an active block, so an attacker present during calibration cannot raise the threshold. From the same flows it also computes the upload limit used by the exfiltration check, which is the 99.9th percentile of forward bytes per flow segment. Taking this limit from the same sample is an addition to the algorithm as designed.
+
+\subsubsection{Host Behaviour: Exfiltration and Beaconing}\label{sec:7.1.7.2}
+
+\noindent Exfiltration is checked for each host in 60-second buckets of outbound bytes. When a bucket closes and the host already has a baseline, it is flagged if its bytes exceed the host\textquotesingle s moving average by four standard deviations and outbound traffic is at least three times inbound. The bucket is then folded into the average with a smoothing factor of 0.3 (Equation \ref{eq:ewma}). A host\textquotesingle s first bucket never raises evidence, because it has no baseline.
+
+\noindent Flows are reported when they close, roll over or expire, so observations do not arrive in time order. Closing a bucket as soon as a later one appears would split one window into incomplete pieces. The tracker therefore keeps several open buckets per host and closes one only when the newest end time seen across all hosts has passed it by the idle timeout plus one bucket length. Older observations are counted and dropped. If no flow arrives for the idle timeout plus two bucket lengths, all open buckets are flushed so that the last window is still checked.
+
+\noindent A fast path does not wait for a bucket to close. A partial segment that sends more than the upload limit to a destination the host has not contacted before raises exfiltration evidence at once. The fast path stays off until an upload limit has been calibrated.
+
+\noindent Beaconing is checked by grouping flows by host, destination (the server name if there is one, otherwise the address) and JA3. Once a group has five connections, the coefficient of variation (Equation \ref{eq:cv}) is computed for the gaps between connections and for the bytes per connection. Evidence is raised only if both are at most 0.15 and the JA3 is rare, meaning no more than two hosts have used it. Flows without a JA3 are never flagged. Requiring all three conditions keeps regular but common traffic, such as browser update checks, from being reported.
+
+\subsubsection{Service Loop}\label{sec:7.1.7.3}
+
+\noindent The service reads flow-ready messages through its own consumer group. For each one it loads the flow record and passes it to the host-behaviour tracker and, if a model is loaded, to the anomaly detector. Evidence gets its weight from the settings (anomaly 2.0, exfiltration 2.0, beaconing 2.5 by default) and is published. Between messages the main loop retries the model load, checks whether recalibration is due, flushes quiet exfiltration buckets and publishes a heartbeat. Each of these has its own error handler, so a failure in one does not stop the heartbeat, which needs neither a model nor a calibration.
+
+\subsection{Self-Collected Dataset Tooling}\label{sec:7.1.8}
+
+\subsubsection{Attack Scripts}\label{sec:7.1.8.1}
+
+\noindent Ten scripts generate the attacks of the self-collected dataset: port scan, SSH brute force, SYN flood, DDoS, ARP spoofing, DNS spoofing, C2 beaconing, C2 with a chosen JA3, data exfiltration and lateral movement. Seven wrap standard tools (nmap, hydra, hping3, arpspoof and dnsspoof) and three are small Python TLS clients. All of them go through one runner. It prints a reminder that attacks may only run on an isolated lab network, supports a dry-run mode, and records the run even if it is interrupted. It appends one JSON line per run with the attack, tool, attacker and victim addresses, UTC start and end time, status and parameters. These records let every flow in a capture be labelled automatically (Section \ref{sec:5.2.2}).
+
+\noindent Two scripts have limits worth stating. The DDoS script is a single-source flood, because there is only one attacker machine, and each record says so. DNS spoofing works only while ARP spoofing of the same victim is running, and the two are started separately.
+
+\subsubsection{Capture Sessions}\label{sec:7.1.8.2}
+
+\noindent A capture session is a directory named after its UTC start time and a label, with tcpdump writing the pcap file. A benign session captures for a set time and then writes a manifest of the Suricata alerts that fell inside it, so traffic Suricata already finds suspicious can be left out before the capture is labelled benign (Section \ref{sec:5.2.2}). An attack session starts tcpdump, runs one attack with the session directory as its output folder, waits three seconds for the last packets and stops the capture. Labelled flow tables are not produced here. That step runs the flow extractor over each pcap and matches the flows to the attack records, and it belongs to the offline training pipeline.
+
+\subsection{Components Not Yet Implemented}\label{sec:7.1.9}
+
+\noindent The following components are designed but not written.
+
+\begin{itemize}
+\item
+  The Layer 3 classifier will use Random Forest or XGBoost on the same 78 features, with a confidence threshold below which a flow is labelled unknown.
+\item
+  The decision engine will combine evidence into a decaying risk score for each host and decide to pass, alert or block (Algorithm \ref{alg:verdict}).
+\item
+  The enforcer will turn block decisions into ipset entries with an allowlist, a rate limit and exponential back-off (Algorithm \ref{alg:block}).
+\item
+  The watchdog will watch the heartbeats every service already publishes and apply the configured failure mode.
+\item
+  The dashboard will show the data already written to SQLite.
+\item
+  The offline training pipeline will regenerate flows from the public datasets with the flow extractor and train the models.
+\end{itemize}
+
+\subsection{Setup and Deployment}\label{sec:7.1.10}
+
+\noindent Running the system takes several manual steps. Python 3.11 or later, Redis and Suricata have to be installed, and the Python dependencies go into a virtual environment from the requirements file. The name of the capture interface is found by hand, because nothing detects it. A short Python call creates the database and seeds the default settings. The environment variables in Table \ref{tab:7.3} are exported, Redis and Suricata are started, and then the four services are started in separate terminals. The flow extractor and the ARP monitor need root or CAP\_NET\_RAW. There is no combined launcher, systemd unit or dashboard yet, so the only ways to observe the system are the database and the JSON logs.
+
+{\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.304\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.343\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.353\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
+\caption{Environment variables read by the services.}\label{tab:7.3}\\
+\hline
+\textbf{Variable} & \textbf{Used by} & \textbf{Default} \\ \hline
+\endfirsthead
+\hline
+\textbf{Variable} & \textbf{Used by} & \textbf{Default} \\ \hline
+\endhead
+NIDPS\_DB\_PATH & All services & /\allowbreak{}var/\allowbreak{}lib/\allowbreak{}nidps/\allowbreak{}nidps.sqlite3 \\ \hline
+NIDPS\_REDIS\_URL & All services & redis:/\allowbreak{}/\allowbreak{}localhost:6379/\allowbreak{}0 \\ \hline
+NIDPS\_CAPTURE\_INTERFACE & Flow extractor, ARP monitor & wlan0 \\ \hline
+NIDPS\_GATEWAY\_IP & ARP monitor & Required \\ \hline
+NIDPS\_AP\_MAC & ARP monitor & Required \\ \hline
+NIDPS\_DHCP\_LEASE\_PATH & ARP monitor & /\allowbreak{}var/\allowbreak{}lib/\allowbreak{}misc/\allowbreak{}dnsmasq.leases \\ \hline
+NIDPS\_EVE\_JSON\_PATH & Suricata bridge & /\allowbreak{}var/\allowbreak{}log/\allowbreak{}suricata/\allowbreak{}eve.json \\ \hline
+\end{longtable}
+}
