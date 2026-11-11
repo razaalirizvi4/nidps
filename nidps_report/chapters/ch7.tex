@@ -1,9 +1,6 @@
-% Generated from Chapter7_Implementation_clean.docx by tools/docx_to_tex.py - edit the Word file, not this one.
-% (If you decide to hand-edit this file instead, stop regenerating it.)
-
 \chapter{Implementation and Test Cases}\label{chap:7}
 
-\noindent This chapter describes how the design in Chapter \ref{chap:design} was turned into working software. The parts that exist are the shared foundations used by every service, the flow extraction service, the two Layer 1 detectors (the Suricata bridge and the ARP monitor), the Layer 2 anomaly service, and the scripts used to build the self-collected dataset. The classifier, decision engine, enforcer, watchdog and dashboard are not written yet. They are listed in their own section so that nothing in this chapter describes code that does not exist.
+\noindent This chapter describes how the design in Chapter \ref{chap:design} was turned into working software. The parts that are finished are the shared foundations used by every service, the flow extraction service, the two Layer 1 detectors (the Suricata bridge and the ARP monitor), the Layer 2 anomaly service with its Isolation Forest model, and the scripts used to build the self-collected dataset. The decision engine and the dashboard are partly built. The classifier, enforcer and watchdog are not written yet. All of these are listed in their own section so that nothing in this chapter describes code that does not exist.
 
 \section{Implementation}\label{sec:7.1}
 
@@ -47,12 +44,13 @@ Shared foundations (bus, database, settings) & Implemented \\ \hline
 Flow extractor & Implemented \\ \hline
 ARP monitor & Implemented \\ \hline
 Suricata bridge & Implemented \\ \hline
-Layer 2 anomaly service & Implemented. Isolation Forest scoring waits for a trained model. \\ \hline
+Layer 2 anomaly service and Isolation Forest model & Implemented \\ \hline
 Self-collected dataset tooling & Implemented \\ \hline
+Decision engine & Partly implemented \\ \hline
+Dashboard & Partly implemented \\ \hline
 Layer 3 classifier & Planned \\ \hline
-Decision engine and enforcer & Planned \\ \hline
+Enforcer & Planned \\ \hline
 Watchdog & Planned \\ \hline
-Dashboard & Planned \\ \hline
 Offline training pipeline & Planned. Only the dataset capture tools exist. \\ \hline
 Access point data plane & Configured on the device \\ \hline
 \end{longtable}
@@ -60,7 +58,7 @@ Access point data plane & Configured on the device \\ \hline
 
 \subsection{Communication Between Services}\label{sec:7.1.3}
 
-\noindent The services do not call each other. They talk through Redis Streams. There are five streams: one for flow-ready notices, one for evidence from the detectors, and one each for verdicts, configuration changes and heartbeats. Nothing uses the last three yet, because the decision engine and the watchdog are not built. A small bus class wraps the Redis calls. A service publishes a message to a stream and reads through a consumer group, and it acknowledges a message only after handling it. A service that restarts therefore carries on from where its group stopped instead of losing messages.
+\noindent The services do not call each other. They talk through Redis Streams. There are five streams: one for flow-ready notices, one for evidence from the detectors, and one each for verdicts, configuration changes and heartbeats. The decision engine, which is partly built, reads the evidence and writes verdicts. Heartbeats have no reader yet because the watchdog is not built, and the configuration stream is reserved for later. A small bus class wraps the Redis calls. A service publishes a message to a stream and reads through a consumer group, and it acknowledges a message only after handling it. A service that restarts therefore carries on from where its group stopped instead of losing messages.
 
 \noindent Every message is a JSON envelope with a schema version, a unique id, a UTC timestamp, a type and a payload. A reader rejects a schema version it does not know, so a producer and a consumer can be upgraded one at a time. A flow-ready message holds only the flow id, the host address and a partial-flow flag. The 78 features stay in SQLite and are read back by id, which keeps messages small.
 
@@ -76,7 +74,7 @@ Access point data plane & Configured on the device \\ \hline
 
 \subsubsection{Detector Interface and Logging}\label{sec:7.1.4.3}
 
-\noindent The value types used across services (flow, features, evidence, verdict, block entry and component health) are defined in one module. Evidence has a strength between 0 and 1 and a separate weight, which the decision engine will add to a host\textquotesingle s risk score. Each service fills in the weight from the settings before publishing. Every detector implements one interface with two methods: analyse an input and return zero or more pieces of evidence, and report its health. The ARP monitor, the Suricata bridge and the anomaly detector all implement it, so a new detector can be added without changing the decision engine (Figure \ref{fig:classdiagram}). Each service writes one JSON object per line to standard output, so the systemd journal can collect them all in one format.
+\noindent The value types used across services (flow, features, evidence, verdict, block entry and component health) are defined in one module. Evidence has a strength between 0 and 1 and a separate weight, which the decision engine adds to a host\textquotesingle s risk score. Each service fills in the weight from the settings before publishing. Every detector implements one interface with two methods: analyse an input and return zero or more pieces of evidence, and report its health. The ARP monitor, the Suricata bridge and the anomaly detector all implement it, so a new detector can be added without changing the decision engine (Figure \ref{fig:classdiagram}). Each service writes one JSON object per line to standard output, so the systemd journal can collect them all in one format.
 
 \subsection{Flow Extraction Service}\label{sec:7.1.5}
 
@@ -128,9 +126,9 @@ Access point data plane & Configured on the device \\ \hline
 
 \noindent The anomaly detector wraps a scikit-learn Isolation Forest. It checks that each feature vector has 78 values under the expected schema version and skips the flow if it does not. scikit-learn returns the negative of the anomaly score in the original paper, so the result is negated and clipped to the range 0 to 1 to match Equations \ref{eq:cpsi} and \ref{eq:ifscore}. A flow produces anomaly evidence only if its score is above the calibrated threshold.
 
-\noindent The model is loaded from the database, taking the newest active package of the Isolation Forest type. No trained model exists yet, so the service logs a warning, runs without scoring and tries again every 60 seconds. The host-behaviour checks need no model and keep working in the meantime.
+\noindent The model is loaded from the database, taking the newest active package of the Isolation Forest type, and the global threshold comes with that package. If the load fails, the service logs a warning, scores nothing and tries again every 60 seconds. The host-behaviour checks need no model and keep working in the meantime.
 
-\noindent The threshold is recalibrated as in Algorithm \ref{alg:calibration}. It starts at a bootstrap value of 0.6 until a trained model supplies a global threshold. With fewer than 2000 scores the global value is kept. Otherwise the 99.5th percentile of the local scores is used, limited to within 0.15 of the global threshold. Recalibration runs once seven days have passed. It leaves out every flow from a host that has Layer 1 evidence or an active block, so an attacker present during calibration cannot raise the threshold. From the same flows it also computes the upload limit used by the exfiltration check, which is the 99.9th percentile of forward bytes per flow segment. Taking this limit from the same sample is an addition to the algorithm as designed.
+\noindent The threshold is recalibrated as in Algorithm \ref{alg:calibration}. With fewer than 2000 scores the global value is kept. Otherwise the 99.5th percentile of the local scores is used, limited to within 0.15 of the global threshold. Recalibration runs once seven days have passed. It leaves out every flow from a host that has Layer 1 evidence or an active block, so an attacker present during calibration cannot raise the threshold. From the same flows it also computes the upload limit used by the exfiltration check, which is the 99.9th percentile of forward bytes per flow segment. Taking this limit from the same sample is an addition to the algorithm as designed.
 
 \subsubsection{Host Behaviour: Exfiltration and Beaconing}\label{sec:7.1.7.2}
 
@@ -144,7 +142,7 @@ Access point data plane & Configured on the device \\ \hline
 
 \subsubsection{Service Loop}\label{sec:7.1.7.3}
 
-\noindent The service reads flow-ready messages through its own consumer group. For each one it loads the flow record and passes it to the host-behaviour tracker and, if a model is loaded, to the anomaly detector. Evidence gets its weight from the settings (anomaly 2.0, exfiltration 2.0, beaconing 2.5 by default) and is published. Between messages the main loop retries the model load, checks whether recalibration is due, flushes quiet exfiltration buckets and publishes a heartbeat. Each of these has its own error handler, so a failure in one does not stop the heartbeat, which needs neither a model nor a calibration.
+\noindent The service reads flow-ready messages through its own consumer group. For each one it loads the flow record and passes it to the host-behaviour tracker and, if a model is loaded, to the anomaly detector. Evidence gets its weight from the settings (anomaly 2.0, exfiltration 2.0, beaconing 2.5 by default) and is published. Between messages the main loop retries a failed model load, checks whether recalibration is due, flushes quiet exfiltration buckets and publishes a heartbeat. Each of these has its own error handler, so a failure in one does not stop the heartbeat, which needs neither a model nor a calibration.
 
 \subsection{Self-Collected Dataset Tooling}\label{sec:7.1.8}
 
@@ -158,44 +156,43 @@ Access point data plane & Configured on the device \\ \hline
 
 \noindent A capture session is a directory named after its UTC start time and a label, with tcpdump writing the pcap file. A benign session captures for a set time and then writes a manifest of the Suricata alerts that fell inside it, so traffic Suricata already finds suspicious can be left out before the capture is labelled benign (Section \ref{sec:5.2.2}). An attack session starts tcpdump, runs one attack with the session directory as its output folder, waits three seconds for the last packets and stops the capture. Labelled flow tables are not produced here. That step runs the flow extractor over each pcap and matches the flows to the attack records, and it belongs to the offline training pipeline.
 
-\subsection{Components Not Yet Implemented}\label{sec:7.1.9}
+\subsection{Components Under Development}\label{sec:7.1.9}
 
-\noindent The following components are designed but not written.
+\noindent The decision engine and the dashboard are partly built. The other components are designed but not written.
 
 \begin{itemize}
 \item
-  The Layer 3 classifier will use Random Forest or XGBoost on the same 78 features, with a confidence threshold below which a flow is labelled unknown.
+  The decision engine is partly built. It combines evidence into a decaying risk score for each host and decides to pass, alert or block (Algorithm \ref{alg:verdict}). The rest of the logic and its link to the enforcer are still to do.
 \item
-  The decision engine will combine evidence into a decaying risk score for each host and decide to pass, alert or block (Algorithm \ref{alg:verdict}).
+  The dashboard is partly built. It shows the data already written to SQLite, and the remaining screens of Section \ref{sec:4.8} are still to do.
+\item
+  The Layer 3 classifier will use Random Forest or XGBoost on the same 78 features, with a confidence threshold below which a flow is labelled unknown.
 \item
   The enforcer will turn block decisions into ipset entries with an allowlist, a rate limit and exponential back-off (Algorithm \ref{alg:block}).
 \item
   The watchdog will watch the heartbeats every service already publishes and apply the configured failure mode.
-\item
-  The dashboard will show the data already written to SQLite.
 \item
   The offline training pipeline will regenerate flows from the public datasets with the flow extractor and train the models.
 \end{itemize}
 
 \subsection{Setup and Deployment}\label{sec:7.1.10}
 
-\noindent Running the system takes several manual steps. Python 3.11 or later, Redis and Suricata have to be installed, and the Python dependencies go into a virtual environment from the requirements file. The name of the capture interface is found by hand, because nothing detects it. A short Python call creates the database and seeds the default settings. The environment variables in Table \ref{tab:7.3} are exported, Redis and Suricata are started, and then the four services are started in separate terminals. The flow extractor and the ARP monitor need root or CAP\_NET\_RAW. There is no combined launcher, systemd unit or dashboard yet, so the only ways to observe the system are the database and the JSON logs.
+\noindent Running the system takes several manual steps. Python 3.11 or later, Redis and Suricata have to be installed, and the Python dependencies go into a virtual environment from the requirements file. The name of the capture interface is found by hand, because nothing detects it. A short Python call creates the database and seeds the default settings. The environment variables in Table \ref{tab:7.3} are exported, Redis and Suricata are started, and then the four services are started in separate terminals. The flow extractor and the ARP monitor need root or CAP\_NET\_RAW. There is no combined launcher or systemd unit yet and the dashboard is incomplete, so the most reliable ways to observe the system are the database and the JSON logs.
 
+\begin{table}[H]
+\centering
+\caption{Environment variables read by the services.}\label{tab:7.3}
 {\small
-\begin{longtable}{|>{\raggedright\arraybackslash}p{\dimexpr 0.304\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.343\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.353\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
-\caption{Environment variables read by the services.}\label{tab:7.3}\\
+\begin{tabular}{|>{\raggedright\arraybackslash}p{\dimexpr 0.370\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.250\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|>{\raggedright\arraybackslash}p{\dimexpr 0.380\linewidth-2\tabcolsep-1.3\arrayrulewidth\relax}|}
 \hline
 \textbf{Variable} & \textbf{Used by} & \textbf{Default} \\ \hline
-\endfirsthead
-\hline
-\textbf{Variable} & \textbf{Used by} & \textbf{Default} \\ \hline
-\endhead
-NIDPS\_DB\_PATH & All services & /\allowbreak{}var/\allowbreak{}lib/\allowbreak{}nidps/\allowbreak{}nidps.sqlite3 \\ \hline
-NIDPS\_REDIS\_URL & All services & redis:/\allowbreak{}/\allowbreak{}localhost:6379/\allowbreak{}0 \\ \hline
-NIDPS\_CAPTURE\_INTERFACE & Flow extractor, ARP monitor & wlan0 \\ \hline
-NIDPS\_GATEWAY\_IP & ARP monitor & Required \\ \hline
-NIDPS\_AP\_MAC & ARP monitor & Required \\ \hline
-NIDPS\_DHCP\_LEASE\_PATH & ARP monitor & /\allowbreak{}var/\allowbreak{}lib/\allowbreak{}misc/\allowbreak{}dnsmasq.leases \\ \hline
-NIDPS\_EVE\_JSON\_PATH & Suricata bridge & /\allowbreak{}var/\allowbreak{}log/\allowbreak{}suricata/\allowbreak{}eve.json \\ \hline
-\end{longtable}
+NIDPS\_\allowbreak{}DB\_\allowbreak{}PATH & All services & /\allowbreak{}var/\allowbreak{}lib/\allowbreak{}nidps/\allowbreak{}nidps.sqlite3 \\ \hline
+NIDPS\_\allowbreak{}REDIS\_\allowbreak{}URL & All services & redis:/\allowbreak{}/\allowbreak{}localhost:6379/\allowbreak{}0 \\ \hline
+NIDPS\_\allowbreak{}CAPTURE\_\allowbreak{}INTERFACE & Flow extractor, ARP monitor & wlan0 \\ \hline
+NIDPS\_\allowbreak{}GATEWAY\_\allowbreak{}IP & ARP monitor & Required \\ \hline
+NIDPS\_\allowbreak{}AP\_\allowbreak{}MAC & ARP monitor & Required \\ \hline
+NIDPS\_\allowbreak{}DHCP\_\allowbreak{}LEASE\_\allowbreak{}PATH & ARP monitor & /\allowbreak{}var/\allowbreak{}lib/\allowbreak{}misc/\allowbreak{}dnsmasq.leases \\ \hline
+NIDPS\_\allowbreak{}EVE\_\allowbreak{}JSON\_\allowbreak{}PATH & Suricata bridge & /\allowbreak{}var/\allowbreak{}log/\allowbreak{}suricata/\allowbreak{}eve.json \\ \hline
+\end{tabular}
 }
+\end{table}
