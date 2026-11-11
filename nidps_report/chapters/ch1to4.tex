@@ -1341,7 +1341,7 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 
 \section{Graphical User Interface}\label{sec:4.8}
 
-\noindent The NIDPS has one graphical user interface: the web dashboard used by the Network Administrator. It is served by the NIDPS host and is reachable only from the protected network. Network users have no interface, because protection is transparent to them. The interface has several main screens. Figure~\ref{fig:4.2} shows a proposed navigation flow between the pages.
+\noindent The NIDPS has one graphical user interface: the web dashboard used by the Network Administrator. It is served by the NIDPS host over HTTPS and is reachable only from the protected local management network. Network clients have no interface because detection and mitigation operate transparently inline. The interface provides a unified, responsive dashboard layout with a persistent left-hand navigation sidebar, top status header (including system theme toggle and live connectivity indicators), and dedicated functional panels. Figure~\ref{fig:4.2} shows the proposed navigation flow between the pages.
 
 \begin{figure}[!htbp]
 \centering
@@ -1354,67 +1354,113 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.89\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_login.jpg}
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_login.jpg}
 \caption{Login screen.}
 \label{fig:4.3}
 \end{figure}
 
-\noindent The login screen makes sure a person is authenticated before they are shown any information. Error messages do not indicate what was wrong. Accounts will be locked after multiple failures. (UC-01)
+\noindent Access to the dashboard is strictly gated by administrator authentication (UC-01). The login interface displays username and password input fields and notifies the operator that access attempts are audited. Generic error messages are returned upon unsuccessful attempts to prevent username enumeration, and administrative accounts are temporarily locked after multiple consecutive failures (NFR-12). Successful authentication establishes a secure session cookie, directing the administrator to the Overview page.
+\FloatBarrier
 
 \subsection{Overview Screen}\label{sec:4.8.2}
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_overview.jpg}
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_overview.jpg}
 \caption{Overview screen.}
 \label{fig:4.4}
 \end{figure}
 
-\noindent The overview screen will cover basic information on the home page. It shows statuses such as network safety and NIDPS functionality. It will have counters and charts that update periodically. A specific device can also be selected to view its history. (UC-02)
+\noindent The Overview screen serves as the primary operational dashboard for the network administrator (Figure~\ref{fig:4.4}). The \textbf{System Summary} panel aggregates high-level telemetry, displaying total packets/flows analyzed, total intrusions detected, currently active host blocks, and overall protection state (\textit{OPERATIONAL}), alongside runtime details such as the active ML-IDS engine version, last health check timestamp, and kernel failure mode (\textit{fail-open}). The \textbf{Recent Alerts} panel displays a real-time table of recent detection events indicating timestamp, originating source IP, attack classification, and automated enforcement action (\textit{alert} or \textit{block}), with a direct shortcut to view all alerts. (UC-02)
+\FloatBarrier
 
-\subsection{Alerts Screen}\label{sec:4.8.3}
+\subsection{Network Traffic Screen}\label{sec:4.8.3}
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_alerts.jpg}
-\caption{Alerts screen with the evidence panel.}
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_networkTraffic.jpeg}
+\caption{Network Traffic screen.}
 \label{fig:4.5}
 \end{figure}
 
-\noindent The alerts screen will list any detections and alerts that appear, along with verdicts such as pass or block. If one of the alerts is selected, it will open a small evidence section, which will explain in simple terms what threat was detected and show the evidence from every layer, so the admin can judge it and blacklist/whitelist the host as well. (UC-03/04)
+\noindent The Network Traffic screen provides in-depth visibility into network bandwidth and active conversations (Figure~\ref{fig:4.5}). Live counters display current observed throughput (in KB/s), aggregate bidirectional flows analyzed over the past 24 hours, and the count of connected devices alongside active concurrent flows. An interactive \textbf{Traffic History} timeline charts network volume over rolling time windows. The \textbf{Connected Devices and Flows} table features real-time search filtering by host or IP, detailing source and destination addresses, transport protocols, cumulative transferred volume, assessed threat risk level, and last activity timestamps. (UC-02)
+\FloatBarrier
 
-\subsection{Blocked Hosts and Allowlist Screen}\label{sec:4.8.4}
+\subsection{Intrusion Alerts Screen}\label{sec:4.8.4}
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_blocked.jpg}
-\caption{Blocked Hosts and Allowlist screen.}
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_alerts.jpg}
+\caption{Intrusion Alerts screen with the Alert Evidence panel.}
 \label{fig:4.6}
 \end{figure}
 
-\noindent This screen will let the network administrator see who has been blocked, either by decision of the system or manually. Hosts can also be released if they were blocked by mistake, and there is an allowlist to see and edit all currently allowed hosts. A warning will pop up if the block rate limit is reached. (UC-05/06)
+\noindent The Intrusion Alerts screen functions as the central alert triage console (Figure~\ref{fig:4.6}). The \textbf{Detection Results} table lists identified events with filter controls for IP address, attack category, and verdict. Each entry indicates the timestamp, source IP, destination IP, classification (such as port scan, brute force, DoS, SSH probe, or anomalous flow), detecting layer, and model confidence score. Selecting an alert opens the \textbf{Alert Evidence} drawer, which displays the calculated host risk score, final verdict, and an explainable breakdown across all three layers: Layer~1 Suricata signature rule SID, Layer~2 Isolation Forest anomaly score, and Layer~3 Random Forest/XGBoost classification confidence. (UC-03, UC-04)
+\FloatBarrier
 
-\subsection{Settings Screen}\label{sec:4.8.5}
+\subsection{Blocked Hosts and Allowlist Screen}\label{sec:4.8.5}
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_settings.jpg}
-\caption{Settings screen.}
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_blocked.jpg}
+\caption{Blocked Hosts and Allowlist screen.}
 \label{fig:4.7}
 \end{figure}
 
-\noindent The settings screen will allow the administrator to change all settings and configurations. Whenever a change is made, it will be validated and then applied without restarting the system, and a record will be added to the logs. Current values and defaults are shown as well. (UC-07/08/09/10/12)
+\noindent The Blocked Hosts and Allowlist screen provides complete administrative control over prevention and exemption policies (Figure~\ref{fig:4.7}). The \textbf{Active Blocks} table lists currently blocked IP addresses, identified host names, detection reason and originating layer, block initiation timestamp, remaining lockout duration, and a manual \textit{[unblock]} action button to release hosts blocked by mistake. The \textbf{Allowlist} section manages entities exempt from automated blocking, including permanent infrastructure (ISP gateway, NIDPS access point) and administrator devices, with an input form to add new IP entries. The \textbf{Prevention Status} panel reports active blocking engine health, quota consumption against the configured block rate limit, and default quarantine duration. (UC-05, UC-06)
+\FloatBarrier
 
-\subsection{System Health Screen}\label{sec:4.8.6}
+\subsection{Detection and Prevention Configuration Screen}\label{sec:4.8.6}
 
-\begin{figure}[H]
+\noindent The Configuration screen allows the administrator to inspect and update all detection, mitigation, and model settings at runtime without requiring a service restart. Changes are validated immediately before persistence, and default values can be restored on demand. The configuration interface is divided into four dedicated tabs shown in Figures~\ref{fig:4.8} through~\ref{fig:4.11}:
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Detection Layers Tab (Figure~\ref{fig:4.8}):} Allows the administrator to independently enable or disable individual detection layers---Layer~1 (Suricata signature matching), Layer~2 (Isolation Forest flow deviation scoring), and Layer~3 (Random Forest / XGBoost attack classification). Administrative state is decoupled from runtime daemon health; disabled layers are excluded from decision fusion calculations. (UC-08)
+    \item \textbf{Thresholds Tab (Figure~\ref{fig:4.9}):} Provides controls to tune detection sensitivity, including the Isolation Forest anomaly score cutoff (default 0.75), multi-class classifier confidence threshold (default 0.80), host risk blocking threshold (default 70), and flow inactivity timeout (default 60\,s). (UC-09)
+    \item \textbf{Prevention and Failure Tab (Figure~\ref{fig:4.10}):} Configures active mitigation parameters, including initial block duration (30\,min), repeat offender penalty escalation multiplier ($2\times$), and maximum block rate cap (60/min). It also controls the kernel failure policy among \textit{Fail-Open} (passing traffic if inspection daemons fail), \textit{Fail-Closed} (blocking traffic upon component failure, with explicit confirmation prompt), and \textit{Degraded} (operating with a reduced inspection profile), and displays watchdog operational status. (UC-07, UC-10)
+    \item \textbf{Rules, Calibration and Models Tab (Figure~\ref{fig:4.11}):} Displays active Suricata ruleset metadata (Emerging Threats Open) with an on-demand ruleset reload trigger; Isolation Forest baseline calibration date and status with an instant recalibration button; and active machine learning model package versions and training provenance. (UC-12)
+\end{itemize}
+
+\begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.99\textwidth,height=0.8\textheight,keepaspectratio]{Figures/gui_health.jpg}
-\caption{System Health screen.}
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_config_layers.jpg}
+\caption{Configuration screen -- Detection Layers tab.}
 \label{fig:4.8}
 \end{figure}
 
-\noindent The health screen will show a detailed log of every running component and of system behaviour. It will also show the time periods in which the system was active or inactive. (UC-11)
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_config_thresholds.jpg}
+\caption{Configuration screen -- Detection Thresholds tab.}
+\label{fig:4.9}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_config_prevention.jpg}
+\caption{Configuration screen -- Prevention and Failure tab.}
+\label{fig:4.10}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_config_rules.jpg}
+\caption{Configuration screen -- Rules, Calibration and Models tab.}
+\label{fig:4.11}
+\end{figure}
+\FloatBarrier
+
+\subsection{System Health Screen}\label{sec:4.8.7}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.92\textwidth,height=0.45\textheight,keepaspectratio]{Figures/gui_health.jpg}
+\caption{System Health screen.}
+\label{fig:4.12}
+\end{figure}
+
+\noindent The System Health screen displays real-time diagnostics and supervisory logs across all NIDPS subsystems (Figure~\ref{fig:4.12}). The \textbf{Component Status} panel tracks every background service (Suricata, flow extractor, Isolation Forest, RF/XGBoost classifier, decision fusion, prevention engine, and watchdog), confirming operational status (\textit{running}), last successful heartbeat check timestamp, and failure counters. The \textbf{Resource Monitoring} panel displays live gauges for host CPU usage, memory utilization, device operating temperature, and system uptime. The \textbf{Failure and Recovery History} panel maintains an auditable chronological record of watchdog validations, automated process restarts, and recovery events. (UC-11)
+\FloatBarrier
 
 \section{Database Design}\label{sec:4.9}
 
@@ -1422,13 +1468,13 @@ Client side & Any modern web browser (Chrome, Firefox, Edge, Safari) & Accessing
 
 \subsection{ER Diagram}\label{sec:4.9.1}
 
-\noindent Figure~\ref{fig:4.9} shows the entity-relationship diagram. HOST is the central entity: a host has many flow records, evidence items, verdicts and blocks. Each flow record can have several evidence items (one per layer) and at most one final verdict, and a BLOCK verdict creates at most one block entry. Evidence produced by an ML layer refers to the model package that produced it, and calibration states belong to the anomaly model. Administrative actions are linked to the admin user who performed them.
+\noindent Figure~\ref{fig:erd} shows the entity-relationship diagram. HOST is the central entity: a host has many flow records, evidence items, verdicts and blocks. Each flow record can have several evidence items (one per layer) and at most one final verdict, and a BLOCK verdict creates at most one block entry. Evidence produced by an ML layer refers to the model package that produced it, and calibration states belong to the anomaly model. Administrative actions are linked to the admin user who performed them.
 
 \begin{sidewaysfigure}
 \centering
 \includegraphics[width=\textheight,height=0.92\textwidth,keepaspectratio]{Figures/nidps_erd_chen.png}
 \caption{Entity-relationship diagram of the NIDPS database.}
-\label{fig:4.9}
+\label{fig:erd}
 \end{sidewaysfigure}
 \FloatBarrier
 
