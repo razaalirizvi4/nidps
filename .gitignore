@@ -84,3 +84,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Browser tool logs
+.playwright-mcp/
