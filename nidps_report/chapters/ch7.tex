@@ -1,6 +1,6 @@
 \chapter{Implementation and Test Cases}\label{chap:7}
 
-\noindent This chapter shows how the design in Chapter~\ref{chap:design} became working software. Most of the system is finished: the shared foundations used by every service, the flow extractor, both Layer 1 detectors (the Suricata bridge and the ARP monitor), the Layer 2 anomaly service with its Isolation Forest model, and the scripts for building the self-collected dataset. The decision engine and the dashboard are partly built. The classifier, enforcer and watchdog are not written yet. Everything unfinished is listed in its own section, so no part of this chapter describes code that does not exist.
+\noindent This chapter shows how the design in Chapter~\ref{chap:design} became working software. Most of the system is finished: the shared foundations used by every service, the flow extractor, both Layer 1 detectors (the Suricata bridge and the ARP monitor), the Layer 2 anomaly service with its Isolation Forest model, the scripts for building the self-collected dataset, and the offline training pipeline. The decision engine and the dashboard are partly built. The classifier, enforcer and watchdog are not written yet. Everything unfinished is listed in its own section, so no part of this chapter describes code that does not exist.
 
 \section{Implementation}\label{sec:7.1}
 
@@ -51,7 +51,7 @@ Dashboard & Partly implemented \\ \hline
 Layer 3 classifier & Planned \\ \hline
 Enforcer & Planned \\ \hline
 Watchdog & Planned \\ \hline
-Offline training pipeline & Planned. Only the dataset capture tools exist. \\ \hline
+Offline training pipeline & Implemented \\ \hline
 Access point data plane & Configured on the device \\ \hline
 \end{longtable}
 }
@@ -70,7 +70,7 @@ Access point data plane & Configured on the device \\ \hline
 
 \subsubsection{Configuration}\label{sec:7.1.4.2}
 
-\noindent The 40 tunable settings are declared in one schema, each with a type, a default and an allowed range or set of values. Seeding copies the defaults into the database but never overwrites a value the administrator has changed. A change is checked against its range, saved with the user and time, and written to the audit log in the same transaction (FR-10.6). Services cache settings for five seconds, so a new threshold takes effect within seconds and needs no restart.
+\noindent The 40 tunable settings are declared in one schema, each with a type, a default and an allowed range or set of values. Seeding copies the defaults into the database but never overwrites a value the administrator has changed. A change is checked against its range, saved with the user and time, and written to the audit log in the same transaction (\hyperlink{req:FR-10.6}{FR-10.6}). Services cache settings for five seconds, so a new threshold takes effect within seconds and needs no restart.
 
 \subsubsection{Detector Interface and Logging}\label{sec:7.1.4.3}
 
@@ -88,7 +88,7 @@ Access point data plane & Configured on the device \\ \hline
 
 \subsubsection{Feature Computation}\label{sec:7.1.5.3}
 
-\noindent The 78 features are computed in a single pass as packets arrive, and the packets themselves are not stored (NFR-14). For packet lengths, inter-arrival times, header lengths and active and idle periods, the extractor keeps running statistics updated with Welford's method (Equation~\ref{eq:welford}), so memory per flow stays constant. It also counts TCP flags and records the initial window sizes. When a flow is emitted, the values are put in a fixed order. Rates are divided by the flow duration, with a floor of one microsecond so that single-packet flows do not divide by zero. A gap of one second or more between packets ends an active burst and counts as an idle period.
+\noindent The 78 features are computed in a single pass as packets arrive, and the packets themselves are not stored (\hyperlink{req:NFR-14}{NFR-14}). For packet lengths, inter-arrival times, header lengths and active and idle periods, the extractor keeps running statistics updated with Welford's method (Equation~\ref{eq:welford}), so memory per flow stays constant. It also counts TCP flags and records the initial window sizes. When a flow is emitted, the values are put in a fixed order. Rates are divided by the flow duration, with a floor of one microsecond so that single-packet flows do not divide by zero. A gap of one second or more between packets ends an active burst and counts as an idle period.
 
 \noindent The feature names and groups are modelled on CICFlowMeter so the inputs look familiar. Our values are single-pass statistics and will not match the published dataset files exactly. That matters little, because we regenerate the public datasets from their raw captures with this same extractor (Section~\ref{sec:harmonisation}).
 
@@ -98,7 +98,7 @@ Access point data plane & Configured on the device \\ \hline
 
 \subsubsection{Storage and Retention}\label{sec:7.1.5.5}
 
-\noindent Each emitted flow is stored with its 5-tuple, UTC start and end times, segment number, fingerprints, server name, feature list and extractor version. A feature vector without exactly 78 values is rejected. The 5-tuple is kept for investigation and is not a model input. After storing, the service publishes a flow-ready message. It deletes records older than the retention window (7 days by default) about once a minute (FR-13.3), and it publishes a heartbeat at a set interval.
+\noindent Each emitted flow is stored with its 5-tuple, UTC start and end times, segment number, fingerprints, server name, feature list and extractor version. A feature vector without exactly 78 values is rejected. The 5-tuple is kept for investigation and is not a model input. After storing, the service publishes a flow-ready message. It deletes records older than the retention window (7 days by default) about once a minute (\hyperlink{req:FR-13.3}{FR-13.3}), and it publishes a heartbeat at a set interval.
 
 \noindent Two limits apply. The idle check, the deletion and the heartbeat are all triggered by arriving packets, so on a silent network none of them run. And the host record is created from the source address of the first packet, which for an inbound connection is an outside host.
 
@@ -154,11 +154,11 @@ Access point data plane & Configured on the device \\ \hline
 
 \subsubsection{Capture Sessions}\label{sec:7.1.8.2}
 
-\noindent A capture session is a directory named after its UTC start time and a label, and tcpdump writes the pcap file into it. A benign session captures for a set time and then writes a manifest of the Suricata alerts that fell inside that window, so traffic Suricata already finds suspicious can be left out before the capture is labelled benign (Section~\ref{sec:5.2.2}). An attack session starts tcpdump, runs one attack with the session directory as its output folder, waits three seconds for the last packets and stops the capture. None of this produces labelled flow tables. That step runs the flow extractor over each pcap and matches the flows to the attack records, and it belongs to the offline training pipeline.
+\noindent A capture session is a directory named after its UTC start time and a label, and tcpdump writes the pcap file into it. A benign session captures for a set time and then writes a manifest of the Suricata alerts that fell inside that window, so traffic Suricata already finds suspicious can be left out before the capture is labelled benign (Section~\ref{sec:5.2.2}). An attack session starts tcpdump, runs one attack with the session directory as its output folder, waits three seconds for the last packets and stops the capture. None of this produces labelled flow tables. That step runs the flow extractor over each pcap and matches the flows to the attack records, and it is done by the offline training pipeline.
 
 \subsection{Components Under Development}\label{sec:7.1.9}
 
-\noindent The decision engine and the dashboard are partly built. The other components are designed but not written.
+\noindent The decision engine and the dashboard are partly built. The remaining components are designed but not written.
 
 \begin{itemize}
 \item
@@ -171,8 +171,6 @@ Access point data plane & Configured on the device \\ \hline
   The enforcer will turn block decisions into ipset entries, with an allowlist, a rate limit and exponential back-off (Algorithm~\ref{alg:block}).
 \item
   The watchdog will read the heartbeats that every service already publishes and apply the configured failure mode.
-\item
-  The offline training pipeline will regenerate flows from the public datasets with the flow extractor and train the models.
 \end{itemize}
 
 \subsection{Setup and Deployment}\label{sec:7.1.10}

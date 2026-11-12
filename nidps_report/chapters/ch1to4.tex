@@ -737,129 +737,129 @@ NIDPS-13 & Auto maintenance & Rules and tracking features are updated daily and 
 \subsection{NIDPS-1: Inline Wireless Access Point}\label{sec:4.2.1}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-1.1}] The system shall act as a WAP, and its network name will be configurable along with being password protected.
-\item[\textbf{FR-1.2}] The system shall assign IP addresses to any devices that are connected using DHCP.
-\item[\textbf{FR-1.3}] The system shall be acting as the DNS server for any connected devices.
-\item[\textbf{FR-1.4}] The system shall pass client traffic on to the ISP router using NAT over its wired connection.
-\item[\textbf{FR-1.5}] The system shall stop wireless clients from talking to each other directly, so that traffic between them also passes through the NIDPS.
+\item[\hypertarget{req:FR-1.1}{\textbf{FR-1.1}}] The system shall act as a WAP, and its network name will be configurable along with being password protected.
+\item[\hypertarget{req:FR-1.2}{\textbf{FR-1.2}}] The system shall assign IP addresses to any devices that are connected using DHCP.
+\item[\hypertarget{req:FR-1.3}{\textbf{FR-1.3}}] The system shall be acting as the DNS server for any connected devices.
+\item[\hypertarget{req:FR-1.4}{\textbf{FR-1.4}}] The system shall pass client traffic on to the ISP router using NAT over its wired connection.
+\item[\hypertarget{req:FR-1.5}{\textbf{FR-1.5}}] The system shall stop wireless clients from talking to each other directly, so that traffic between them also passes through the NIDPS.
 \end{itemize}
 
 \subsection{NIDPS-2: Signature-Based Detection (Layer 1)}\label{sec:4.2.2}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-2.1}] The system shall send all forwarded traffic to Suricata so it can be checked before it is passed on.
-\item[\textbf{FR-2.2}] The system shall check every packet against the Emerging Threats Open ruleset.
-\item[\textbf{FR-2.3}] The system shall drop packets that match rules set to "drop" and allow all other packets through.
-\item[\textbf{FR-2.4}] The system shall use custom rules to detect SSH brute force, port scans, DNS spoofing, SYN floods and known malicious TLS fingerprints.
-\item[\textbf{FR-2.5}] The system shall detect ARP spoofing by comparing ARP replies with the devices it has assigned addresses to.
-\item[\textbf{FR-2.6}] The system shall pass every alert, with its source, destination, rule and severity, on to the other layers.
+\item[\hypertarget{req:FR-2.1}{\textbf{FR-2.1}}] The system shall send all forwarded traffic to Suricata so it can be checked before it is passed on.
+\item[\hypertarget{req:FR-2.2}{\textbf{FR-2.2}}] The system shall check every packet against the Emerging Threats Open ruleset.
+\item[\hypertarget{req:FR-2.3}{\textbf{FR-2.3}}] The system shall drop packets that match rules set to "drop" and allow all other packets through.
+\item[\hypertarget{req:FR-2.4}{\textbf{FR-2.4}}] The system shall use custom rules to detect SSH brute force, port scans, DNS spoofing, SYN floods and known malicious TLS fingerprints.
+\item[\hypertarget{req:FR-2.5}{\textbf{FR-2.5}}] The system shall detect ARP spoofing by comparing ARP replies with the devices it has assigned addresses to.
+\item[\hypertarget{req:FR-2.6}{\textbf{FR-2.6}}] The system shall pass every alert, with its source, destination, rule and severity, on to the other layers.
 \end{itemize}
 
 \subsection{NIDPS-3: TLS Fingerprints and Flow Extraction}\label{sec:4.2.3}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-3.1}] The system shall group packets into flows, where a flow is a connection/conversation between devices.
-\item[\textbf{FR-3.2}] The system shall end a flow when it is closed, when inactive for a set amount of time, or when it has been active for a set amount of time.
-\item[\textbf{FR-3.3}] The system shall extract 78 features for flows from the packets that arrive.
-\item[\textbf{FR-3.4}] The system shall read identifying details (JA3, JA3S and SNI) from encrypted TLS connections and attach them to the flow, without decrypting the traffic.
+\item[\hypertarget{req:FR-3.1}{\textbf{FR-3.1}}] The system shall group packets into flows, where a flow is a connection/conversation between devices.
+\item[\hypertarget{req:FR-3.2}{\textbf{FR-3.2}}] The system shall end a flow when it is closed, when inactive for a set amount of time, or when it has been active for a set amount of time.
+\item[\hypertarget{req:FR-3.3}{\textbf{FR-3.3}}] The system shall extract 78 features for flows from the packets that arrive.
+\item[\hypertarget{req:FR-3.4}{\textbf{FR-3.4}}] The system shall read identifying details (JA3, JA3S and SNI) from encrypted TLS connections and attach them to the flow, without decrypting the traffic.
 \end{itemize}
 
 \subsection{NIDPS-4: Anomaly Detection (Layer 2)}\label{sec:4.2.4}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-4.1}] The system shall check that each flow matches the features expected by the current model and reject any that do not.
-\item[\textbf{FR-4.2}] The system shall give each flow an anomaly score between 0 and 1 using an Isolation Forest.
-\item[\textbf{FR-4.3}] The system shall mark a flow as anomalous when its score is above the anomaly threshold.
-\item[\textbf{FR-4.4}] The system shall set the anomaly threshold based on normal traffic from the local network, leaving out traffic linked to alerts or blocked devices.
-\item[\textbf{FR-4.5}] The system shall learn how much data each device normally sends out and flag it when a device sends far more than usual (possible data theft).
-\item[\textbf{FR-4.6}] The system shall flag devices that contact the same destination at regular intervals with similar-sized messages (possible C2 beaconing).
+\item[\hypertarget{req:FR-4.1}{\textbf{FR-4.1}}] The system shall check that each flow matches the features expected by the current model and reject any that do not.
+\item[\hypertarget{req:FR-4.2}{\textbf{FR-4.2}}] The system shall give each flow an anomaly score between 0 and 1 using an Isolation Forest.
+\item[\hypertarget{req:FR-4.3}{\textbf{FR-4.3}}] The system shall mark a flow as anomalous when its score is above the anomaly threshold.
+\item[\hypertarget{req:FR-4.4}{\textbf{FR-4.4}}] The system shall set the anomaly threshold based on normal traffic from the local network, leaving out traffic linked to alerts or blocked devices.
+\item[\hypertarget{req:FR-4.5}{\textbf{FR-4.5}}] The system shall learn how much data each device normally sends out and flag it when a device sends far more than usual (possible data theft).
+\item[\hypertarget{req:FR-4.6}{\textbf{FR-4.6}}] The system shall flag devices that contact the same destination at regular intervals with similar-sized messages (possible C2 beaconing).
 \end{itemize}
 
 \subsection{NIDPS-5: Classification of Attacks (Layer 3)}\label{sec:4.2.5}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-5.1}] The system shall sort every flow into a class using XGBoost or Random Forest. The possible classifications are DoS/DDoS, Botnet/C2, Infiltration, Spoofing, Reconnaissance, Benign.
-\item[\textbf{FR-5.2}] The system shall evaluate each classification and give it a confidence score.
-\item[\textbf{FR-5.3}] The system shall label a flow as "unknown" when the model's confidence is too low, instead of forcing it into a class.
+\item[\hypertarget{req:FR-5.1}{\textbf{FR-5.1}}] The system shall sort every flow into a class using XGBoost or Random Forest. The possible classifications are DoS/DDoS, Botnet/C2, Infiltration, Spoofing, Reconnaissance, Benign.
+\item[\hypertarget{req:FR-5.2}{\textbf{FR-5.2}}] The system shall evaluate each classification and give it a confidence score.
+\item[\hypertarget{req:FR-5.3}{\textbf{FR-5.3}}] The system shall label a flow as "unknown" when the model's confidence is too low, instead of forcing it into a class.
 \end{itemize}
 
 \subsection{NIDPS-6: Decision Fusion}\label{sec:4.2.6}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-6.1}] The system shall combine the results of all three layers to decide whether each flow should be passed (PASS), flagged (ALERT) or blocked (BLOCK).
-\item[\textbf{FR-6.2}] The system shall record which layers led to each decision and the evidence used.
-\item[\textbf{FR-6.3}] The system shall keep a risk score for each device that rises with suspicious activity and drops over time when the device behaves normally.
-\item[\textbf{FR-6.4}] The system shall block a device when its risk score reaches the block threshold.
+\item[\hypertarget{req:FR-6.1}{\textbf{FR-6.1}}] The system shall combine the results of all three layers to decide whether each flow should be passed (PASS), flagged (ALERT) or blocked (BLOCK).
+\item[\hypertarget{req:FR-6.2}{\textbf{FR-6.2}}] The system shall record which layers led to each decision and the evidence used.
+\item[\hypertarget{req:FR-6.3}{\textbf{FR-6.3}}] The system shall keep a risk score for each device that rises with suspicious activity and drops over time when the device behaves normally.
+\item[\hypertarget{req:FR-6.4}{\textbf{FR-6.4}}] The system shall block a device when its risk score reaches the block threshold.
 \end{itemize}
 
 \subsection{NIDPS-7: Dynamic Blocking}\label{sec:4.2.7}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-7.1}] The system shall block a device that it has deemed risky by placing its IP address/MAC address into a block/blacklist.
-\item[\textbf{FR-7.2}] The system shall remove members from the block list once the set cooldown timer has passed.
-\item[\textbf{FR-7.3}] The system shall have an allow/whitelist, and it shall never block any devices on it. It must necessarily include the NIDPS itself, any routers, DNS and admin devices as well.
-\item[\textbf{FR-7.4}] The system shall double the block time each time the same device is blocked again within 24 hours, up to a set maximum.
-\item[\textbf{FR-7.5}] The system shall stop blocking and only raise alerts if too many blocks happen within one minute, and warn the administrator.
-\item[\textbf{FR-7.6}] The system shall log every block, skipped block and release.
+\item[\hypertarget{req:FR-7.1}{\textbf{FR-7.1}}] The system shall block a device that it has deemed risky by placing its IP address/MAC address into a block/blacklist.
+\item[\hypertarget{req:FR-7.2}{\textbf{FR-7.2}}] The system shall remove members from the block list once the set cooldown timer has passed.
+\item[\hypertarget{req:FR-7.3}{\textbf{FR-7.3}}] The system shall have an allow/whitelist, and it shall never block any devices on it. It must necessarily include the NIDPS itself, any routers, DNS and admin devices as well.
+\item[\hypertarget{req:FR-7.4}{\textbf{FR-7.4}}] The system shall double the block time each time the same device is blocked again within 24 hours, up to a set maximum.
+\item[\hypertarget{req:FR-7.5}{\textbf{FR-7.5}}] The system shall stop blocking and only raise alerts if too many blocks happen within one minute, and warn the administrator.
+\item[\hypertarget{req:FR-7.6}{\textbf{FR-7.6}}] The system shall log every block, skipped block and release.
 \end{itemize}
 
 \subsection{NIDPS-8: Recovery Mechanism}\label{sec:4.2.8}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-8.1}] The system shall contain a watchdog per component which it must feed every few seconds.
-\item[\textbf{FR-8.2}] The system shall assume that a part of the system has failed if it misses some amount of watchdog checks or stops running completely, at which point it will try to restart it.
-\item[\textbf{FR-8.3}] The system shall, upon the failure of a component, switch to one of three modes: let all traffic through unfiltered, block all traffic or run with reduced functionality.
-\item[\textbf{FR-8.4}] The system shall switch to a low functionality mode when it is overwhelmed and switch back when it can handle the load.
-\item[\textbf{FR-8.5}] The system shall, upon failure, create logs that detail when it happened, in what mode and the affected packets before recovery.
+\item[\hypertarget{req:FR-8.1}{\textbf{FR-8.1}}] The system shall contain a watchdog per component which it must feed every few seconds.
+\item[\hypertarget{req:FR-8.2}{\textbf{FR-8.2}}] The system shall assume that a part of the system has failed if it misses some amount of watchdog checks or stops running completely, at which point it will try to restart it.
+\item[\hypertarget{req:FR-8.3}{\textbf{FR-8.3}}] The system shall, upon the failure of a component, switch to one of three modes: let all traffic through unfiltered, block all traffic or run with reduced functionality.
+\item[\hypertarget{req:FR-8.4}{\textbf{FR-8.4}}] The system shall switch to a low functionality mode when it is overwhelmed and switch back when it can handle the load.
+\item[\hypertarget{req:FR-8.5}{\textbf{FR-8.5}}] The system shall, upon failure, create logs that detail when it happened, in what mode and the affected packets before recovery.
 \end{itemize}
 
 \subsection{NIDPS-9: Monitoring}\label{sec:4.2.9}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-9.1}] The system shall require the administrator to log in before the dashboard can be viewed.
-\item[\textbf{FR-9.2}] The system shall show live traffic statistics, alerts, blocks and types of attacks, updated at least every two seconds.
-\item[\textbf{FR-9.3}] The system shall show a list of alerts with time, source, destination, attack type, layer and confidence, which can be filtered.
-\item[\textbf{FR-9.4}] The system shall show the evidence behind each alert.
-\item[\textbf{FR-9.5}] The system shall list blocked devices with the reason and time left, and let the administrator unblock them.
-\item[\textbf{FR-9.6}] The system shall show traffic and risk scores for each connected device.
-\item[\textbf{FR-9.7}] The system shall show the health of each component, along with CPU, memory, temperature and uptime.
+\item[\hypertarget{req:FR-9.1}{\textbf{FR-9.1}}] The system shall require the administrator to log in before the dashboard can be viewed.
+\item[\hypertarget{req:FR-9.2}{\textbf{FR-9.2}}] The system shall show live traffic statistics, alerts, blocks and types of attacks, updated at least every two seconds.
+\item[\hypertarget{req:FR-9.3}{\textbf{FR-9.3}}] The system shall show a list of alerts with time, source, destination, attack type, layer and confidence, which can be filtered.
+\item[\hypertarget{req:FR-9.4}{\textbf{FR-9.4}}] The system shall show the evidence behind each alert.
+\item[\hypertarget{req:FR-9.5}{\textbf{FR-9.5}}] The system shall list blocked devices with the reason and time left, and let the administrator unblock them.
+\item[\hypertarget{req:FR-9.6}{\textbf{FR-9.6}}] The system shall show traffic and risk scores for each connected device.
+\item[\hypertarget{req:FR-9.7}{\textbf{FR-9.7}}] The system shall show the health of each component, along with CPU, memory, temperature and uptime.
 \end{itemize}
 
 \subsection{NIDPS-10: Configurations}\label{sec:4.2.10}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-10.1}] The system shall let the administrator turn each detection layer on or off while running.
-\item[\textbf{FR-10.2}] The system shall let the administrator choose the failure mode and watchdog settings.
-\item[\textbf{FR-10.3}] The system shall let the administrator change detection thresholds, block times and flow timeouts within safe limits.
-\item[\textbf{FR-10.4}] The system shall let the administrator add and remove devices from the allowlist.
-\item[\textbf{FR-10.5}] The system shall let the administrator reload the rules and recalibrate the anomaly threshold on demand.
-\item[\textbf{FR-10.6}] The system shall apply configuration changes without restarting, and log who made each change and what was changed.
+\item[\hypertarget{req:FR-10.1}{\textbf{FR-10.1}}] The system shall let the administrator turn each detection layer on or off while running.
+\item[\hypertarget{req:FR-10.2}{\textbf{FR-10.2}}] The system shall let the administrator choose the failure mode and watchdog settings.
+\item[\hypertarget{req:FR-10.3}{\textbf{FR-10.3}}] The system shall let the administrator change detection thresholds, block times and flow timeouts within safe limits.
+\item[\hypertarget{req:FR-10.4}{\textbf{FR-10.4}}] The system shall let the administrator add and remove devices from the allowlist.
+\item[\hypertarget{req:FR-10.5}{\textbf{FR-10.5}}] The system shall let the administrator reload the rules and recalibrate the anomaly threshold on demand.
+\item[\hypertarget{req:FR-10.6}{\textbf{FR-10.6}}] The system shall apply configuration changes without restarting, and log who made each change and what was changed.
 \end{itemize}
 
 \subsection{NIDPS-11: Logging and Storage}\label{sec:4.2.11}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-11.1}] The system shall store any alert notifications, potential alerts and blocks, calculated risk scores, configuration data and health statuses in a log file or database.
-\item[\textbf{FR-11.2}] The system shall make sure not to store actual packet data during operation.
-\item[\textbf{FR-11.3}] The system shall let the admin select a block of time and export alerts, blacklists or other operational data in a preferable format such as CSV.
+\item[\hypertarget{req:FR-11.1}{\textbf{FR-11.1}}] The system shall store any alert notifications, potential alerts and blocks, calculated risk scores, configuration data and health statuses in a log file or database.
+\item[\hypertarget{req:FR-11.2}{\textbf{FR-11.2}}] The system shall make sure not to store actual packet data during operation.
+\item[\hypertarget{req:FR-11.3}{\textbf{FR-11.3}}] The system shall let the admin select a block of time and export alerts, blacklists or other operational data in a preferable format such as CSV.
 \end{itemize}
 
 \subsection{NIDPS-12: Training and Versioning}\label{sec:4.2.12}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-12.1}] The system shall build training data using the same flow extractor that runs on the device.
-\item[\textbf{FR-12.2}] The system shall train and test models offline.
-\item[\textbf{FR-12.3}] The system shall be able to save each model in a package, which will include what model it is, the extractor version, classes, feature list and training date.
-\item[\textbf{FR-12.4}] The system shall not be able to load a model that does not follow the flow extractor rules and architecture.
-\item[\textbf{FR-12.5}] The system shall keep the previous model so the administrator can return to it in one step.
+\item[\hypertarget{req:FR-12.1}{\textbf{FR-12.1}}] The system shall build training data using the same flow extractor that runs on the device.
+\item[\hypertarget{req:FR-12.2}{\textbf{FR-12.2}}] The system shall train and test models offline.
+\item[\hypertarget{req:FR-12.3}{\textbf{FR-12.3}}] The system shall be able to save each model in a package, which will include what model it is, the extractor version, classes, feature list and training date.
+\item[\hypertarget{req:FR-12.4}{\textbf{FR-12.4}}] The system shall not be able to load a model that does not follow the flow extractor rules and architecture.
+\item[\hypertarget{req:FR-12.5}{\textbf{FR-12.5}}] The system shall keep the previous model so the administrator can return to it in one step.
 \end{itemize}
 
 \subsection{NIDPS-13: Auto Maintenance}\label{sec:4.2.13}
 
 \begin{itemize}[leftmargin=4.4em,labelwidth=3.9em,labelsep=0.5em,align=left]
-\item[\textbf{FR-13.1}] The system shall download and test new rules every day, and keep using the old rules if the test fails.
-\item[\textbf{FR-13.2}] The system shall recalculate and adjust the anomaly threshold by looking at traffic at the end of a set time such as after a week.
-\item[\textbf{FR-13.3}] The system shall delete records about flows after a set time frame has passed, which will be a week by default.
+\item[\hypertarget{req:FR-13.1}{\textbf{FR-13.1}}] The system shall download and test new rules every day, and keep using the old rules if the test fails.
+\item[\hypertarget{req:FR-13.2}{\textbf{FR-13.2}}] The system shall recalculate and adjust the anomaly threshold by looking at traffic at the end of a set time such as after a week.
+\item[\hypertarget{req:FR-13.3}{\textbf{FR-13.3}}] The system shall delete records about flows after a set time frame has passed, which will be a week by default.
 \end{itemize}
 
 \section{Quality Attributes}\label{sec:4.3}
@@ -896,76 +896,76 @@ Portability & The system should run on different low-cost Linux devices. & Only 
 \subsection{Performance}\label{sec:4.4.1}
 
 \begin{itemize}
-\item \textbf{NFR-1} The system shall only add an upper limit of 200 ms of delay onto devices under normal loads.
-\item \textbf{NFR-2} The system shall be able to support 50 Mbps of traffic with all layers active.
-\item \textbf{NFR-3} The system shall analyze each flow and then assign a risk score to its device in no more than 15 ms.
-\item \textbf{NFR-4} The system shall, when it has recognized an anomalous device, block it within 1 second.
-\item \textbf{NFR-5} The system shall come to a decision regarding long-running connections in about a second after it has timed out.
+\item \hypertarget{req:NFR-1}{\textbf{NFR-1}} The system shall only add an upper limit of 200 ms of delay onto devices under normal loads.
+\item \hypertarget{req:NFR-2}{\textbf{NFR-2}} The system shall be able to support 50 Mbps of traffic with all layers active.
+\item \hypertarget{req:NFR-3}{\textbf{NFR-3}} The system shall analyze each flow and then assign a risk score to its device in no more than 15 ms.
+\item \hypertarget{req:NFR-4}{\textbf{NFR-4}} The system shall, when it has recognized an anomalous device, block it within 1 second.
+\item \hypertarget{req:NFR-5}{\textbf{NFR-5}} The system shall come to a decision regarding long-running connections in about a second after it has timed out.
 \end{itemize}
 
 \subsection{Capacity}\label{sec:4.4.2}
 
 \begin{itemize}
-\item \textbf{NFR-6} The system shall support up to 30 devices connected at the same time along with 5 people using the dashboard.
+\item \hypertarget{req:NFR-6}{\textbf{NFR-6}} The system shall support up to 30 devices connected at the same time along with 5 people using the dashboard.
 \end{itemize}
 
 \subsection{Resource Usage}\label{sec:4.4.3}
 
 \begin{itemize}
-\item \textbf{NFR-7} The system shall use around a maximum of 70\% of a lower-end Pi CPU and no more than 4 GB of memory at a given time.
+\item \hypertarget{req:NFR-7}{\textbf{NFR-7}} The system shall use around a maximum of 70\% of a lower-end Pi CPU and no more than 4 GB of memory at a given time.
 \end{itemize}
 
 \subsection{Reliability and Availability}\label{sec:4.4.4}
 
 \begin{itemize}
-\item \textbf{NFR-8} The system shall be able to detect failure and start resetting within 3 seconds. The system should not take more than 30 seconds to restart in normal conditions.
-\item \textbf{NFR-9} The system shall let all packets pass through it undiagnosed in case fail-open mode is activated to not interrupt the connection.
+\item \hypertarget{req:NFR-8}{\textbf{NFR-8}} The system shall be able to detect failure and start resetting within 3 seconds. The system should not take more than 30 seconds to restart in normal conditions.
+\item \hypertarget{req:NFR-9}{\textbf{NFR-9}} The system shall let all packets pass through it undiagnosed in case fail-open mode is activated to not interrupt the connection.
 \end{itemize}
 
 \subsection{Accuracy}\label{sec:4.4.5}
 
 \begin{itemize}
-\item \textbf{NFR-10} The system shall not raise false positives on more than 1\% of normal traffic and not block any devices during a week of testing.
-\item \textbf{NFR-11} The system shall be able to detect more attacks than Suricata alone using its three-layered architecture, measured by macro F1-score.
+\item \hypertarget{req:NFR-10}{\textbf{NFR-10}} The system shall not raise false positives on more than 1\% of normal traffic and not block any devices during a week of testing.
+\item \hypertarget{req:NFR-11}{\textbf{NFR-11}} The system shall be able to detect more attacks than Suricata alone using its three-layered architecture, measured by macro F1-score.
 \end{itemize}
 
 \subsection{Security}\label{sec:4.4.6}
 
 \begin{itemize}
-\item \textbf{NFR-12} The system shall only allow access to the dashboard from the local network; it will store passwords in salted hashes and block in case of many incorrect login attempts.
-\item \textbf{NFR-13} The system shall be able to run all detection algorithms without admin privileges if they do not require network access.
+\item \hypertarget{req:NFR-12}{\textbf{NFR-12}} The system shall only allow access to the dashboard from the local network; it will store passwords in salted hashes and block in case of many incorrect login attempts.
+\item \hypertarget{req:NFR-13}{\textbf{NFR-13}} The system shall be able to run all detection algorithms without admin privileges if they do not require network access.
 \end{itemize}
 
 \subsection{Privacy}\label{sec:4.4.7}
 
 \begin{itemize}
-\item \textbf{NFR-14} The system shall not save any specific data about packets or flows and delete them after a set timeframe (defaults to 1 week).
+\item \hypertarget{req:NFR-14}{\textbf{NFR-14}} The system shall not save any specific data about packets or flows and delete them after a set timeframe (defaults to 1 week).
 \end{itemize}
 
 \subsection{Usability}\label{sec:4.4.8}
 
 \begin{itemize}
-\item \textbf{NFR-15} The system shall be simple enough that a non-technical user can understand what caused a failure and unblock it within a few minutes.
-\item \textbf{NFR-16} The system shall have a simplified explanation for the type of attack found, layer that detected it and other such information in alerts/logs.
+\item \hypertarget{req:NFR-15}{\textbf{NFR-15}} The system shall be simple enough that a non-technical user can understand what caused a failure and unblock it within a few minutes.
+\item \hypertarget{req:NFR-16}{\textbf{NFR-16}} The system shall have a simplified explanation for the type of attack found, layer that detected it and other such information in alerts/logs.
 \end{itemize}
 
 \subsection{Maintainability}\label{sec:4.4.9}
 
 \begin{itemize}
-\item \textbf{NFR-17} The system shall allow new models and rules to be installed, or rolled back, without interrupting network traffic.
+\item \hypertarget{req:NFR-17}{\textbf{NFR-17}} The system shall allow new models and rules to be installed, or rolled back, without interrupting network traffic.
 \end{itemize}
 
 \subsection{Extensibility and Reusability}\label{sec:4.4.10}
 
 \begin{itemize}
-\item \textbf{NFR-18} The system shall allow a new detector to be added without changing any other component.
-\item \textbf{NFR-19} The system shall allow the flow extractor and training pipeline to be reused separately from the device.
+\item \hypertarget{req:NFR-18}{\textbf{NFR-18}} The system shall allow a new detector to be added without changing any other component.
+\item \hypertarget{req:NFR-19}{\textbf{NFR-19}} The system shall allow the flow extractor and training pipeline to be reused separately from the device.
 \end{itemize}
 
 \subsection{Portability}\label{sec:4.4.11}
 
 \begin{itemize}
-\item \textbf{NFR-20} The system shall be installed with a single script on any 64-bit Debian-based ARM or x86 device that meets the hardware requirements in Section~\ref{sec:4.7.1}.
+\item \hypertarget{req:NFR-20}{\textbf{NFR-20}} The system shall be installed with a single script on any 64-bit Debian-based ARM or x86 device that meets the hardware requirements in Section~\ref{sec:4.7.1}.
 \end{itemize}
 
 \section{Assumptions}\label{sec:4.5}
