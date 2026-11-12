@@ -51,4 +51,8 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {7.1}{\ignorespaces Platform and tools used by the implementation.}}{105}{table.7.1}%
 \contentsline {table}{\numberline {7.2}{\ignorespaces Implementation status of the NIDPS components.}}{106}{table.7.2}%
-\contentsline {table}{\numberline {7.3}{\ignorespaces Environment variables read by the services.}}{112}{table.7.3}%
+\contentsline {table}{\numberline {7.3}{\ignorespaces Environment variables read by the services.}}{113}{table.caption.33}%
+\addvspace {10\p@ }
+\contentsline {table}{\numberline {9.1}{\ignorespaces Attack scripts used in the experiments (Section~\ref {sec:7.1.8.1}).}}{115}{table.caption.34}%
+\contentsline {table}{\numberline {9.2}{\ignorespaces Suricata's response to each self-collected attack.}}{116}{table.caption.35}%
+\contentsline {table}{\numberline {9.3}{\ignorespaces Isolation Forest and host-behaviour results on the four attacks Suricata missed.}}{117}{table.caption.36}%

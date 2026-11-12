@@ -234,5 +234,12 @@
 \contentsline {subsection}{\numberline {7.1.8}Self-Collected Dataset Tooling}{111}{subsection.7.1.8}%
 \contentsline {subsubsection}{\numberline {7.1.8.1}Attack Scripts}{111}{subsubsection.7.1.8.1}%
 \contentsline {subsubsection}{\numberline {7.1.8.2}Capture Sessions}{111}{subsubsection.7.1.8.2}%
-\contentsline {subsection}{\numberline {7.1.9}Components Not Yet Implemented}{112}{subsection.7.1.9}%
+\contentsline {subsection}{\numberline {7.1.9}Components Under Development}{112}{subsection.7.1.9}%
 \contentsline {subsection}{\numberline {7.1.10}Setup and Deployment}{112}{subsection.7.1.10}%
+\contentsline {chapter}{\numberline {9}Experimental Results and Discussion}{114}{chapter.9}%
+\contentsline {section}{\numberline {9.1}Experimental Setup}{114}{section.9.1}%
+\contentsline {section}{\numberline {9.2}Signature-Based Detection: Suricata Against the Self-Collected Attacks}{115}{section.9.2}%
+\contentsline {section}{\numberline {9.3}Anomaly Detection: Isolation Forest Against the Self-Collected Attacks}{117}{section.9.3}%
+\contentsline {section}{\numberline {9.4}Discussion}{117}{section.9.4}%
+\contentsline {section}{\numberline {9.5}Limitations of the Current Experimental Work}{118}{section.9.5}%
+\contentsline {section}{\numberline {9.6}Conclusion}{118}{section.9.6}%

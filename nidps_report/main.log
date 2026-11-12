@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.2)  12 NOV 2026 04:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.2)  12 NOV 2026 05:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -691,12 +691,12 @@ Package hyperref Info: Link coloring OFF on input line 2.
 \@outlinefile=\write3
 \openout3 = `main.out'.
 
-<Figures/nulogo_small.jpg, id=686, 51.19125pt x 32.37094pt>
+<Figures/nulogo_small.jpg, id=714, 51.19125pt x 32.37094pt>
 File: Figures/nulogo_small.jpg Graphic file (type jpg)
 <use Figures/nulogo_small.jpg>
 Package pdftex.def Info: Figures/nulogo_small.jpg  used on input line 15.
 (pdftex.def)             Requested size: 85.72496pt x 54.2025pt.
-<Figures/fast_small.jpg, id=687, 66.2475pt x 27.85406pt>
+<Figures/fast_small.jpg, id=715, 66.2475pt x 27.85406pt>
 File: Figures/fast_small.jpg Graphic file (type jpg)
 <use Figures/fast_small.jpg>
 Package pdftex.def Info: Figures/fast_small.jpg  used on input line 16.
@@ -706,7 +706,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 15--17
 
  []
 
-<Figures/nu_logo.png, id=688, 1354.05875pt x 1356.06625pt>
+<Figures/nu_logo.png, id=716, 1354.05875pt x 1356.06625pt>
 File: Figures/nu_logo.png Graphic file (type png)
 <use Figures/nu_logo.png>
 Package pdftex.def Info: Figures/nu_logo.png  used on input line 19.
@@ -752,17 +752,17 @@ LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <9> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 38.
 LaTeX Font Info:    Font shape `OT1/ptm/bx/n' in size <7> not available
 (Font)              Font shape `OT1/ptm/b/n' tried instead on input line 38.
-<Figures/sig_raza.png, id=697, 79.79813pt x 79.04532pt>
+<Figures/sig_raza.png, id=725, 79.79813pt x 79.04532pt>
 File: Figures/sig_raza.png Graphic file (type png)
 <use Figures/sig_raza.png>
 Package pdftex.def Info: Figures/sig_raza.png  used on input line 43.
 (pdftex.def)             Requested size: 40.12787pt x 39.74872pt.
-<Figures/sig_eishal.png, id=698, 442.65375pt x 290.2845pt>
+<Figures/sig_eishal.png, id=726, 442.65375pt x 290.2845pt>
 File: Figures/sig_eishal.png Graphic file (type png)
 <use Figures/sig_eishal.png>
 Package pdftex.def Info: Figures/sig_eishal.png  used on input line 45.
 (pdftex.def)             Requested size: 49.59038pt x 32.52127pt.
-<Figures/sig_ryyan.png, id=699, 105.777pt x 48.618pt>
+<Figures/sig_ryyan.png, id=727, 105.777pt x 48.618pt>
 File: Figures/sig_ryyan.png Graphic file (type png)
 <use Figures/sig_ryyan.png>
 Package pdftex.def Info: Figures/sig_ryyan.png  used on input line 47.
@@ -832,12 +832,12 @@ LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 1
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 [6] [7]
-<Figures/sdg9.png, id=1109, 536.0025pt x 517.935pt>
+<Figures/sdg9.png, id=1153, 536.0025pt x 517.935pt>
 File: Figures/sdg9.png Graphic file (type png)
 <use Figures/sdg9.png>
 Package pdftex.def Info: Figures/sdg9.png  used on input line 171.
 (pdftex.def)             Requested size: 121.77158pt x 117.66048pt.
-<Figures/sdg16.png, id=1110, 391.4625pt x 379.4175pt>
+<Figures/sdg16.png, id=1154, 391.4625pt x 379.4175pt>
 File: Figures/sdg16.png Graphic file (type png)
 <use Figures/sdg16.png>
 Package pdftex.def Info: Figures/sdg16.png  used on input line 173.
@@ -877,7 +877,7 @@ Underfull \hbox (badness 1400) in paragraph at lines 761--762
 [31] [32] [33] [34]
 ignored error: Infinite glue shrinkage found in box being split [35] [36]
 [37] [38]
-<Figures/usecase.png, id=1375, 746.79pt x 612.2875pt>
+<Figures/usecase.png, id=1419, 746.79pt x 612.2875pt>
 File: Figures/usecase.png Graphic file (type png)
 <use Figures/usecase.png>
 Package pdftex.def Info: Figures/usecase.png  used on input line 995.
@@ -1069,23 +1069,23 @@ Overfull \hbox (0.5666pt too wide) in alignment at lines 1271--1285
  []
 
 [50] [51] [52]
-<Figures/navigation.png, id=1440, 722.7pt x 168.63pt>
+<Figures/navigation.png, id=1484, 722.7pt x 168.63pt>
 File: Figures/navigation.png Graphic file (type png)
 <use Figures/navigation.png>
 Package pdftex.def Info: Figures/navigation.png  used on input line 1348.
 (pdftex.def)             Requested size: 430.5577pt x 100.46346pt.
-<Figures/gui_login.jpg, id=1441, 1027.84pt x 560.0925pt>
+<Figures/gui_login.jpg, id=1485, 1027.84pt x 560.0925pt>
 File: Figures/gui_login.jpg Graphic file (type jpg)
 <use Figures/gui_login.jpg>
 Package pdftex.def Info: Figures/gui_login.jpg  used on input line 1357.
 (pdftex.def)             Requested size: 400.10318pt x 218.02496pt.
-<Figures/gui_overview.jpg, id=1442, 1027.84pt x 560.0925pt>
+<Figures/gui_overview.jpg, id=1486, 1027.84pt x 560.0925pt>
 File: Figures/gui_overview.jpg Graphic file (type jpg)
 <use Figures/gui_overview.jpg>
 Package pdftex.def Info: Figures/gui_overview.jpg  used on input line 1369.
 (pdftex.def)             Requested size: 400.10318pt x 218.02496pt.
  [53 <./Figures/navigation.png> <./Figures/gui_login.jpg>]
-<Figures/gui_networkTraffic.jpeg, id=1449, 1027.84pt x 558.085pt>
+<Figures/gui_networkTraffic.jpeg, id=1493, 1027.84pt x 558.085pt>
 File: Figures/gui_networkTraffic.jpeg Graphic file (type jpg)
 <use Figures/gui_networkTraffic.jpeg>
 Package pdftex.def Info: Figures/gui_networkTraffic.jpeg  used on input line 13
@@ -1093,37 +1093,37 @@ Package pdftex.def Info: Figures/gui_networkTraffic.jpeg  used on input line 13
 (pdftex.def)             Requested size: 400.10318pt x 217.24352pt.
 
 [54 <./Figures/gui_overview.jpg>]
-<Figures/gui_alerts.jpg, id=1455, 1027.84pt x 560.0925pt>
+<Figures/gui_alerts.jpg, id=1499, 1027.84pt x 560.0925pt>
 File: Figures/gui_alerts.jpg Graphic file (type jpg)
 <use Figures/gui_alerts.jpg>
 Package pdftex.def Info: Figures/gui_alerts.jpg  used on input line 1393.
 (pdftex.def)             Requested size: 400.10318pt x 218.02496pt.
-<Figures/gui_blocked.jpg, id=1457, 1027.84pt x 556.0775pt>
+<Figures/gui_blocked.jpg, id=1501, 1027.84pt x 556.0775pt>
 File: Figures/gui_blocked.jpg Graphic file (type jpg)
 <use Figures/gui_blocked.jpg>
 Package pdftex.def Info: Figures/gui_blocked.jpg  used on input line 1405.
 (pdftex.def)             Requested size: 400.10318pt x 216.46207pt.
  [55 <./Figures/gui_networkTraffic.jpeg> <./Figures/gui_alerts.jpg>] [56 <./Fig
 ures/gui_blocked.jpg>]
-<Figures/gui_config_layers.jpg, id=1474, 1027.84pt x 561.09625pt>
+<Figures/gui_config_layers.jpg, id=1518, 1027.84pt x 561.09625pt>
 File: Figures/gui_config_layers.jpg Graphic file (type jpg)
 <use Figures/gui_config_layers.jpg>
 Package pdftex.def Info: Figures/gui_config_layers.jpg  used on input line 1426
 .
 (pdftex.def)             Requested size: 400.10318pt x 218.4157pt.
-<Figures/gui_config_thresholds.jpg, id=1475, 1027.84pt x 557.08125pt>
+<Figures/gui_config_thresholds.jpg, id=1519, 1027.84pt x 557.08125pt>
 File: Figures/gui_config_thresholds.jpg Graphic file (type jpg)
 <use Figures/gui_config_thresholds.jpg>
 Package pdftex.def Info: Figures/gui_config_thresholds.jpg  used on input line 
 1433.
 (pdftex.def)             Requested size: 400.10318pt x 216.8528pt.
-<Figures/gui_config_prevention.jpg, id=1476, 1027.84pt x 559.08875pt>
+<Figures/gui_config_prevention.jpg, id=1520, 1027.84pt x 559.08875pt>
 File: Figures/gui_config_prevention.jpg Graphic file (type jpg)
 <use Figures/gui_config_prevention.jpg>
 Package pdftex.def Info: Figures/gui_config_prevention.jpg  used on input line 
 1440.
 (pdftex.def)             Requested size: 400.10318pt x 217.63423pt.
-<Figures/gui_config_rules.jpg, id=1477, 1027.84pt x 557.08125pt>
+<Figures/gui_config_rules.jpg, id=1521, 1027.84pt x 557.08125pt>
 File: Figures/gui_config_rules.jpg Graphic file (type jpg)
 <use Figures/gui_config_rules.jpg>
 Package pdftex.def Info: Figures/gui_config_rules.jpg  used on input line 1447.
@@ -1131,13 +1131,13 @@ Package pdftex.def Info: Figures/gui_config_rules.jpg  used on input line 1447.
 (pdftex.def)             Requested size: 400.10318pt x 216.8528pt.
  [57 <./Figures/gui_config_layers.jpg>] [58 <./Figures/gui_config_thresholds.jp
 g> <./Figures/gui_config_prevention.jpg>]
-<Figures/gui_health.jpg, id=1486, 1027.84pt x 558.085pt>
+<Figures/gui_health.jpg, id=1530, 1027.84pt x 558.085pt>
 File: Figures/gui_health.jpg Graphic file (type jpg)
 <use Figures/gui_health.jpg>
 Package pdftex.def Info: Figures/gui_health.jpg  used on input line 1457.
 (pdftex.def)             Requested size: 400.10318pt x 217.24352pt.
  [59 <./Figures/gui_config_rules.jpg> <./Figures/gui_health.jpg>]
-<Figures/nidps_erd_chen.png, id=1493, 5370.0625pt x 3814.25pt>
+<Figures/nidps_erd_chen.png, id=1537, 5370.0625pt x 3814.25pt>
 File: Figures/nidps_erd_chen.png Graphic file (type png)
 <use Figures/nidps_erd_chen.png>
 Package pdftex.def Info: Figures/nidps_erd_chen.png  used on input line 1475.
@@ -1169,7 +1169,7 @@ ignored error: Infinite glue shrinkage found in box being split [65] [66]
 ignored error: Infinite glue shrinkage found in box being split [67])
 (chapters/ch5.tex [68]
 Chapter 5.
-<Figures/nidps_fig5_1.png, id=1535, 4035.075pt x 1480.53125pt>
+<Figures/nidps_fig5_1.png, id=1579, 4035.075pt x 1480.53125pt>
 File: Figures/nidps_fig5_1.png Graphic file (type png)
 <use Figures/nidps_fig5_1.png>
 Package pdftex.def Info: Figures/nidps_fig5_1.png  used on input line 20.
@@ -1178,13 +1178,13 @@ Package pdftex.def Info: Figures/nidps_fig5_1.png  used on input line 20.
 
 ] [70 <./Figures/nidps_fig5_1.png (PNG copy)>] [71] [72] [73] [74] [75]
 [76] [77] [78] [79] [80]
-<Figures/nidps_fig5_2.pdf, id=1704, 614.52486pt x 784.37138pt>
+<Figures/nidps_fig5_2.pdf, id=1748, 614.52486pt x 784.37138pt>
 File: Figures/nidps_fig5_2.pdf Graphic file (type pdf)
 <use Figures/nidps_fig5_2.pdf>
 Package pdftex.def Info: Figures/nidps_fig5_2.pdf  used on input line 409.
 (pdftex.def)             Requested size: 434.90918pt x 555.1123pt.
  [81] [82 <./Figures/nidps_fig5_2.pdf>] [83] [84]
-<Figures/nidps_fig5_3.png, id=1783, 1380.15625pt x 1395.2125pt>
+<Figures/nidps_fig5_3.png, id=1827, 1380.15625pt x 1395.2125pt>
 File: Figures/nidps_fig5_3.png Graphic file (type png)
 <use Figures/nidps_fig5_3.png>
 Package pdftex.def Info: Figures/nidps_fig5_3.png  used on input line 498.
@@ -1196,24 +1196,24 @@ Chapter 6.
 [89
 
 ] [90] [91]
-<Figures/nidps_fig6_1.pdf, id=1833, 668.59785pt x 438.12683pt>
+<Figures/nidps_fig6_1.pdf, id=1877, 668.59785pt x 438.12683pt>
 File: Figures/nidps_fig6_1.pdf Graphic file (type pdf)
 <use Figures/nidps_fig6_1.pdf>
 Package pdftex.def Info: Figures/nidps_fig6_1.pdf  used on input line 91.
 (pdftex.def)             Requested size: 434.90039pt x 284.9863pt.
-<Figures/nidps_fig6_2.pdf, id=1836, 587.76485pt x 415.62476pt>
+<Figures/nidps_fig6_2.pdf, id=1880, 587.76485pt x 415.62476pt>
 File: Figures/nidps_fig6_2.pdf Graphic file (type pdf)
 <use Figures/nidps_fig6_2.pdf>
 Package pdftex.def Info: Figures/nidps_fig6_2.pdf  used on input line 132.
 (pdftex.def)             Requested size: 434.90039pt x 307.53214pt.
  [92] [93 <./Figures/nidps_fig6_1.pdf>] [94 <./Figures/nidps_fig6_2.pdf>]
-<Figures/nidps_fig6_3.png, id=1878, 2964.07375pt x 1217.54875pt>
+<Figures/nidps_fig6_3.png, id=1922, 2964.07375pt x 1217.54875pt>
 File: Figures/nidps_fig6_3.png Graphic file (type png)
 <use Figures/nidps_fig6_3.png>
 Package pdftex.def Info: Figures/nidps_fig6_3.png  used on input line 161.
 (pdftex.def)             Requested size: 391.40768pt x 160.77638pt.
  [95 <./Figures/nidps_fig6_3.png (PNG copy)>] [96] [97] [98]
-<Figures/nidps_fig6_4.pdf, id=1908, 794.97pt x 614.295pt>
+<Figures/nidps_fig6_4.pdf, id=1952, 794.97pt x 614.295pt>
 File: Figures/nidps_fig6_4.pdf Graphic file (type pdf)
 <use Figures/nidps_fig6_4.pdf>
 Package pdftex.def Info: Figures/nidps_fig6_4.pdf  used on input line 253.
@@ -1223,39 +1223,37 @@ Package pdftex.def Info: Figures/nidps_fig6_4.pdf  used on input line 253.
 [104]
 Chapter 7.
 
-Overfull \hbox (0.15999pt too wide) in alignment at lines 38--42
+Overfull \hbox (0.15999pt too wide) in alignment at lines 35--39
  [] [] 
  []
 
 
-Overfull \hbox (0.15999pt too wide) in alignment at lines 42--45
+Overfull \hbox (0.15999pt too wide) in alignment at lines 39--42
  [] [] 
  []
 
 
-Overfull \hbox (0.15999pt too wide) in alignment at lines 45--58
+Overfull \hbox (0.15999pt too wide) in alignment at lines 42--56
  [] [] 
  []
 
 [105
 
-] [106] [107] [108] [109] [110] [111]
-Overfull \hbox (31.75827pt too wide) in paragraph at lines 195--195
-[]|\T1/ptm/m/n/10.95 NIDPS_CAPTURE_INTERFACE|  
+] [106] [107] [108] [109] [110] [111]) [112] (chapters/ch9.tex [113]
+Chapter 9.
+[114
+
+]
+Overfull \hbox (11.50035pt too wide) in paragraph at lines 44--58
+ [][] 
  []
 
-
-Overfull \hbox (18.00525pt too wide) in paragraph at lines 198--198
-[]|\T1/ptm/m/n/10.95 NIDPS_DHCP_LEASE_PATH|  
+[115] [116]
+Overfull \hbox (7.80025pt too wide) in paragraph at lines 68--76
+ [][] 
  []
 
-
-Overfull \hbox (2.18257pt too wide) in paragraph at lines 199--199
-[]|\T1/ptm/m/n/10.95 NIDPS_EVE_JSON_PATH|  
- []
-
-ignored error: Infinite glue shrinkage found in box being split [112])
-(main.bbl [113] [114
+[117]) (main.bbl [118] [119
 
 ]
 Underfull \hbox (badness 2134) in paragraph at lines 102--106
@@ -1263,19 +1261,19 @@ Underfull \hbox (badness 2134) in paragraph at lines 102--106
 2023.'' Uni-ver-sity of
  []
 
-) [115] (main.aux)
+) [120] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 368C07F62DBE1869CABC1F48A8FBDB24;36838.
+(rerunfilecheck)             Checksum: 90D3D39A94F3ABF383C2ECCAAF3D9CC1;38557.
  ) 
 Here is how much of TeX's memory you used:
- 18096 strings out of 467871
- 284400 string characters out of 5418376
- 759710 words of memory out of 5000000
- 46104 multiletter control sequences out of 15000+600000
+ 18138 strings out of 467871
+ 284973 string characters out of 5418376
+ 760471 words of memory out of 5000000
+ 46125 multiletter control sequences out of 15000+600000
  715969 words of font info for 161 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  90i,17n,97p,1187b,685s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1293,9 +1291,9 @@ rograms/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/razaa/AppData/Local/P
 rograms/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/razaa/AppData/Local/
 Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/razaa/AppData/Local/
 Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (127 pages, 3109553 bytes).
+Output written on main.pdf (132 pages, 3133188 bytes).
 PDF statistics:
- 2438 PDF objects out of 2487 (max. 8388607)
- 576 named destinations out of 1000 (max. 500000)
- 1509 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2531 PDF objects out of 2984 (max. 8388607)
+ 594 named destinations out of 1000 (max. 500000)
+ 1565 words of extra memory for PDF output out of 10000 (max. 10000000)
 

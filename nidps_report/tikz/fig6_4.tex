@@ -200,7 +200,7 @@
 \draw[assoc] (WD-head.east) -- node[above,font=\scriptsize]{1 / *} (CH-head.west);
 \draw[assoc] (DA-head.west) -- node[above,font=\scriptsize]{reads} (CH-head.east);
 %% Watchdog -> ConfigManager: route below row 3, then enter at its bottom.
-\draw[dep] (WD.south) -- (0,-16.5) -- (14.4,-16.5) -- (CM.south)
+\draw[dep] (WD.south) -- (0,-16.5) -- (12.4,-16.5) -- (CM.south)
     node[pos=0.55,below,font=\scriptsize]{reads mode};
 %% DashboardAPI -> ConfigManager.
 \draw[dep] (DA-head.east) -- node[above,font=\scriptsize]{updates} (CM-head.west);

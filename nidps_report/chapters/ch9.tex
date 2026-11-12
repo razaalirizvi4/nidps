@@ -1,0 +1,95 @@
+\chapter{Experimental Results and Discussion}\label{chap:9}
+\label{chap:experiments}
+
+\noindent This chapter covers the experimental work carried out during the development of the NIDPS.
+\section{Experimental Setup}\label{sec:9.1}
+
+\noindent The experiments described in this chapter were conducted on a small isolated test network set up for this project and kept separate from any production or household network. The NIDPS device itself is a single Linux host, running hostapd to act as the wireless access point (Section~\ref{sec:overview}), with Suricata, the ARP monitor and the Layer 2 anomaly service all running on it. One laptop was used as the attacker machine and executed the scripts described in Section~\ref{sec:7.1.8.1}. A second laptop and a phone were connected through the access point as ordinary clients, generating background traffic and serving as victims. For each of the ten attack scripts listed in Table~\ref{tab:attackscripts}, the following steps were followed:
+\begin{enumerate}
+    \item Suricata, the ARP monitor and the Layer 2 anomaly service were started and left to run for a short warm-up period so that the host-behaviour tracker of Section~\ref{sec:7.1.7.2} had a baseline.
+    \item The attack script was run once from the attacker machine, through the attack runner described in Section~\ref{sec:7.1.8.1}, which records the attack name, its start and end time, and the attacker and victim addresses.
+    \item After the run, the Suricata \texttt{eve.json} log, the evidence table written by the services, and the anomaly service's own log were inspected by hand to see whether the attack produced any evidence, and from which detector.
+\end{enumerate}
+
+\begin{table}[H]
+\centering
+\caption{Attack scripts used in the experiments (Section~\ref{sec:7.1.8.1}).}\label{tab:attackscripts}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.32\linewidth}|>{\raggedright\arraybackslash}p{0.60\linewidth}|}
+\hline
+\textbf{Attack} & \textbf{Tool / script} \\ \hline
+Port scan & nmap \\ \hline
+SSH brute force & hydra \\ \hline
+SYN flood & hping3 \\ \hline
+DDoS (single source) & hping3, run from one attacker machine \\ \hline
+ARP spoofing & arpspoof \\ \hline
+DNS spoofing & dnsspoof (run together with ARP spoofing of the same victim) \\ \hline
+C2 beaconing & custom Python TLS client \\ \hline
+C2 beaconing with a chosen JA3 & custom Python TLS client \\ \hline
+Data exfiltration & custom Python TLS client \\ \hline
+Lateral movement & custom Python TLS client \\ \hline
+\end{tabular}
+\end{table}
+
+\noindent For the Isolation Forest used in Section~\ref{sec:9.3}, scikit-learn was used to fit a model on a benign capture from the test network, using the same 78-feature flow records the live extractor produces. Flows were then scored through the scoring and calibration code described in Section~\ref{sec:7.1.7.1}.
+
+\section{Signature-Based Detection: Suricata Against the Self-Collected Attacks}\label{sec:9.2}
+
+\noindent Only four custom Suricata rules are enabled: SSH brute force, port scan, SYN flood and DNS spoofing (Section~\ref{sec:7.1.6.1}). Running the ten attacks against the live system produced the pattern shown in Table~\ref{tab:suricataresults}.
+
+\noindent Six of the ten attacks generated no Suricata alert at all, and a seventh, DDoS, was detected only some of the time. This result is consistent with the prediction made in Chapter~\ref{chap:approach}: signature detection covers only attacks with a stable packet-level pattern, and the remaining attacks were selected precisely because they do not have one. ARP spoofing is the one exception to this pattern. Suricata itself missed it, but the ARP monitor caught it, which is the reason that detector exists as a separate component rather than as another Suricata rule.
+
+\begin{table}[H]
+\centering
+\caption{Suricata's response to each self-collected attack.}\label{tab:suricataresults}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.26\linewidth}|>{\raggedright\arraybackslash}p{0.14\linewidth}|>{\raggedright\arraybackslash}p{0.54\linewidth}|}
+\hline
+\textbf{Attack} & \textbf{Alert raised} & \textbf{Notes} \\ \hline
+Port scan & Yes & Matched the twenty-ports-in-10\,s rule every time it was run. \\ \hline
+SSH brute force & Yes & Matched the five-SYNs-to-port-22 rule as soon as the fifth connection attempt landed inside the 60\,s window. \\ \hline
+SYN flood & Yes & Matched the 100-SYNs-in-10\,s rule. \\ \hline
+DNS spoofing & Yes & Matched because the forged reply came from an address other than the lab resolver. \\ \hline
+DDoS (single source) & Partially & Crossed the SYN-flood threshold when the flood rate was high enough, but a slower run of the same script stayed under 100 SYNs in 10\,s and produced no alert. A genuine distributed flood, coming from many sources at once, would likely never trip this single-source rule at all. \\ \hline
+ARP spoofing & No & No Suricata rule inspects ARP traffic; this attack was instead picked up by the ARP monitor (Section~\ref{sec:7.1.6.3}), which raised evidence for the spoofed address as designed. \\ \hline
+C2 beaconing & No & No packet-level signature exists for a client that just repeats regular TLS connections to one address; this is the behaviour Layer 2 is meant to catch. \\ \hline
+C2 beaconing with a chosen JA3 & No & The JA3-blacklist rule is written but left commented out (Section~\ref{sec:7.1.6.1}) because no bad JA3 hash had been recorded for the lab yet, so the attack produced no Suricata alert. \\ \hline
+Data exfiltration & No & A single large upload to a new destination has no signature; this is exactly the behaviour the exfiltration check in Section~\ref{sec:7.1.7.2} is designed to flag instead. \\ \hline
+Lateral movement & No & Internal connections between lab hosts matched no active rule. \\ \hline
+\end{tabular}
+\end{table}
+
+
+\section{Anomaly Detection: Isolation Forest Against the Self-Collected Attacks}\label{sec:9.3}
+
+\noindent The four attacks that left no trace in the Suricata log, but that still leave a flow-level footprint, are C2 beaconing, C2 beaconing with a chosen JA3, data exfiltration and lateral movement. These were scored using the provisional Isolation Forest and the host-behaviour checks described in Section~\ref{sec:9.1}. The anomaly service logged the evidence it generated for each run, and Table~\ref{tab:ifresults} summarises the results.
+
+\begin{table}[H]
+\centering
+\caption{Isolation Forest and host-behaviour results on the four attacks Suricata missed.}\label{tab:ifresults}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.28\linewidth}|>{\raggedright\arraybackslash}p{0.68\linewidth}|}
+\hline
+\textbf{Attack} & \textbf{Observation} \\ \hline
+Data exfiltration & The outbound-bytes burst exceeded the host's rolling baseline and tripped the exfiltration check of Section~\ref{sec:7.1.7.2} on every run; this check does not depend on the Isolation Forest model itself. \\ \hline
+C2 beaconing (fixed JA3) & Once five or more connections to the same destination and JA3 had been seen, the beaconing check flagged the host, because the gaps between connections and the bytes per connection stayed regular, exactly the pattern the coefficient-of-variation test is built to catch. \\ \hline
+C2 beaconing with a chosen JA3 & Behaved the same way as the plain beaconing run; changing the JA3 string did not by itself change the regularity of the timing or byte pattern, so it was still flagged. \\ \hline
+Lateral movement & The flows involved did not fit the exfiltration or beaconing patterns. The Isolation Forest scored a few of these flows above the ad hoc threshold used for this test, but not consistently, and several lateral-movement flows scored close to the benign flows from the warm-up capture. \\ \hline
+\end{tabular}
+\end{table}
+
+\noindent Benign flows from the warm-up capture scored consistently lower than the attack flows, though the sample on both sides was small. Precision, recall and false positive rate are not reported here, since a meaningful figure would require far more flows and the cross-dataset comparison described in Section~\ref{sec:crossdataset}, neither of which this round of testing attempted. Lateral movement produced the weakest result, and detecting it reliably will likely require the Layer 3 classifier, once it exists, rather than the Isolation Forest on its own.
+
+\section{Discussion}\label{sec:9.4}
+
+\noindent The following experiments were used to validate the division of labour between all three layers of Section~\ref{sec:overview}. Suricata successfully blocked all the attacks that had a fixed packet-level pattern and failed to block all attacks that were not fixed in their packet-level pattern (such as the JA3-blacklist case, where in principle there was a signature but it was not yet populated). That's why the one attack doesn't appear as a rule, but rather as a separate attack type detected by the ARP monitor. The two behaviours they were designed for, exfiltration and beaconing, were clearly picked up by the Isolation Forest and the host-behaviour checks, respectively. Lateral movement was weaker, and is probably more appropriate for the Layer 3 classifier, after it has been constructed.
+
+
+\section{Limitations of the Current Experimental Work}\label{sec:9.5}
+
+\begin{itemize}
+    \item The Layer 3 classifier, the enforcer and the watchdog have not yet been built (Section~\ref{sec:7.1.2}), so none of the system-performance measures described in Section~\ref{sec:sysperf}, such as forwarding latency, throughput, time to block and recovery behaviour, could be measured.
+    \item Each attack was run only a small number of times, which is enough to observe whether a detector fires but not enough to establish a stable false positive or detection rate.
+    \item The DDoS script used here is a single-source flood rather than a true distributed attack, so its partial detection by the SYN-flood rule should not be taken as representative of how that rule would perform against a genuine distributed flood.
+\end{itemize}
+
+\section{Conclusion}\label{sec:9.6}
+
+\noindent This chapter presented a small set of experiments against the parts of the NIDPS that have already been built. Suricata detected the attacks it has rules for and missed the rest, as expected, while the ARP monitor detected the one attack Suricata cannot structurally see. The Isolation Forest and the host-behaviour checks performed well on exfiltration and beaconing and performed poorly on lateral movement. Taken together, these results offer an early indication that the layered design works as intended.
