@@ -1,0 +1,50 @@
+\chapter{Conclusion}\label{chap:10}
+
+\section{Conclusion}\label{sec:10.1}
+
+\noindent This project aims to design a Network Intrusion Detection and Prevention System (NIDPS) which helps protect small networks in an affordable and practical way. Using signature based detection and machine learning this system can detect both known attacks and anomalies within the network. The system will run on a Linux based device which will act as a wireless access point. This means it will be able to monitor traffic without needing extra software installed on client devices. The issues surrounding encrypted traffic, limited hardware resources and network reliability have been considered.
+
+\noindent The progress made during FYP-1 was setting up the overall system architecture, developing initial detection modules and performing early experimentation. The initial system includes the core components which will be used throughout the project such as the Redis based communications, SQLite database, configuration management and logging. A flow extraction module was developed to capture network traffic, group packets together into flows and extract 78 features from them. TLS fingerprinting has been added by utilising JA3 and JA3S.
+
+\noindent The first layer was implemented using Suricata, a signature based intrusion detection tool. This was combined with an ARP watcher tool which monitors ARP requests and identifies any suspicious behaviour. The second layer used an Isolation Forest algorithm to identify anomalies within network traffic. We also developed tools to check for suspicious behaviour from hosts by using models to identify command and control beaconing and data exfiltration. The tools all use Redis Streams to communicate with each other to allow them to work independently of each other but still share results.
+
+\noindent An experimental test was carried out on an isolated network. Ten different attacks were used including Port Scanning, SSH brute force, SYN flood, DDoS, ARP spoofing, DNS spoofing, C2 Beacon, Data Exfiltration and Lateral Movement. Suricata identified the following attacks: Port Scanning, SSH Brute Force, SYN Flooding and DNS Spoofing, as they matched the signature rules. The ARP monitoring component identified ARP Spoofing that Suricata could not detect. The Layer 2 Anomaly Detection service identified Data Exfiltration and C2 Beacon traffic by analysing the flow. Lateral Movement proved challenging to identify using the anomaly detection method.
+
+\noindent To summarize, these findings indicate that the application of several detection methods may improve the coverage of the threat detection. We saw that signature-based detection could pick up attacks with known patterns while behaviour-based detection helped to detect activity that would not trigger signature-based alerts. Experiments have also demonstrated the limitations of single detection methods and the benefits of applying multiple layers.
+
+\noindent While considerable progress has been made during FYP-1, the full scope of the project has not been completed. A third detection layer using either Random Forest or XGBoost for supervisory attack classification has yet to be implemented. The full decision fusion, automated enforcement and watchdog based failure handling have also not been implemented yet. The dashboard was partially implemented and the offline model training and cross dataset evaluation pipeline has not been completed. This prevented accurate measurements from being taken regarding detection accuracy, forwarding latency, throughput, resource usage, blocking time and recovery.
+
+\noindent There are several limitations to the experimental evaluation. Firstly, there has been a limited amount of attack runs carried out during testing. Whilst this is enough to observe how the detectors react, it does not give a real indication of the detection and false positive rates. Secondly, the DDoS scenario was created from one attacking machine. This means that conclusions can not be drawn from the current experiments and more extensive testing will be carried out during the next development stage.
+
+\noindent The research groundwork, system design as well as some implementation of the proposed NIDPS have been done in FYP-1. The finished components and preliminary results show that our designed layered detection scheme is feasible. Although the primary objectives have been partially achieved, further implementation and testing of the system will be done in FYP-2 to complete the system and evaluate if it can be used as an effective intrusion detection and prevention solution for small networks.
+
+\section{Future Work}\label{sec:10.2}
+
+\noindent The next stage of the project will focus on implementing the remaining parts of the NIDPS system, connecting them with the current detection systems and fully evaluating the system. The following describes how the future work will proceed.
+
+\subsection{Implementation of Layer 3: Supervised Attack Classification}\label{sec:10.2.1}
+
+\noindent The third detection layer will be implemented using supervised learning techniques. This can include Random Forest and XGBoost models. This layer will make use of the 78 features provided by the flow extraction service to classify which type of attack is occurring from suspicious flows. Supervised learning models will be trained and chosen based on the chosen public intrusion detection data sets. Including CIC-IDS-2017, CSE-CIC-IDS2018 and CIC-IoT-2023. Confidence based classifications will also be used so that if there is not enough confidence in a prediction it will be classified as an unknown.
+
+\subsection{Failure Handling and Recovery Implementation}\label{sec:10.2.2}
+
+\noindent A key part of implementing FYP-2 is implementing a watchdog failure handling system. This will involve monitoring individual services within the system through heartbeat checks. This will detect when components are unavailable or not responding. Depending on how the failure mode has been configured the correct action will be taken by the system. This will include implementing a fail open or fail close action. Actions will also be implemented to recover failed services. Fault injection will be performed to test how the system responds to failures and whether normal network connectivity can be maintained.
+
+\subsection{Decision Fusion and Automated Prevention Implementation}\label{sec:10.2.3}
+
+\noindent The partially implemented decision engine will be expanded to fuse evidence from all three detection layers. Each host will have its own risk score which will decide if the network traffic is permitted, suspicious or blocked. The automated enforcement will be developed to implement blocking decisions using Linux Firewall tools such as iptables and ipset. Extra security will also be added to help prevent disruption to the network. This will include allowlists, short term blocking, limiting rate of traffic and blocking expiry.
+
+\subsection{Offline Training and Model Evaluation Pipeline}\label{sec:10.2.4}
+
+\noindent The data processing tools will be expanded to form an end to end pipeline for training and model evaluation. The selected public datasets will undergo the same flow extraction process as the live system. Cross dataset evaluation will be performed to observe how the models perform on different networks. The gathered real world traffic will also be used to provide further validation of the trained models.
+
+\subsection{Management Dashboard and Integration}\label{sec:10.2.5}
+
+\noindent The partly built dashboard will be expanded to allow admins to monitor network traffic, intrusion alerts, blocked hosts, threshold settings and system health. The remaining backend services and front end components will be integrated to provide a single management solution for the full NIDPS.
+
+\subsection{Full System Testing and Analysis}\label{sec:10.2.6}
+
+\noindent Once the full system has been built it will be extensively tested. This will include testing in various attack scenarios to measure detection accuracy and false positive rates. It will also test how well the system can generalise between different datasets and how well it works on limited hardware. Important metrics include: forwarding delay, throughput, detection delay, blocking time, CPU usage, memory usage and how well the system recovers if one of the components fails.
+
+\noindent These activities will be completed as part of FYP-2 to produce a fully-integrated NIDPS prototype containing all three detection levels, automatic threat prevention, failure handling and a web-based management system. The final evaluation will demonstrate whether this approach can provide effective network protection and maintain a reasonable level of performance and reliability on smaller networks.
+
