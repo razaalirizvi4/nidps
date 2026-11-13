@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.2)  13 NOV 2026 08:02
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.10.2)  13 NOV 2026 08:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1195,32 +1195,38 @@ Package pdftex.def Info: Figures/nidps_fig5_3.png  used on input line 498.
 Chapter 6.
 [89
 
-] [90] [91]
-<Figures/nidps_fig6_1.pdf, id=2009, 668.59785pt x 438.12683pt>
+]
+ignored error: Infinite glue shrinkage found in box being split [90] [91]
+<Figures/nidps_fig6_1.pdf, id=2000, 668.59785pt x 438.12683pt>
 File: Figures/nidps_fig6_1.pdf Graphic file (type pdf)
 <use Figures/nidps_fig6_1.pdf>
-Package pdftex.def Info: Figures/nidps_fig6_1.pdf  used on input line 91.
+Package pdftex.def Info: Figures/nidps_fig6_1.pdf  used on input line 84.
 (pdftex.def)             Requested size: 434.90039pt x 284.9863pt.
-<Figures/nidps_fig6_2.pdf, id=2012, 587.76485pt x 415.62476pt>
+
+[92 <./Figures/nidps_fig6_1.pdf>]
+<Figures/nidps_fig6_2.pdf, id=2016, 587.76485pt x 415.62476pt>
 File: Figures/nidps_fig6_2.pdf Graphic file (type pdf)
 <use Figures/nidps_fig6_2.pdf>
-Package pdftex.def Info: Figures/nidps_fig6_2.pdf  used on input line 132.
+Package pdftex.def Info: Figures/nidps_fig6_2.pdf  used on input line 133.
 (pdftex.def)             Requested size: 434.90039pt x 307.53214pt.
- [92] [93 <./Figures/nidps_fig6_1.pdf>] [94 <./Figures/nidps_fig6_2.pdf>]
-<Figures/nidps_fig6_3.png, id=2054, 2964.07375pt x 1217.54875pt>
+ [93] [94 <./Figures/nidps_fig6_2.pdf>]
+<Figures/nidps_fig6_3.png, id=2043, 2964.07375pt x 1217.54875pt>
 File: Figures/nidps_fig6_3.png Graphic file (type png)
 <use Figures/nidps_fig6_3.png>
-Package pdftex.def Info: Figures/nidps_fig6_3.png  used on input line 161.
+Package pdftex.def Info: Figures/nidps_fig6_3.png  used on input line 162.
 (pdftex.def)             Requested size: 391.40768pt x 160.77638pt.
- [95 <./Figures/nidps_fig6_3.png (PNG copy)>] [96] [97] [98]
-<Figures/nidps_fig6_4.pdf, id=2084, 794.97pt x 614.295pt>
+
+[95 <./Figures/nidps_fig6_3.png (PNG copy)>] [96]
+ignored error: Infinite glue shrinkage found in box being split [97] [98]
+<Figures/nidps_fig6_4.pdf, id=2072, 794.97pt x 614.295pt>
 File: Figures/nidps_fig6_4.pdf Graphic file (type pdf)
 <use Figures/nidps_fig6_4.pdf>
-Package pdftex.def Info: Figures/nidps_fig6_4.pdf  used on input line 253.
+Package pdftex.def Info: Figures/nidps_fig6_4.pdf  used on input line 263.
 (pdftex.def)             Requested size: 672.49129pt x 519.66927pt.
- [99]
-[100 <./Figures/nidps_fig6_4.pdf>] [101] [102]) (chapters/ch7.tex [103]
-[104]
+
+[99] [100 <./Figures/nidps_fig6_4.pdf>]
+ignored error: Infinite glue shrinkage found in box being split [101] [102])
+(chapters/ch7.tex [103]
 Chapter 7.
 
 Overfull \hbox (0.15999pt too wide) in alignment at lines 35--39
@@ -1237,27 +1243,27 @@ Overfull \hbox (0.15999pt too wide) in alignment at lines 42--56
  [] [] 
  []
 
-[105
+[104
 
-] [106] [107] [108] [109] [110] [111]) [112] (chapters/ch9.tex [113]
+] [105] [106] [107] [108] [109] [110]) [111] (chapters/ch9.tex [112]
 Chapter 9.
-[114
+[113
 
 ]
 Overfull \hbox (11.50035pt too wide) in paragraph at lines 45--59
  [][] 
  []
 
-[115] [116]
+[114] [115]
 Overfull \hbox (7.80025pt too wide) in paragraph at lines 69--77
  [][] 
  []
 
-[117]) (chapters/ch10.tex [118]
+[116]) (chapters/ch10.tex [117]
 Chapter 10.
-[119
+[118
 
-] [120]) (main.bbl [121] [122
+] [119]) (main.bbl [120] [121
 
 ]
 Underfull \hbox (badness 2134) in paragraph at lines 102--106
@@ -1265,7 +1271,7 @@ Underfull \hbox (badness 2134) in paragraph at lines 102--106
 2023.'' Uni-ver-sity of
  []
 
-) [123] (main.aux)
+) [122] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
@@ -1274,10 +1280,10 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: 859AF3C829AFD67BCF499FDA262D8D5D;40708.
  ) 
 Here is how much of TeX's memory you used:
- 18260 strings out of 467871
- 286426 string characters out of 5418376
- 761091 words of memory out of 5000000
- 46148 multiletter control sequences out of 15000+600000
+ 18251 strings out of 467871
+ 286341 string characters out of 5418376
+ 761286 words of memory out of 5000000
+ 46152 multiletter control sequences out of 15000+600000
  715969 words of font info for 161 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  90i,17n,97p,1187b,685s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1295,9 +1301,9 @@ rograms/MiKTeX/fonts/type1/urw/times/utmb8a.pfb><C:/Users/razaa/AppData/Local/P
 rograms/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/Users/razaa/AppData/Local/
 Programs/MiKTeX/fonts/type1/urw/times/utmr8a.pfb><C:/Users/razaa/AppData/Local/
 Programs/MiKTeX/fonts/type1/urw/times/utmri8a.pfb>
-Output written on main.pdf (136 pages, 3158701 bytes).
+Output written on main.pdf (135 pages, 3157826 bytes).
 PDF statistics:
- 2693 PDF objects out of 2984 (max. 8388607)
- 690 named destinations out of 1000 (max. 500000)
+ 2674 PDF objects out of 2984 (max. 8388607)
+ 677 named destinations out of 1000 (max. 500000)
  1637 words of extra memory for PDF output out of 10000 (max. 10000000)
 

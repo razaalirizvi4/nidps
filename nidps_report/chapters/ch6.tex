@@ -4,47 +4,49 @@
 
 \section{System Overview}\label{sec:6.1}
 \label{sec:sysoverview}
-\noindent The NIDPS is a self-contained security appliance built from software on a single Linux host. The host replaces the role of the home router's wireless network: clients connect to the NIDPS access point, and the NIDPS routes their traffic, through its own NAT, to the existing ISP router, which keeps handling the internet connection. No change is needed on client devices or on the ISP router.
+\noindent The NIDPS is a self-contained security appliance that is created using software on a single Linux host. The host serves as an alternative to the home router's wireless network: clients connect to the NIDPS access point and the NIDPS forwards these connections, via its own NAT, to the existing ISP router, which continues to manage the internet connection. The client device and ISP router will not need to be modified.
 
-\noindent Functionally, the system does five things:
-\begin{enumerate}
-    \item \textbf{Provides network access:} A wireless access point with DHCP, DNS and routing.
-    \item \textbf{Inspects traffic:} Inline signature inspection of every packet, plus flow-level analysis of all traffic, including encrypted traffic through metadata.
-    \item \textbf{Decides:} Fuses signature, anomaly and classification results into a per-flow verdict and a per-host risk score.
-    \item \textbf{Responds:} Blocks offending addresses automatically for a limited, escalating time.
-    \item \textbf{Reports and stays available:} Shows live statistics and alerts on a web dashboard, and keeps the network in a defined state when a component fails.
-\end{enumerate}
+\noindent In terms of functionality it does five things: it provides network access with wireless access point with DHCP, DNS and routing; it performs signature and anomaly analysis in line and also performs flow-level analysis of all traffic (encrypted and otherwise) through metadata; it fuses the results of signature, anomaly and classification, and comes up with a verdict on a per-flow basis and with a per-host risk score; it responds by automatically blocking offending addresses for a specific, escalating time; it reports and remains available, by showing live statistics and alerts on a web dashboard and maintaining a network in a defined state in case of component failures.
 
-\noindent The system is made up of independent services connected by a local event bus, rather than as one large program. The packet-forwarding path is kept as short as possible (kernel plus Suricata), and everything slower like machine learning, the database and the dashboard, sits beside that path instead of in it. Sections~\ref{sec:sysarch} and~\ref{sec:archstrategies} explain this choice in detail.
+\noindent It's a system of independent services, not one big program, with an event bus that facilitates the communication between the services. The path for data packets to follow is kept as short as possible (kernel plus Suricata), and everything slower runs next to that path, rather than in it, such as machine learning, the database and the dashboard. Sections~\ref{sec:sysarch} and~\ref{sec:archstrategies} explain this choice in detail.
 
 \section{Design Considerations}\label{sec:6.2}
 \label{sec:designconsiderations}
-\noindent This section records the assumptions, constraints, goals and development methods that shaped the design.
+\noindent The assumptions, constraints, goals and development methods that influenced the design are recorded in this section.
 
 \subsection{Assumptions and Dependencies}\label{sec:6.2.1}
 \label{sec:assumptions}
 \begin{itemize}
     \item \textbf{Hardware:} The host has at least a quad-core 64-bit ARM or x86 CPU, 4\,GB of RAM, a wireless adapter that supports AP mode and an Ethernet port for the uplink.
-    \item \textbf{Operating system:} Debian based Linux distribution with systemd, iptables (use of nftables is accepted, but not required), ipset (use of NFQUEUE is accepted, but not required) and support in the kernel.
-    \item \textbf{Network position:} NIDPS is the only wireless network clients access. Devices which are connected directly to the ISP router via cable or directly by the ISP router's Wi-Fi are not protected. Turning off the ISP router's WiFi is a part of the set-up process.
-    \item \textbf{Third-party software:} Suricata 7 or later with Emerging Threats Open ruleset, hostapd, dnsmasq, Python 3.11+ with scikit-learn and XGBoost. Periodic Internet access is required for ruleset updates.
-    \item \textbf{End users:} Owner is NOT a security expert. Defaults should be safe and not require tuning, and dashboard should provide information about alerts in easy-to-understand terms.
-    \item \textbf{Trust:} The NIDPS host and the admin's devices are trusted. The ISP router is assumed to be working, but is not trusted to provide any security.
-    \item \textbf{Likely changes:} Changes are likely to include new attack types and new rules, models may be retrained and the TLS fingerprinting method could change from JA3 to its successor JA4, as TLS client libraries start to shuffle the order of extensions. Each of these is isolated by the design behind its component.
+    \item \textbf{Operating system:} Debian based Linux distribution with support for systemd, iptables and ipset in kernel.
+    \item \textbf{Network position:} NIDPS is the only wireless network to which wireless network clients connect. Devices which are connected directly to the ISP router via cable or directly by the ISP router's Wi-Fi are not protected. To disable the ISP router's WiFi is part of the set-up process.
+    \item \textbf{Third-party software:} Suricata 7 or greater with Emerging Threats Open ruleset, hostapd, dnsmasq, Python 3.11+ with scikit-learn and XGBoost. The ruleset needs to be updated periodically from the Internet.
+    \item \textbf{End users:} Owner has NO security expertise. Defaults should be safe and not require tuning, and dashboard should provide information about alerts in easy-to-understand terms.
+    \item \textbf{Trust:} The NIDPS host and admin's devices are trusted. The ISP router is assumed to be operational but will not be considered as being trustworthy for any security.
+    \item \textbf{Likely changes:} Changes are likely to include new attack types and new rules, models may be retrained and the TLS fingerprinting method could change from JA3 to its successor JA4, as TLS client libraries start to shuffle the order of extensions. All these are separated by the design of their components.
 \end{itemize}
 
 \subsection{General Constraints}\label{sec:6.2.2}
 \label{sec:constraints}
 \noindent Table~\ref{tab:constraints} lists the global constraints and their impact on the design.
 
-\begin{table}[H]
-\centering
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.18\linewidth}|>{\raggedright\arraybackslash}p{0.2\linewidth}|>{\raggedright\arraybackslash}p{0.5\linewidth}|}
 \caption{General constraints and their impact on the design.}
-\label{tab:constraints}
-\begin{tabular}{|>{\raggedright\arraybackslash}p{0.18\linewidth}|>{\raggedright\arraybackslash}p{0.2\linewidth}|>{\raggedright\arraybackslash}p{0.5\linewidth}|}
+\label{tab:constraints} \\
 \hline
 \textbf{Constraint} & \textbf{Source} & \textbf{Impact on the design} \\
 \hline
+\endfirsthead
+\multicolumn{3}{l}{\tablename\ \thetable{} -- continued from previous page} \\
+\hline
+\textbf{Constraint} & \textbf{Source} & \textbf{Impact on the design} \\
+\hline
+\endhead
+\hline
+\multicolumn{3}{r}{Continued on next page} \\
+\endfoot
+\hline
+\endlastfoot
 Limited CPU and memory & Low-cost target hardware & Tree-based models instead of deep networks; per-flow rather than per-packet ML; incremental feature statistics; rule groups trimmed to the home-network scope \\
 \hline
 Inline position & The NIDPS forwards all traffic & Forwarding path kept to kernel + Suricata; ML runs off-path; failure mode enforced in the kernel \\
@@ -61,30 +63,21 @@ Security of the device & The NIDPS is itself a target & Dashboard bound to the L
 \hline
 Testability & Attacks cannot be run on real users & Isolated lab network and attacker machine for all attack tests \\
 \hline
-\end{tabular}
-\end{table}
+\end{longtable}
 
 \subsection{Goals and Guidelines}\label{sec:6.2.3}
 \label{sec:goals}
-\begin{enumerate}
-    \item \textbf{Never make the network worse than a plain router:} Every design choice is checked against this. It is why fail-open is the default, why blocks expire and why the number of blocks per minute is capped.
-    \item \textbf{Keep the fast path short:} Only the kernel and Suricata sit in the forwarding path. Anything that can be done after the fact is moved off it.
-    \item \textbf{Defence in depth:} Each layer covers a weakness of another layer as no single detector is trusted to catch everything (Section~\ref{sec:overview}).
-    \item \textbf{Speed over memory where the two conflict, within a fixed budget:} In order to fit the hardware, the model sizes are capped and loaded fully in memory to avoid disk access during anlysis.
-    \item \textbf{Explainable decisions:} Every block records which layer decided, why, and with what evidence, so the owner can trust or override it.
-    \item \textbf{Same code for training and serving:} Features are computed by one implementation to rule out train/serve skew.
-    \item \textbf{Configurable, safe defaults:} Thresholds, failure mode and block durations are configurable, but the defaults work by default.
-\end{enumerate}
+\noindent The objectives and principles are as follows. The network is never allowed to be worse than a plain router: all design decisions are evaluated against this, which is why fail-open is the default, why blocks expire and why the number of blocks per minute is capped. Only the kernel and Suricata sit in the forwarding path; everything that might be done afterwards is shifted out of it. Each layer is intended to guard against the vulnerabilities of another layer, because no one detector is relied upon to detect everything (Section~\ref{sec:overview}). In order to fit the hardware, the model sizes are limited and loaded into memory to eliminate disk access during analysis. Each block documents the decision made, the reasons for that decision, and supporting evidence, allowing the owner to trust or challenge the decision. Features are computed by one implementation to rule out train/serve skew. Thresholds, failure mode and block durations are configurable, but the defaults work by default.
 
 \subsection{Development Methods}\label{sec:6.2.4}
 \label{sec:devmethods}
-\noindent The project follows an iterative, incremental approach in short sprints of two weeks, aligned with the FYP milestones. Each increment delivers a working vertical slice: first the access point with Suricata (Layer 1, completed), then flow extraction and Layer 2, then Layer 3, then fusion and enforcement, and finally the watchdog and dashboard. This order means the system protects the network from the first increment onwards and every later layer can be measured against a working baseline.
+\noindent The project is executed in short sprints of two weeks, consistent with the FYP milestones, and is iterative and incremental in nature. The various steps represent working vertical slices: access point with Suricata (Layer 1), flow extraction and Layer 2, Layer 3, fusion and enforcement, watchdog and dashboard. As a result of this order, the system will be protected from the first increment onwards and each subsequent increment will be quantifiable against a working baseline.
 
-\noindent The machine learning work follows the CRISP-DM cycle (data understanding, preparation, modelling, evaluation, deployment), because model quality depends on several rounds of data cleaning and re-evaluation. A plain waterfall model was considered and rejected: detection performance on real traffic cannot be known in advance, so requirements such as thresholds and feature sets must be allowed to change as results come in.
+\noindent To build a good model, the machine learning process is implemented based on the CRISP-DM methodology, which consists of the following steps: data understanding, data preparation, modelling, evaluation and deployment. A simple waterfall model was thought of but rejected: requirements like thresholds and feature sets cannot be known beforehand, as detection performance will be as seen on real traffic.
 
 \section{System Architecture}\label{sec:6.3}
 \label{sec:sysarch}
-\noindent The system is decomposed into five runtime subsystems on the NIDPS host and one offline subsystem used for training. Figure~\ref{fig:architecture} shows the external architecture (how the NIDPS sits between clients, the ISP router and the administrator) together with the internal subsystems and their main data flows.
+\noindent The system is divided into five runtime subsystems on the NIDPS host, and one offline subsystem used for training. Figure~\ref{fig:architecture} shows the external architecture (how the NIDPS sits between clients, the ISP router and the administrator) together with the internal subsystems and their main data flows.
 
 \begin{figure}[!htbp]
     \centering
@@ -93,16 +86,25 @@ Testability & Attacks cannot be run on real users & Isolated lab network and att
     \label{fig:architecture}
 \end{figure}
 
-\noindent The responsibilities are partitioned as shown in Table~\ref{tab:subsystems}.
+\noindent The responsibilities are split as shown in Table~\ref{tab:subsystems}. The network access and data plane subsystem provides Wi-Fi, addressing and routing, holds the inline queue, and enforces blocks and failure mode in the kernel. Detection yields evidence: signature alerts, ARP alerts, flow records, anomaly scores and class probabilities. Decision and response turns evidence into verdicts and host risk, and applies and expires blocks. Management and reporting stores events and provides real-time statistics, alerts and configuration to the admin. Reliability identifies failed or overloaded components, restarts them, applies failure mode and records recovery metrics.
 
-\begin{table}[!htbp]
-\centering
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.22\linewidth}|>{\raggedright\arraybackslash}p{0.38\linewidth}|>{\raggedright\arraybackslash}p{0.28\linewidth}|}
 \caption{Subsystem responsibilities.}
-\label{tab:subsystems}
-\begin{tabular}{|>{\raggedright\arraybackslash}p{0.22\linewidth}|>{\raggedright\arraybackslash}p{0.38\linewidth}|>{\raggedright\arraybackslash}p{0.28\linewidth}|}
+\label{tab:subsystems} \\
 \hline
 \textbf{Subsystem} & \textbf{Responsibility} & \textbf{Main components} \\
 \hline
+\endfirsthead
+\multicolumn{3}{l}{\tablename\ \thetable{} -- continued from previous page} \\
+\hline
+\textbf{Subsystem} & \textbf{Responsibility} & \textbf{Main components} \\
+\hline
+\endhead
+\hline
+\multicolumn{3}{r}{Continued on next page} \\
+\endfoot
+\hline
+\endlastfoot
 1. Network access and data plane & Provide Wi-Fi, addressing and routing; hold the inline queue; enforce blocks and failure mode in the kernel & hostapd, dnsmasq, netfilter (iptables, ipset, NFQUEUE, NAT) \\
 \hline
 2. Detection & Produce evidence: signature alerts, ARP alerts, flow records, anomaly scores, class probabilities & Suricata, ARP monitor, flow extractor, ML scorer \\
@@ -115,17 +117,16 @@ Testability & Attacks cannot be run on real users & Isolated lab network and att
 \hline
 Offline: training & Regenerate datasets, train and validate models, publish versioned model files & Dataset builder, trainer, model registry \\
 \hline
-\end{tabular}
-\end{table}
+\end{longtable}
 
-\noindent There are two ways in which the subsystems work together. The forwarding path is entirely in kernel and Suricata and there is only one feedback loop from the enforcer to ipset. Everything else is communicated via the local event bus: detectors publish evidence, decision engine consumes it and publishes verdicts, and the rest (dashboard and event store) subscribe to it.
+\noindent The cooperation of the subsystems is in two directions. The forwarding path is entirely in kernel and Suricata and there is only one feedback loop from the enforcer to ipset. All other actions are done through the local event bus: detectors publish evidence, decision engine consumes and publishes verdicts, and others (dashboard and event store) subscribe to it.
 
 \subsection{Subsystem Architecture}\label{sec:6.3.1}
 \label{sec:subsysarch}
 \noindent This section describes each subsystem in more detail.
 
 \subsubsection{Network Access and Data Plane}\label{sec:6.3.1.1}
-\noindent This subsystem is mostly configuration of existing Linux components; the new parts are the netfilter rule layout and its management. Figure~\ref{fig:packetpath} traces one packet from a client to the internet.
+\noindent The main part of this subsystem consists of configuring the existing Linux components, with the exception of the new netfilter rule layout and management. Figure~\ref{fig:packetpath} traces one packet from a client to the internet.
 
 \begin{figure}[!htbp]
     \centering
@@ -134,7 +135,7 @@ Offline: training & Regenerate datasets, train and validate models, publish vers
     \label{fig:packetpath}
 \end{figure}
 
-\noindent The rule order matters: the ipset check comes before the queue, so packets from blocked hosts are discarded in the kernel and never cost Suricata any CPU. During a DDoS from a blocked source, this keeps the inspection engine free for other traffic.
+\noindent The order of the rules is important: the ipset check is executed first, so if a packet comes from a blocked host it is dropped in the kernel and doesn't use any CPU in Suricata. This allows the inspection engine to remain available for other traffic during a DDoS attack from a blocked address.
 
 \subsubsection{Detection Subsystem}\label{sec:6.3.1.2}
 \noindent There are four producers in the detection subsystem. Suricata and the ARP monitor issue alerts directly. The flow extractor will publish flow records, and the ML scorer will enhance the flow records and publish them. The ML scorer consists of three sub-components internally:
@@ -148,10 +149,10 @@ Offline: training & Regenerate datasets, train and validate models, publish vers
 \noindent The decision engine consumes all evidence from the bus, joins Suricata alerts with flow records by flow identifier and time, runs Algorithm~\ref{alg:verdict} and maintains the host scores of Section~\ref{sec:hostscore}. The enforcer receives BLOCK verdicts and runs Algorithm~\ref{alg:block}. The two are kept separate so that the component allowed to change firewall state is small, simple and easy to audit.
 
 \subsubsection{Reliability Subsystem}\label{sec:6.3.1.4}
-\noindent While the watchdog has application-level health (queue depth, processing lag) information and determines when to switch to degraded mode, systemd has process level supervision (automatic restart, start order, resource limits). The Failure mode at the kernel level (queue bypass on or off) is set during start up of the data plane and is not dependent on the presence of the watchdog.
+\noindent While the watchdog has application-level health (queue depth, processing lag) information and determines when to switch to degraded mode, systemd has process level supervision (automatic restart, start order, resource limits). The Failure mode at the kernel level (queue bypass on or off) is set at start up of the data plane and is not related to the presence of the watchdog.
 
 \subsubsection{Management and Reporting Subsystem}\label{sec:6.3.1.5}
-\noindent The Dashboard API is only available on the LAN side. It counts live flows per second, alerts and blocks per layer, shows an alert list with the evidence used for the verdict, has a list of currently blocked hosts with an unblock action, presents the host risk scores, displays the health status of the components and allows you to set thresholds, failure mode and an allowlist. Configurations are checked, saved and posted on the bus for running services to get.
+\noindent The Dashboard API is only available on the LAN side. It counts live flows per second, alerts and blocks per layer, shows an alert list with the evidence used for each verdict, has a list of currently blocked hosts with an unblock action, presents the host risk scores, displays the health status of the components and allows you to set thresholds, failure mode and an allowlist. Configurations are checked, saved and posted on the bus for running services to get.
 
 \subsubsection{Offline Training Pipeline}\label{sec:6.3.1.6}
 \noindent Figure~\ref{fig:training} shows the offline pipeline and the hand-over of models to the device.
@@ -163,7 +164,7 @@ Offline: training & Regenerate datasets, train and validate models, publish vers
     \label{fig:training}
 \end{figure}
 
-\noindent Training runs on a workstation, not on the NIDPS host, because it needs far more memory than inference. The only hand-over to the device is a model package containing the model file, its feature schema and a version manifest.
+\noindent Training is performed on a workstation as opposed to the NIDPS host, as it requires significantly more memory. Only a model package containing the model file, its feature schema and a version manifest is handed over to the device.
 
 \section{Architectural Strategies}\label{sec:6.4}
 \label{sec:archstrategies}
@@ -172,48 +173,57 @@ Offline: training & Regenerate datasets, train and validate models, publish vers
 \subsection{Layered Defence with a Short Fast Path}\label{sec:6.4.1}
 \noindent \textbf{Decision:} Detection is divided into a packet-level layer on the forwarding path (Suricata) and flow-level layers off the forwarding path (ML), with a fusion layer.
 
-\noindent \textbf{Reasoning:} ML inference on each of the forwarded packets would make it impossible to stay within the CPU budget, and would introduce additional latency to each connection, contradicting the first objective of Section~\ref{sec:goals}. The only forwarding latency cost for flow-level ML outside the path will be the cost of the Suricata rule that must be applied to the first packet.
+\noindent \textbf{Reasoning:} For every packet forwarded the CPU budget would be incurred and extra latency would be added to each connection, defeating the first goal (Section~\ref{sec:goals}). The only forwarding latency penalty for flow-level ML off the path will be the cost of the Suricata rule that must be applied to the first packet.
 
-\noindent \textbf{Alternatives rejected:} ML-only inline detection (too slow, and no immediate protection against known attacks); Suricata-only detection (misses zero-day and behavioural attacks).
+\noindent \textbf{Alternatives rejected:} ML-only inline detection (too slow, and not protecting against known attacks); Suricata-only detection (missing zero-day or behavioural attacks).
 \subsection{Metadata-Only Analysis of Encrypted Traffic}\label{sec:6.4.2}
 \noindent \textbf{Decision:} Encrypted traffic analysed only using JA3/JA3S fingerprints and flow statistics.
 
-\noindent \textbf{Reasoning:} TLS interception would involve trusted root certificate on each client, would not be compatible with certificate pinning, would break some IoT devices and would increase CPU load. It would also allow for all the traffic to be displayed in plain text from all devices in the household, which would be a huge privacy hazard.
+\noindent \textbf{Reviewing the reasons:} TLS interception would require a trusted root certificate on every client, wouldn't work with certificate pinning, and would increase CPU load on clients. It would also allow for all the traffic to be displayed in plain text from all devices in the household, which would be a huge privacy hazard.
 
-\noindent \textbf{Alternatives rejected:} Full TLS interception (above); ignoring encrypted traffic (most C2 now uses TLS). Known limitation: browsers now randomise TLS extension order making JA3 less stable for browser traffic. Since the fingerprinting is separated from the rest of the flow extractor, other components can remain the same and JA4 can be changed to sort extensions before hashing.
+\noindent \textbf{Rejected alternatives:} Full TLS interception (above); ignoring encrypted traffic (most C2 now uses TLS). Known limitation: TLS extension order is now randomised by browsers, reducing the stability of JA3 for browser traffic. Since the fingerprinting is separated from the rest of the flow extractor, other components can remain the same and JA4 can be changed to sort extensions before hashing.
 
 \subsection{Offline Training, Online Inference}\label{sec:6.4.3}
-\noindent \textbf{Decision:} Models to be trained on a workstation and deployed as read-only versioned packages. The device can only do inference and threshold calibration.
+\noindent \textbf{Decision:} Models to be trained on a workstation and deployed as read-only versioned packages. The device is capable of only doing inference and threshold calibration.
 
-\noindent \textbf{Reasoning:} A training process of hundreds of millions of flows requires much more memory than the device available. Online retraining on a device will also enable an adversary to slowly condition the model to think that malicious traffic is acceptable (model poisoning). Calibrating just the threshold (Section~\ref{sec:calibration}) adapts to the local network with limited risk.
+\noindent \textbf{Reasoning:} A training process of hundreds of millions of flows requires much more memory than the device available. Online retraining on a device will also enable an adversary to slowly condition the model to think that malicious traffic is acceptable (model poisoning). Narrowing the threshold alone is slightly riskier, but addresses the local network (Section~\ref{sec:calibration}).
 
-\noindent \textbf{Alternatives rejected:} Continuous online learning (poisoning risk, cost of hardware); a fixed global threshold (false positives with real home traffic).
+\noindent \textbf{Rejected:} Continuous online learning (poisoning risk, cost of hardware); a fixed global threshold (false positives with real home traffic).
 
 \subsection{Local Services Connected by an Event Bus}\label{sec:6.4.4}
 \noindent \textbf{Decision:} Each component is its own systemd service and message exchange is handled via a local publish/subscribe bus. Redis Streams is the proposed implementation.
 
-\noindent \textbf{Reasoning:} The failure modes require service isolation, which is where one service can crash without impacting the others, and where systemd can restart each service independently. The bus separates the producers from the consumers. Redis Streams is lightweight, has a bounded backlog which a restarted consumer can resume from and allows for consumer groups that run the dashboard and the decision engine independently, reading the same events.
+\noindent \textbf{Failure modes:} Service isolation means one service can crash without affecting the others, and systemd can restart each service independently. Redis Streams is lightweight, has a bounded backlog which a restarted consumer can resume from, and allows consumer groups (including the dashboard and the decision engine) to read the same events independently.
 
-\noindent \textbf{Alternatives rejected:} Direct function calls in one process (no fault isolation); Apache Kafka (too heavy for the hardware); plain unix sockets between each pair of components (simple, but every new consumer requires new wiring, and while a consumer restarts, messages are lost).
+\noindent \textbf{Alternatives that were rejected:} Direct function calls in one process (no fault isolation); Apache Kafka (too heavy for the hardware); plain unix sockets between each pair of components (simple, but every new consumer requires new wiring, and when a consumer restarts, messages are lost).
 
 \subsection{Kernel-Enforced Blocking and Failure Semantics}\label{sec:6.4.5}
-\noindent \textbf{Decision:} Blocking and failure (ipset with timeouts, and NFQUEUE bypass or not) are both handled by the kernel and not user space software.
+\noindent \textbf{Decision:} Blocking and failure (ipset with timeouts, and NFQUEUE bypass or not) are both managed by the kernel and not user space software.
 
-\noindent \textbf{Reasoning:} User space programs can crash but the kernel continues to run. While the queue-bypass flag applies the selected mode regardless of whether the watchdog is down or not, timed ipsets entries expire even if the enforcer fails.
+\noindent \textbf{Reasoning:} User space programs can crash but the kernel continues to run. While the queue-bypass flag applies the selected mode regardless of whether the watchdog is down or not, timed ipset entries expire even if the enforcer fails.
 
-\noindent \textbf{Alternatives rejected:} Add iptables rules one per blocked host (slow when many hosts are blocked and iptables rules are still there after a crash); A user-space proxy that drops traffic (adds latency and is itself a crash risk).
+\noindent \textbf{Alternatives that were considered but rejected:} Adding iptables rules per blocked host (slow if lots of hosts are blocked and iptables rules stay present after a crash); a user space proxy that drops traffic (adds latency and is itself a crash risk).
 
 \subsection{Choice of Languages and Products}\label{sec:6.4.6}
 \noindent Table~\ref{tab:products} summarises the main product and language choices.
 
-\begin{table}[H]
-\centering
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.13\linewidth}|>{\raggedright\arraybackslash}p{0.18\linewidth}|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.27\linewidth}|}
 \caption{Product and language choices.}
-\label{tab:products}
-\begin{tabular}{|>{\raggedright\arraybackslash}p{0.13\linewidth}|>{\raggedright\arraybackslash}p{0.18\linewidth}|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.27\linewidth}|}
+\label{tab:products} \\
 \hline
 \textbf{Need} & \textbf{Choice} & \textbf{Main reason} & \textbf{Alternative considered} \\
 \hline
+\endfirsthead
+\multicolumn{4}{l}{\tablename\ \thetable{} -- continued from previous page} \\
+\hline
+\textbf{Need} & \textbf{Choice} & \textbf{Main reason} & \textbf{Alternative considered} \\
+\hline
+\endhead
+\hline
+\multicolumn{4}{r}{Continued on next page} \\
+\endfoot
+\hline
+\endlastfoot
 Signature IPS & Suricata & Multi-threaded, native NFQUEUE IPS mode, EVE JSON output, TLS/JA3 support, maintained ET Open rules & Snort 3 (similar capability; Suricata chosen for its JSON output and threading) \\
 \hline
 Services and ML & Python 3 & scikit-learn and XGBoost available natively; fast development & C++ (faster, but much slower to develop; reconsidered only if profiling shows Python is the bottleneck) \\
@@ -226,27 +236,27 @@ Dashboard & Python web API with WebSocket push and a lightweight web front end &
 \hline
 Firewall & iptables + ipset & Stated in the proposal; well documented; ipset handles large blocklists efficiently & nftables sets (modern equivalent; migration path kept open) \\
 \hline
-\end{tabular}
-\end{table}
+\end{longtable}
 
 \subsection{Error Detection and Recovery}\label{sec:6.4.7}
 \noindent There are three levels at which errors are dealt with.
 \begin{enumerate}
-    \item \textbf{Record level:} Malformed flow records or alerts are rejected by the feature validator and counted, never passed to models.
+    \item \textbf{Record level:} The feature validator rejects and counts malformed flow records or alerts, never passing them to models.
     \item \textbf{Component level:} Heartbeats and systemd supervision detect crashes and hangs and restart the component (Section~\ref{sec:failure}).
-    \item \textbf{System level:} The system level (kernel-enforced failure mode) determines the fate of traffic when a component is down. All three levels will log to the event store and hence the dashboard will display when the system was not completely protected.
+    \item \textbf{Failure mode:} How traffic behaves when a component is down is specified at the system level.
 \end{enumerate}
+\noindent At all three levels, logs will be written to the event store and as such, will show up on the dashboard when the system is not fully protected.
 
 \subsection{Data Storage, Persistence and Retention}\label{sec:6.4.8}
 \label{sec:storage}
-\noindent We only store derived data: block information, risk history per host, calibration state and configuration, decisions, alarms and verdicts. No packet data or payload is stored on normal operation. Flow data is stored in a relatively short rolling window (e.g. 7 days) for analysis and calibration purposes before being purged. This provides an effective level of privacy for domestic users whilst placing a reasonable amount of data on a small storage device.
+\noindent We only store derived data: block information, risk history per host, calibration state and configuration, decisions, alarms and verdicts. On normal operation, there is no packet data or payload stored. The flow data is stored in a relatively short rolling window (for example, 7 days) to be used for analysis and calibration before being purged. This gives a good degree of privacy to domestic users and puts a reasonable amount of data on a small storage device.
 
 \subsection{Future Extension}\label{sec:6.4.9}
-\noindent The system is structured to make the most probable extensions accomplished by adding functionality rather than modifying functionality. A new detector emits to the bus. A new response (e.g. notification to the owner's phone) subscribes to decisions. A new extractor for support of a new JA4 or new model is added.
+\noindent The system is designed to allow the most likely extensions to be added by adding functionality and not modifying existing functionality. A new detector is connected to the bus. A new response (like a notification to the owner's phone) subscribes to decisions. A new extractor for support of a new model or new JA4 will be added.
 
 \section{Domain Model/Class Diagram}\label{sec:6.5}
 \label{sec:classdiagram}
-\noindent Figure~\ref{fig:classdiagram} shows the main classes of the runtime system. A Flow is the core class that passes along its properties and TLS fingerprint if present. Each detector creates Evidence and all implement the same Detector interface. Evidence is converted into a Verdict by the DecisionEngine and BLOCK verdicts are converted into BlockEntry entries by the Enforcer.
+\noindent The main classes of the runtime system are depicted in Figure~\ref{fig:classdiagram}. A Flow is the base class that propagates its properties, and if it has a TLS fingerprint, it propagates that as well. Each detector creates Evidence and all implement the same Detector interface. Evidence is converted into a Verdict by the DecisionEngine and BLOCK verdicts are converted into BlockEntry entries by the Enforcer.
 
 \begin{sidewaysfigure}
     \centering
@@ -255,40 +265,50 @@ Firewall & iptables + ipset & Stated in the proposal; well documented; ipset han
     \label{fig:classdiagram}
 \end{sidewaysfigure}
 
-\noindent The Detector interface is the main extension point. A new detection technique is added by implementing it and publishing its Evidence, without changes to the DecisionEngine. The Enforcer is the only class that changes firewall state, which keeps that responsibility in one small, auditable place.
+\noindent The Detector interface is the main extension point. A new detection method is implemented by making the new implementation publish its Evidence, but does not alter the DecisionEngine. With the Enforcer, firewall state changes are only handled by one class in a small, auditable location.
 \section{Policies and Tactics}\label{sec:6.6}
 \label{sec:policies}
-\noindent The following policies only influence aspects of the implementation and do not change the overall structure of the system.
+\noindent The following policies only have an impact on parts of the implementation and do not alter the structure of the system as such:
 
 \subsection{Rule and Threshold Management}\label{sec:6.6.1}
-\noindent A scheduled job updates the ET Open ruleset every day, it is syntax tested with Suricata's test mode and loaded with a live rule reload, so there will never be any inspection that doesn't get done. In case of failure, the last ruleset is still in effect. Custom rules are stored in a separate file in version control, and are never overwritten by changes to ET rules. All numeric thresholds (rule thresholds, flow timeouts $T_a$ and $T_i$, $\tau$, $\theta$ values, $\Theta$, block durations) are read from one configuration file with documented defaults.
+\noindent A scheduled job would update the ET Open ruleset daily, it would be syntax tested with Suricata's test mode, and it would be loaded via a live rule reload, so there won't be any inspection that will fail to occur. In case of failure, the last ruleset is still in effect. Custom rules are kept in a separate file in version control, they will not be overwritten by any ET rules changes. All numeric thresholds (rule thresholds, flow timeouts $T_a$ and $T_i$, $\tau$, $\theta$ values, $\Theta$, block durations) are read from a single configuration file that has documented defaults.
 
 \subsection{Model Packaging and Versioning}\label{sec:6.6.2}
 \label{sec:modelpackaging}
-\noindent Each model package contains the model file, the list of features ordered by version of the extractor, the class list and the training date and metrics. The ML scorer rejects any package, whose feature list is incompatible with the running extractor, at load time. XGBoost models are stored in their native JSON format, not as Python pickles, as loading a pickle can run arbitrary code. scikit-learn models are stored in joblib files, and only loaded from the registry directory which is writable only by the deployment user. The last package is preserved for rollback in case of a bad model.
+\noindent Each model package contains the model file, the list of features ordered by version of the extractor, the class list and the training date and metrics. If there is a package at load time which does not contain the desired features, the ML scorer rejects the package. XGBoost models are stored as a native JSON file and not as Python pickles, because loading a pickle can run arbitrary code. scikit-learn models are stored in joblib files and are only loaded from a registry directory that can only be written to by the deployment user. If the model fails, the last package is saved to be rolled back.
 
 \subsection{Engineering Trade-offs}\label{sec:6.6.3}
 \begin{itemize}
-    \item \textbf{Detection speed vs.\ accuracy:} ML verdicts are per flow, not per packet (Section~\ref{sec:mltiming}), sacrificing a short delay for ML-detected attacks and eliminating any additional forward delay.
+    \item \textbf{Detection speed vs.\ accuracy:} ML verdicts are per flow, not per packet (Section~\ref{sec:mltiming}), compromising a small amount of delay for ML-detected attacks, and eliminating any extra forward delay.
     \item \textbf{False positives vs.\ missed attacks:} The calibration percentile $p$ and the block thresholds are the explicit controls. Defaults prefer fewer false positives as the loss of trust on a home network is fast.
     \item \textbf{Availability vs.\ security:} Selected at deployment time (failure mode), default is fail-open for homes.
 \end{itemize}
 
 \subsection{Coding Guidelines and Conventions}\label{sec:6.6.4}
-\noindent Python code adheres to PEP 8, uses type hints and runs through a linter and type-checker as part of the continuous integration. Each service is a separate package with one exposed entry point. All event bus messages are versioned JSON with a schema. This allows producers and consumers to be upgraded separately. All logging is structured JSON with timestamp, component name and identifier for either a flow or host. This enables events to be followed through services.
+\noindent The Python code follows PEP 8, and is checked for types using a linter and type-checker as part of the continuous integration. Every service is an independent package and has only one entry point exposed. All messages sent through the event bus are versioned JSON messages with a schema. This enables the producers and consumers to be upgraded individually. All logging is in the form of structured JSON containing a timestamp, a component name and identifier for either a flow or host. This allows events to be tracked via services.
 
 \subsection{Requirements Traceability}\label{sec:6.6.5}
-\noindent Every goal from Chapter~\ref{chap:2} is mapped to the components that implement it and the tests that verify it, in a traceability matrix kept in the repository and updated at every sprint review (Table~\ref{tab:traceability}).
+\noindent A traceability matrix is maintained in the repository, updated at each sprint review, and shows every goal from Chapter~\ref{chap:2} and the components that support it and tests that demonstrate it (Table~\ref{tab:traceability}).
 
-\begin{table}[H]
-\centering
+\begingroup
+\small
+\begin{longtable}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.3\linewidth}|}
 \caption{Requirements traceability matrix.}
-\label{tab:traceability}
-{\small
-\begin{tabular}{|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.3\linewidth}|>{\raggedright\arraybackslash}p{0.3\linewidth}|}
+\label{tab:traceability} \\
 \hline
 \textbf{Proposal objective} & \textbf{Implemented by} & \textbf{Verified by} \\
 \hline
+\endfirsthead
+\multicolumn{3}{l}{\tablename\ \thetable{} -- continued from previous page} \\
+\hline
+\textbf{Proposal objective} & \textbf{Implemented by} & \textbf{Verified by} \\
+\hline
+\endhead
+\hline
+\multicolumn{3}{r}{Continued on next page} \\
+\endfoot
+\hline
+\endlastfoot
 Transparent inline NIDPS between clients and ISP gateway & Data plane (Section~\ref{sec:subsysarch}) & Connectivity and latency tests (Table~\ref{tab:sysperf}) \\
 \hline
 Suricata with ET ruleset for known attacks & SignatureDetector, custom rules (Section~\ref{sec:layer1}) & Live attack replay: SSH brute force, port scan, DNS spoofing \\
@@ -303,18 +323,17 @@ Watchdog and configurable failure handling & Watchdog, systemd units (Section~\r
 \hline
 Web dashboard & DashboardAPI (Section~\ref{sec:subsysarch}) & Functional UI tests; usability check with non-expert users \\
 \hline
-\end{tabular}
-}
-\end{table}
+\end{longtable}
+\endgroup
 
 \subsection{Testing Plan}\label{sec:6.6.6}
 \begin{enumerate}
-    \item \textbf{Unit tests for each algorithm:} Flow assembly on crafted PCAPs, JA3 computation against published reference hashes, threshold calibration, fusion rules and the enforcer's allowlist, rate limit and back-off.
-    \item \textbf{Integration tests:} Replay labelled PCAPs around the entire system on a test system and compare results to the label.
+    \item \textbf{Unit tests for each algorithm:} Flow assembly on crafted PCAPs, JA3 computation on published reference hashes, threshold calibration, fusion rules and the enforcer's allowlist, rate limit and back-off.
+    \item \textbf{Integration tests:} Play back labelled PCAPs throughout the system on a test system and compare with labelled results.
     \item \textbf{Live attack tests:} Involve launching each in-scope attack from the attacker side onto our test systems on the isolated test network.
     \item \textbf{Performance tests:} For latency, throughput and resource use (Table~\ref{tab:sysperf}).
-    \item \textbf{Fault-injection tests:} Each service is killed or frozen under load in each failure mode, and recovery time and traffic impact are recorded.
-    \item \textbf{Soak test:} The system runs for at least one week on a real home network in alert-only mode to measure false positives before blocking is enabled.
+    \item \textbf{Fault-injection tests:} For each failure mode, each service is killed or frozen under load, and the recovery time and traffic impact are measured.
+    \item \textbf{Soak test:} The system is run for a minimum of one week on a real home network on an alert-only basis to gauge false positives before blocking is enabled.
 \end{enumerate}
 
 \subsection{Hierarchical Organisation of the Source Code}\label{sec:6.6.7}
@@ -342,7 +361,7 @@ nidps/
 }
 
 \subsection{Build and Deployment}\label{sec:6.6.8}
-\noindent The system is installed on a clean Debian image with one installation script, which installs system packages (Suricata, hostapd, dnsmasq, ipset, Redis), creates a Python virtual environment with pinned versions of dependencies, copies the configuration and active model package, and enables the systemd units in dependency order: data plane first, then Suricata, and then the rest. Only one service is upgraded at a time and that one service is restarted. Each service is supervised and the failure mode is enforced at kernel level, so that an upgrade does not leave the network with no behaviour.
+\noindent It is deployed on a clean Debian image, with only one installation script that installs system packages (Suricata, hostapd, dnsmasq, ipset, Redis), creates a Python virtual environment, installs pinned versions of dependencies, copies the configuration and the active model package, and activates the systemd units in dependency order (data plane, Suricata, rest). One service at a time is upgraded and that service is restarted. Every service is supervised and the failure mode is enforced at kernel level, which means that the network does not lose any behaviour after an upgrade.
 
 \subsection{Maintenance}\label{sec:6.6.9}
 \noindent Routine maintenance is automated: daily rule updates, weekly threshold recalibration (see Algorithm~\ref{alg:calibration}), and purging logs and flow-records outside of the retention window. Models are retrained offline when new datasets are available, or the dashboard indicates that the alert rate is increasing that is not explained by calibration, or when new classes of attacks become available. The health history report on the Dashboard indicates to the owner when the system was operating in a degraded or failed condition.

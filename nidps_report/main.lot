@@ -44,16 +44,16 @@
 \contentsline {table}{\numberline {5.6}{\ignorespaces Cross-dataset evaluation matrix of macro F1-scores, to be filled from experiments.}}{87}{table.caption.23}%
 \contentsline {table}{\numberline {5.7}{\ignorespaces System performance measures.}}{87}{table.caption.24}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {6.1}{\ignorespaces General constraints and their impact on the design.}}{91}{table.caption.25}%
-\contentsline {table}{\numberline {6.2}{\ignorespaces Subsystem responsibilities.}}{93}{table.caption.27}%
-\contentsline {table}{\numberline {6.3}{\ignorespaces Product and language choices.}}{98}{table.caption.30}%
-\contentsline {table}{\numberline {6.4}{\ignorespaces Requirements traceability matrix.}}{102}{table.caption.32}%
+\contentsline {table}{\numberline {6.1}{\ignorespaces General constraints and their impact on the design.}}{90}{table.6.1}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Subsystem responsibilities.}}{93}{table.6.2}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Product and language choices.}}{97}{table.6.3}%
+\contentsline {table}{\numberline {6.4}{\ignorespaces Requirements traceability matrix.}}{101}{table.6.4}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {7.1}{\ignorespaces Platform and tools used by the implementation.}}{105}{table.7.1}%
-\contentsline {table}{\numberline {7.2}{\ignorespaces Implementation status of the NIDPS components.}}{106}{table.7.2}%
-\contentsline {table}{\numberline {7.3}{\ignorespaces Environment variables read by the services.}}{113}{table.caption.33}%
+\contentsline {table}{\numberline {7.1}{\ignorespaces Platform and tools used by the implementation.}}{104}{table.7.1}%
+\contentsline {table}{\numberline {7.2}{\ignorespaces Implementation status of the NIDPS components.}}{105}{table.7.2}%
+\contentsline {table}{\numberline {7.3}{\ignorespaces Environment variables read by the services.}}{112}{table.caption.29}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {9.1}{\ignorespaces Attack scripts used in the experiments (Section~\ref {sec:7.1.8.1}).}}{115}{table.caption.34}%
-\contentsline {table}{\numberline {9.2}{\ignorespaces Suricata's response to each self-collected attack.}}{116}{table.caption.35}%
-\contentsline {table}{\numberline {9.3}{\ignorespaces Isolation Forest and host-behaviour results on the four attacks Suricata missed.}}{117}{table.caption.36}%
+\contentsline {table}{\numberline {9.1}{\ignorespaces Attack scripts used in the experiments (Section~\ref {sec:7.1.8.1}).}}{114}{table.caption.30}%
+\contentsline {table}{\numberline {9.2}{\ignorespaces Suricata's response to each self-collected attack.}}{115}{table.caption.31}%
+\contentsline {table}{\numberline {9.3}{\ignorespaces Isolation Forest and host-behaviour results on the four attacks Suricata missed.}}{116}{table.caption.32}%
 \addvspace {10\p@ }

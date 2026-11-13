@@ -21,10 +21,10 @@
 \contentsline {figure}{\numberline {5.2}{\ignorespaces Decision-fusion flow for one flow record.}}{82}{figure.caption.20}%
 \contentsline {figure}{\numberline {5.3}{\ignorespaces Watchdog state machine for each supervised component.}}{86}{figure.caption.22}%
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces System architecture of the NIDPS.}}{93}{figure.caption.26}%
-\contentsline {figure}{\numberline {6.2}{\ignorespaces Packet path through the data plane.}}{94}{figure.caption.28}%
-\contentsline {figure}{\numberline {6.3}{\ignorespaces Offline training pipeline and model hand-over to the device.}}{95}{figure.caption.29}%
-\contentsline {figure}{\numberline {6.4}{\ignorespaces Class diagram of the NIDPS runtime.}}{100}{figure.caption.31}%
+\contentsline {figure}{\numberline {6.1}{\ignorespaces System architecture of the NIDPS.}}{92}{figure.caption.25}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Packet path through the data plane.}}{94}{figure.caption.26}%
+\contentsline {figure}{\numberline {6.3}{\ignorespaces Offline training pipeline and model hand-over to the device.}}{95}{figure.caption.27}%
+\contentsline {figure}{\numberline {6.4}{\ignorespaces Class diagram of the NIDPS runtime.}}{100}{figure.caption.28}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
