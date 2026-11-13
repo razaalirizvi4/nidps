@@ -1,5 +1,5 @@
-\contentsline {chapter}{List of Figures}{ix}{Doc-Start}%
-\contentsline {chapter}{List of Tables}{xi}{Doc-Start}%
+\contentsline {chapter}{List of Figures}{x}{Doc-Start}%
+\contentsline {chapter}{List of Tables}{xii}{Doc-Start}%
 \contentsline {chapter}{\numberline {1}Introduction}{1}{chapter.1}%
 \contentsline {section}{\numberline {1.1}Purpose of this Document}{2}{section.1.1}%
 \contentsline {section}{\numberline {1.2}Intended Audience}{2}{section.1.2}%
@@ -243,3 +243,12 @@
 \contentsline {section}{\numberline {9.4}Discussion}{117}{section.9.4}%
 \contentsline {section}{\numberline {9.5}Limitations of the Current Experimental Work}{118}{section.9.5}%
 \contentsline {section}{\numberline {9.6}Conclusion}{118}{section.9.6}%
+\contentsline {chapter}{\numberline {10}Conclusion}{119}{chapter.10}%
+\contentsline {section}{\numberline {10.1}Conclusion}{119}{section.10.1}%
+\contentsline {section}{\numberline {10.2}Future Work}{120}{section.10.2}%
+\contentsline {subsection}{\numberline {10.2.1}Implementation of Layer 3: Supervised Attack Classification}{120}{subsection.10.2.1}%
+\contentsline {subsection}{\numberline {10.2.2}Failure Handling and Recovery Implementation}{120}{subsection.10.2.2}%
+\contentsline {subsection}{\numberline {10.2.3}Decision Fusion and Automated Prevention Implementation}{121}{subsection.10.2.3}%
+\contentsline {subsection}{\numberline {10.2.4}Offline Training and Model Evaluation Pipeline}{121}{subsection.10.2.4}%
+\contentsline {subsection}{\numberline {10.2.5}Management Dashboard and Integration}{121}{subsection.10.2.5}%
+\contentsline {subsection}{\numberline {10.2.6}Full System Testing and Analysis}{121}{subsection.10.2.6}%

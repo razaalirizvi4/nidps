@@ -56,3 +56,4 @@
 \contentsline {table}{\numberline {9.1}{\ignorespaces Attack scripts used in the experiments (Section~\ref {sec:7.1.8.1}).}}{115}{table.caption.34}%
 \contentsline {table}{\numberline {9.2}{\ignorespaces Suricata's response to each self-collected attack.}}{116}{table.caption.35}%
 \contentsline {table}{\numberline {9.3}{\ignorespaces Isolation Forest and host-behaviour results on the four attacks Suricata missed.}}{117}{table.caption.36}%
+\addvspace {10\p@ }
