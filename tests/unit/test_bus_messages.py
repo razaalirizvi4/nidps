@@ -43,3 +43,12 @@ def test_flow_ready_round_trip():
 
     assert envelope["type"] == "flow_ready"
     assert envelope["payload"] == {"flow_id": 42, "host_ip": "10.10.0.5"}
+
+
+def test_host_score_round_trip():
+    from common.schemas import HostScore
+
+    raw = encode_envelope(MessageType.HOST_SCORE_UPDATED, HostScore(host_ip="10.0.0.5", score=3.5))
+    envelope = decode_envelope(raw)
+    assert envelope["type"] == "host_score_updated"
+    assert envelope["payload"]["score"] == 3.5

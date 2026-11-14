@@ -108,6 +108,15 @@ class Verdict:
 
 
 @dataclass
+class HostScore:
+    """Current decayed risk score S_h of one host (Eq 5.8), published for the dashboard."""
+
+    host_ip: str
+    score: float
+    timestamp: str = field(default_factory=utc_now_iso)
+
+
+@dataclass
 class ComponentHealth:
     name: str
     state: HealthState
