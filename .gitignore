@@ -87,3 +87,7 @@ Thumbs.db
 
 # Browser tool logs
 .playwright-mcp/
+
+# Trained model artifacts (the registry row records the path; keep binaries out of git)
+models/artifacts/*
+!models/artifacts/.gitkeep

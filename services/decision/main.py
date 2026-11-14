@@ -4,9 +4,11 @@ correlator flush, a periodic host-score refresh (so the dashboard sees scores de
 heartbeat."""
 from __future__ import annotations
 
+import logging
 import os
 import socket
 import time
+from typing import Optional
 
 from common.bus import (
     STREAM_EVIDENCE,
@@ -32,6 +34,7 @@ from services.decision.allowlist import Allowlist
 from services.decision.correlator import EvidenceCorrelator
 from services.decision.engine import Decision, DecisionEngine
 from services.decision.risk_tracker import RiskScoreTracker
+from services.decision.verdict_store import VerdictStore
 from services.flowextract.config_cache import CachedConfig
 
 SCORE_REFRESH_S = 30.0
@@ -62,18 +65,31 @@ def publish_decision(bus: EventBus, decision: Decision) -> None:
         )
 
 
-def decide_groups(engine: DecisionEngine, bus: EventBus, groups: list) -> int:
+def decide_groups(
+    engine: DecisionEngine, bus: EventBus, groups: list, store: Optional[VerdictStore] = None
+) -> int:
     for group in groups:
-        publish_decision(bus, engine.decide(group))
+        decision = engine.decide(group)
+        publish_decision(bus, decision)
+        if store is not None:
+            # The verdict is already on the bus, so a database failure must not undo or hide it.
+            try:
+                store.save(decision.verdict)
+            except Exception:
+                logging.getLogger("decision").exception("could not persist verdict")
     return len(groups)
 
 
 def process_evidence_message(
-    engine: DecisionEngine, correlator: EvidenceCorrelator, bus: EventBus, body: str
+    engine: DecisionEngine,
+    correlator: EvidenceCorrelator,
+    bus: EventBus,
+    body: str,
+    store: Optional[VerdictStore] = None,
 ) -> int:
     envelope = decode_envelope(body)
     evidence = evidence_from_payload(envelope["payload"])
-    return decide_groups(engine, bus, correlator.add(evidence))
+    return decide_groups(engine, bus, correlator.add(evidence), store)
 
 
 def publish_score_refresh(bus: EventBus, risk: RiskScoreTracker) -> int:
@@ -104,10 +120,11 @@ def main() -> None:
     risk = RiskScoreTracker(half_life_s=lambda: config.get("risk.half_life_s"))
     engine = DecisionEngine(risk, Allowlist(conn), config)
     correlator = EvidenceCorrelator(window_s=3.0)
+    store = VerdictStore(conn)
 
     def _handle(body: str) -> None:
         try:
-            process_evidence_message(engine, correlator, bus, body)
+            process_evidence_message(engine, correlator, bus, body, store)
         except Exception:
             logger.exception("error processing EVIDENCE message")
 
@@ -122,7 +139,7 @@ def main() -> None:
             now = time.time()
 
             try:
-                decide_groups(engine, bus, correlator.flush_due())
+                decide_groups(engine, bus, correlator.flush_due(), store)
             except Exception:
                 logger.exception("error flushing correlated evidence")
 

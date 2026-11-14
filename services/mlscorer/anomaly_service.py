@@ -23,6 +23,7 @@ from common.schemas import (
     SCHEMA_VERSION,
     utc_now_iso,
 )
+from models.compatibility import check_model_package
 from services.flowextract.config_cache import CachedConfig
 from services.flowextract.features import FEATURE_NAMES
 from services.mlscorer.anomaly import AnomalyDetector, load_active_model
@@ -154,6 +155,9 @@ def main() -> None:
         try:
             try:
                 loaded_model_id, model = load_active_model(conn)
+                # FR-12.4: refuse a model built for a different feature set. The raised
+                # IncompatibleModel is caught below, so scoring stays off and the retry runs.
+                check_model_package(conn, loaded_model_id)
                 calibration = load_calibration_state(conn, loaded_model_id)
                 detector = AnomalyDetector(
                     model=model, calibration=calibration, model_id=loaded_model_id
