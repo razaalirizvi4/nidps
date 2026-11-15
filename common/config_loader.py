@@ -44,8 +44,27 @@ def get(conn: sqlite3.Connection, key: str) -> Union[Number, str, bool]:
     return _cast(key, row[0])
 
 
+_THRESHOLD_ORDER = ("fusion.theta_c", "fusion.theta_alert", "fusion.theta_block")
+
+
+def _check_threshold_order(conn: sqlite3.Connection, key: str, value) -> None:
+    """theta_block > theta_alert > theta_c must always hold, or a class could BLOCK at a lower
+    confidence than it would ALERT. Changing one threshold is checked against the other two."""
+    if key not in _THRESHOLD_ORDER:
+        return
+    values = {k: get(conn, k) for k in _THRESHOLD_ORDER}
+    values[key] = value
+    low, mid, high = (values[k] for k in _THRESHOLD_ORDER)
+    if not low < mid < high:
+        raise ValueError(
+            f"{key}={value} breaks the required order theta_c < theta_alert < theta_block "
+            f"(would be {low}, {mid}, {high})"
+        )
+
+
 def update(conn: sqlite3.Connection, key: str, value, user_id: int | None = None) -> None:
     validate_value(key, value)
+    _check_threshold_order(conn, key, value)
     old = conn.execute(
         "SELECT value FROM config_setting WHERE setting_key = ?", (key,)
     ).fetchone()

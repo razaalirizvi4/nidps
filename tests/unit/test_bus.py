@@ -47,3 +47,9 @@ def test_publish_and_consume_on_stream_flows():
         STREAM_FLOWS, group="layer2-anomaly", consumer="c1", handler=received.append, block_ms=100
     )
     assert received == ["flow-ready-body"]
+
+
+def test_stream_host_scores_name_is_fixed():
+    from common.bus import STREAM_HOST_SCORES
+
+    assert STREAM_HOST_SCORES == "nidps:host_scores"

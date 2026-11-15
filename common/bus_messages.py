@@ -18,6 +18,7 @@ class MessageType(str, enum.Enum):
     HEARTBEAT = "heartbeat"
     CONFIG_CHANGE = "config_change"
     FLOW_READY = "flow_ready"
+    HOST_SCORE_UPDATED = "host_score_updated"
 
 
 def _default(obj: Any):

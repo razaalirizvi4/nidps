@@ -45,3 +45,26 @@ def test_update_on_unseeded_key_raises_and_writes_no_audit_row():
 
     audit_count = conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0]
     assert audit_count == 0
+
+
+def test_threshold_order_is_enforced():
+    conn = connect(":memory:")
+    seed_defaults(conn)  # theta_c 0.50 < theta_alert 0.70 < theta_block 0.90
+
+    with pytest.raises(ValueError):
+        update(conn, "fusion.theta_block", 0.65)  # below theta_alert
+    with pytest.raises(ValueError):
+        update(conn, "fusion.theta_alert", 0.95)  # above theta_block
+    with pytest.raises(ValueError):
+        update(conn, "fusion.theta_c", 0.70)  # equal to theta_alert
+    assert (get(conn, "fusion.theta_block"), get(conn, "fusion.theta_alert")) == (0.90, 0.70)
+    assert conn.execute("SELECT COUNT(*) FROM audit_log").fetchone()[0] == 0
+
+
+def test_thresholds_can_be_moved_together_in_a_valid_order():
+    conn = connect(":memory:")
+    seed_defaults(conn)
+    update(conn, "fusion.theta_block", 0.95)
+    update(conn, "fusion.theta_alert", 0.85)
+    update(conn, "fusion.theta_c", 0.60)
+    assert (get(conn, "fusion.theta_c"), get(conn, "fusion.theta_alert")) == (0.60, 0.85)
