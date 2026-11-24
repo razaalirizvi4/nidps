@@ -1,0 +1,24 @@
+{
+  "model_id": 2,
+  "tau_global": 0.6961406190769497,
+  "tau_calibrated": 0.7161766457189789,
+  "benign": {
+    "flows": 22021,
+    "score_p50": 0.3873336925735553,
+    "score_p99": 0.7055764621666066,
+    "score_max": 0.7601760052312577,
+    "at": {
+      "global": {
+        "tau": 0.6961406190769497,
+        "flagged": 369,
+        "rate": 0.016756732210163026
+      },
+      "calibrated": {
+        "tau": 0.7161766457189789,
+        "flagged": 111,
+        "rate": 0.005040643022569366
+      }
+    }
+  },
+  "note": "Flagged-destination list removed from this copy (it contains addresses from a personal capture)."
+}
