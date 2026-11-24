@@ -1,0 +1,81 @@
+/* NIDPS dashboard theme: colors, fonts, reset. Ported from the v0 mockup's dark/light palette. */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  color-scheme: dark;
+  --base: #0c0e10;
+  --panel: #121518;
+  --raised: #181c20;
+  --rule: #262b31;
+  --rule-strong: #363c44;
+  --text: #e8e6e1;
+  --text-soft: #a9aeb5;
+  --text-faint: #7c828a;
+  --accent: #8cc7d9;
+  --ok: #6ccb8f;
+  --attention: #e3b341;
+  --problem: #f06a6a;
+  --sev-critical: #f06a6a;
+  --sev-high: #ee9150;
+  --sev-medium: #e3b341;
+  --sev-low: #79a9d8;
+  --sev-info: #8e949c;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --base: #f6f4ef;
+  --panel: #fff;
+  --raised: #f1eee7;
+  --rule: #dedad1;
+  --rule-strong: #c9c4b8;
+  --text: #1c1f23;
+  --text-soft: #555b63;
+  --text-faint: #6e747c;
+  --accent: #1f6f8b;
+  --ok: #287348;
+  --attention: #765300;
+  --problem: #a92d2d;
+  --sev-critical: #b73535;
+  --sev-high: #a85716;
+  --sev-medium: #765300;
+  --sev-low: #315f8e;
+  --sev-info: #555b63;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; min-height: 100%; background: var(--base); }
+body {
+  color: var(--text);
+  font: 15px/1.5 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; }
+button { cursor: pointer; color: inherit; }
+h1, h2, h3, h4 {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+svg { display: block; }
+
+.green { color: var(--ok); }
+.amber { color: var(--attention); }
+.red { color: var(--problem); }
+.muted { color: var(--text-soft); }
+
+.status, .muted, .eyebrow, .pane-note, .summary-line span,
+.table-wrap td, .config-row > div:first-child b, .config-row > div:first-child span,
+.evidence b, .evidence span, .session, .filter-row, .resource-list, .event-log, .term-button {
+  text-transform: lowercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; transition: none !important; }
+}
