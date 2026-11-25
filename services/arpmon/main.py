@@ -11,6 +11,7 @@ from common.bus import STREAM_EVIDENCE, STREAM_HEARTBEATS, EventBus
 from common.bus_messages import MessageType, encode_envelope
 from common.config_loader import get as config_get
 from common.db.migrate import connect
+from common.env import load_env
 from common.logging_setup import configure_logging
 from services.arpmon.arp_monitor import ArpFrame, ArpMonitor
 from services.arpmon.leases import parse_dnsmasq_leases
@@ -62,6 +63,7 @@ def _refresh_bindings_safely(monitor: ArpMonitor, lease_path: str, logger) -> No
 
 
 def main() -> None:
+    load_env()
     db_path = os.environ.get("NIDPS_DB_PATH", "/var/lib/nidps/nidps.sqlite3")
     redis_url = os.environ.get("NIDPS_REDIS_URL", "redis://localhost:6379/0")
     interface = os.environ.get("NIDPS_CAPTURE_INTERFACE", "wlan0")

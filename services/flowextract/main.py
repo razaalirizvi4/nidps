@@ -9,6 +9,7 @@ import time
 from common.bus import STREAM_FLOWS, STREAM_HEARTBEATS, EventBus
 from common.bus_messages import MessageType, encode_envelope
 from common.db.migrate import connect
+from common.env import load_env
 from common.logging_setup import configure_logging
 from common.schemas import ComponentHealth, HealthState, utc_now_iso
 from services.flowextract.capture import parse_packet
@@ -55,6 +56,7 @@ def publish_heartbeat(bus: EventBus, component_name: str) -> None:
 
 
 def main() -> None:
+    load_env()
     db_path = os.environ.get("NIDPS_DB_PATH", "/var/lib/nidps/nidps.sqlite3")
     redis_url = os.environ.get("NIDPS_REDIS_URL", "redis://localhost:6379/0")
     interface = os.environ.get("NIDPS_CAPTURE_INTERFACE", "wlan0")

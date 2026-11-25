@@ -20,6 +20,7 @@ from common.bus import (
 from common.bus_messages import MessageType, decode_envelope, encode_envelope
 from common.config_loader import get as config_get
 from common.db.migrate import connect
+from common.env import load_env
 from common.logging_setup import configure_logging
 from common.schemas import (
     ComponentHealth,
@@ -108,6 +109,7 @@ def publish_heartbeat(bus: EventBus) -> None:
 
 
 def main() -> None:
+    load_env()
     db_path = os.environ.get("NIDPS_DB_PATH", "/var/lib/nidps/nidps.sqlite3")
     redis_url = os.environ.get("NIDPS_REDIS_URL", "redis://localhost:6379/0")
 
