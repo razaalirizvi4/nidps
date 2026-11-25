@@ -64,9 +64,18 @@ Re-running this command is safe — it won't wipe or duplicate anything that's a
 
 ## 4. Environment variables
 
-Every service reads its configuration from environment variables, all prefixed
-`NIDPS_`. None of these have a setup wizard — export them in the shell you'll start
-each service from, or put them in a `.env` file and `source` it.
+Every service reads its configuration from environment variables, all prefixed `NIDPS_`. None of
+these have a setup wizard, but they don't need exporting by hand either: every service calls
+`common.env.load_env()` as the first thing it does, which loads a `.env` file at the repo root
+into the process automatically (via `python-dotenv`). A value you've already exported in your
+shell always wins over `.env` — it only fills in what you haven't set some other way.
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` — see the comments in `.env.example` for what each key does. `.env` is gitignored
+(it's local machine config, not something to share/commit); `.env.example` is the tracked template.
 
 | Variable | Used by | Default if unset | Notes |
 |---|---|---|---|
@@ -77,16 +86,14 @@ each service from, or put them in a `.env` file and `source` it.
 | `NIDPS_AP_MAC` | ARP monitor | *(required, no default — will crash without it)* | The MAC address of this machine's access-point interface. |
 | `NIDPS_DHCP_LEASE_PATH` | ARP monitor | `/var/lib/misc/dnsmasq.leases` | Only matters if you're actually running dnsmasq; otherwise the monitor just won't know about any devices. |
 | `NIDPS_EVE_JSON_PATH` | Suricata bridge | `/var/log/suricata/eve.json` | Must match wherever you tell Suricata to write its log in step 5. |
+| `NIDPS_DASHBOARD_HOST` / `NIDPS_DASHBOARD_PORT` | dashboard | `0.0.0.0` / `8443` | See step 7. |
+| `NIDPS_DASHBOARD_CORS_ORIGINS` | dashboard | *(unset — no CORS headers sent)* | Comma-separated frontend origin(s), needed only if the frontend runs on a different port (step 7). |
 
-Example for a quick local test run:
+A one-off override still works exactly like before, e.g. for a quick different port without
+touching `.env`:
 
 ```bash
-export NIDPS_DB_PATH=./nidps.sqlite3
-export NIDPS_REDIS_URL=redis://localhost:6379/0
-export NIDPS_CAPTURE_INTERFACE=eth0        # whatever step 2 found
-export NIDPS_GATEWAY_IP=192.168.1.1
-export NIDPS_AP_MAC=aa:bb:cc:dd:ee:ff
-export NIDPS_EVE_JSON_PATH=/tmp/eve.json
+NIDPS_DASHBOARD_PORT=9000 python3 -m services.dashboard.main
 ```
 
 ## 5. Start the infrastructure
@@ -122,8 +129,26 @@ stays switched off until a real trained model exists in the database — nothing
 trains or loads one automatically yet. It'll log a warning and keep running with
 just the host-behaviour checks (data-volume and beaconing detection) active.
 
-There is also no dashboard yet — right now the only way to see what's happening is
-to read the SQLite database directly or watch each service's logs.
+## 7. Start the management dashboard
+
+A web dashboard now exists (`services/dashboard/`): session-authenticated REST API plus a
+`/ws/live` WebSocket, serving the Login, Overview, Intrusion Alerts, Blocked Hosts & Allowlist,
+Configuration, and System Health screens. Create the first admin login once, then start it like
+any other service (same environment variables as above, plus `NIDPS_DASHBOARD_PORT` if you don't
+want the 8443 default):
+
+```bash
+python3 -m services.dashboard.create_admin ./nidps.sqlite3 admin <a-real-password>
+python3 -m services.dashboard.main
+```
+
+Two gaps worth knowing about, both pre-existing in the rest of the system rather than bugs in the
+dashboard: **Blocked Hosts** will show nothing until an enforcement service starts writing
+`block_entry` rows (none exists yet — nothing currently turns a BLOCK verdict into an actual
+ipset block), and **System Health**'s component table will be empty until a watchdog service
+starts writing `component_event` rows (also not yet built). The dashboard's Unblock / Reload
+Rules / Recalibrate buttons publish to a `nidps:admin_commands` stream that nothing consumes yet
+for the same reason — see `services/dashboard/admin_commands.py`.
 
 ## Running the tests
 
@@ -137,8 +162,8 @@ pytest tests -q
 
 ## What's intentionally not here yet
 
-This README only covers running what's already built. Still missing from the full
-system: a trained anomaly model (step 6 above), the decision-making layer that turns
-alerts into pass/block calls, the web dashboard, and a setup/launcher script to
-replace steps 3–6 above with one command. If you're picking up one of those, check
+This README only covers running what's already built. Still missing from the full system: a
+trained anomaly model (step 6 above), the enforcement layer that turns a BLOCK verdict into an
+actual ipset block (and writes `block_entry`), a watchdog service, and a setup/launcher script to
+replace steps 3–7 above with one command. If you're picking up one of those, check
 `docs/superpowers/plans/` for the relevant design doc first.
