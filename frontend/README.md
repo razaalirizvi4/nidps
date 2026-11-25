@@ -39,10 +39,31 @@ development, set these before `js/app.js` loads (e.g. a small inline `<script>` 
 </script>
 ```
 
-**That backend doesn't exist yet in this repo.** Until it's built, every API call in `js/api.js`
-falls back to the fixture data in `js/demoData.js` whenever the server is unreachable, so the UI
-stays fully browsable. A real `401` from a running backend is never swallowed by that fallback —
-it sends you to the login screen, same as it would with the backend live.
+If every API call in `js/api.js` is unreachable (connection refused, or a 404 because this page is
+being served standalone with no backend behind it), it falls back to the fixture data in
+`js/demoData.js` so the UI stays fully browsable. A real `401` from a running backend is never
+swallowed by that fallback — it sends you to the login screen, same as it would with the backend
+live.
+
+### Running against the real backend
+
+`services/dashboard/` (see the top-level `README.md`, step 7) implements this exact API. Since the
+frontend (port 5173 above) and the dashboard (port 8443 by default) are different origins, and
+session auth is a cookie, the dashboard needs to be told to allow credentialed requests from this
+origin:
+
+```bash
+NIDPS_DASHBOARD_CORS_ORIGINS=http://localhost:5173 python3 -m services.dashboard.main
+```
+
+(or set `NIDPS_DASHBOARD_CORS_ORIGINS` once in the repo root's `.env` — see the main `README.md`'s
+"Environment variables" section — so you don't need to repeat it every time.)
+
+Then set `window.NIDPS_API_BASE`/`window.NIDPS_WS_BASE` as shown above and reload. Without that
+env var, the dashboard sends no CORS headers at all (correct for a same-origin deployment, e.g.
+this frontend served by the dashboard itself) and the browser will refuse the cross-origin
+request — the UI falls back to demo data in that case rather than erroring visibly, so if data
+looks static, check this first.
 
 ## Folder structure
 
@@ -63,7 +84,7 @@ frontend/
     router.js             hash-based page router
     icons.js               inline-SVG icon set
     demoData.js             offline fixture data (see "Talking to the backend" above)
-    components/              pane.js, table.js, status.js, button.js — small render helpers
+    components/              pane.js, table.js, status.js, button.js, dialog.js — small render helpers
     charts/                   lineChart.js — Chart.js wrapper for the traffic-history chart
     pages/                     overview.js, traffic.js, alerts.js, blocked.js, config.js, health.js, login.js
   vendor/

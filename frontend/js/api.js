@@ -25,7 +25,14 @@ async function request(path, options = {}) {
   } catch (networkError) {
     throw networkError; // caller decides whether to fall back to demo data
   }
-  if (response.status === 401) throw new UnauthorizedError('not_authenticated');
+  if (response.status === 401) {
+    // The server's actual reason matters here: /api/login's 401 body is "invalid_credentials" or
+    // "locked", distinct from a protected route's generic "not_authenticated" -- losing that (as
+    // this used to, by hardcoding the message) makes a wrong password look identical to a locked
+    // account or an expired session, with no way for the user to tell which actually happened.
+    const body = await response.json().catch(() => ({}));
+    throw new UnauthorizedError(body.detail || 'not_authenticated');
+  }
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     throw new ApiError(body.detail || `request failed: ${response.status}`, response.status);

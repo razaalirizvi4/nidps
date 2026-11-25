@@ -48,6 +48,7 @@ build/
 ### Secrets / local config ###
 .env
 .env.*
+!.env.example
 *.local
 config.local.*
 

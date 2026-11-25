@@ -17,6 +17,12 @@
   <div id="app"></div>
 
   <!-- Chart.js, vendored locally (no CDN dependency at runtime) -- exposes window.Chart. -->
+
+  <script>
+    window.NIDPS_API_BASE = 'http://localhost:8443';
+    window.NIDPS_WS_BASE = 'ws://localhost:8443';
+  </script>
+
   <script src="vendor/chart.umd.min.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
