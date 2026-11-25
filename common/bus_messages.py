@@ -19,6 +19,9 @@ class MessageType(str, enum.Enum):
     CONFIG_CHANGE = "config_change"
     FLOW_READY = "flow_ready"
     HOST_SCORE_UPDATED = "host_score_updated"
+    UNBLOCK_REQUESTED = "unblock_requested"
+    RELOAD_RULES_REQUESTED = "reload_rules_requested"
+    RECALIBRATE_REQUESTED = "recalibrate_requested"
 
 
 def _default(obj: Any):

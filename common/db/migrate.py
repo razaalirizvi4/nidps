@@ -25,8 +25,12 @@ def migrate(conn: sqlite3.Connection) -> None:
         )
 
 
-def connect(db_path: str) -> sqlite3.Connection:
-    conn = sqlite3.connect(db_path)
+def connect(db_path: str, check_same_thread: bool = True) -> sqlite3.Connection:
+    """check_same_thread=False is for the one caller that genuinely shares a single connection
+    across threads (services/dashboard: a FastAPI worker-threadpool thread plus its own background
+    consumer/heartbeat threads) -- every other service here is single-threaded per connection, so
+    the default stays True, matching sqlite3's own safety default, for everyone else."""
+    conn = sqlite3.connect(db_path, check_same_thread=check_same_thread)
     conn.execute("PRAGMA foreign_keys = ON")
     migrate(conn)
     return conn

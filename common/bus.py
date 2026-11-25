@@ -11,6 +11,7 @@ STREAM_HEARTBEATS = "nidps:heartbeats"
 STREAM_CONFIG_CHANGES = "nidps:config_changes"
 STREAM_FLOWS = "nidps:flows"
 STREAM_HOST_SCORES = "nidps:host_scores"
+STREAM_ADMIN_COMMANDS = "nidps:admin_commands"
 
 
 class EventBus:
