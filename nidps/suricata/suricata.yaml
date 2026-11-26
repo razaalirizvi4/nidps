@@ -5,11 +5,26 @@
 # Adapted for no inline NFQUEUE/IPS mode (see Phase-0 dataplane work for that)
 
 vars:
+  # HOME_NET below is a fallback for running suricata directly against this
+  # file. start.sh auto-detects the real subnet from the capture interface
+  # at launch and overrides this via --set, so it never goes stale.
   address-groups:
-    HOME_NET: "[192.168.56.0/24]"
+    HOME_NET: "[192.168.100.0/24]"
     EXTERNAL_NET: "!$HOME_NET"
-    ALICE_NET: "[192.168.56.0/24]"
-    BOB_NET: "[192.168.56.0/24]"
+    ALICE_NET: "[192.168.100.0/24]"
+    BOB_NET: "[192.168.100.0/24]"
+    HTTP_SERVERS: "$HOME_NET"
+    SMTP_SERVERS: "$HOME_NET"
+    SQL_SERVERS: "$HOME_NET"
+    DNS_SERVERS: "$HOME_NET"
+    TELNET_SERVERS: "$HOME_NET"
+    FTP_SERVERS: "$HOME_NET"
+    MODBUS_CLIENT: "$HOME_NET"
+    MODBUS_SERVER: "$HOME_NET"
+    DNP3_SERVER: "$HOME_NET"
+    DNP3_CLIENT: "$HOME_NET"
+    ENIP_CLIENT: "$HOME_NET"
+    ENIP_SERVER: "$HOME_NET"
   port-groups:
     HTTP_PORTS: "[80,8080]"
     SHELLCODE_PORTS: "!80"
@@ -58,7 +73,7 @@ outputs:
 
 # Passive IDS mode: use af-packet for live interface capture
 af-packet:
-  - interface: vboxnet0
+  - interface: wlo1
     threads: 1
     cluster-id: 99
     cluster-type: cluster_flow
@@ -77,12 +92,10 @@ nfqueue:
 rule-files:
   - custom.rules
 
-  # Emerging Threats Open ruleset (Table 4.16 lists suricata-update as a required tool).
-  # This repo cannot verify your installation's rule path (the global Suricata config at
-  # /etc/suricata/suricata.yaml requires sudo to read). Before relying on ET coverage:
-  #   1. Run: sudo suricata-update --suricata-conf nidps/suricata/suricata.yaml
-  #   2. Uncomment the line below once that completes successfully.
-  # - /var/lib/suricata/rules/suricata.rules
+  # Emerging Threats Open ruleset, maintained via:
+  #   sudo suricata-update --suricata-conf nidps/suricata/suricata.yaml \
+  #     --disable-conf nidps/suricata/disable.conf
+  - /var/lib/suricata/rules/suricata.rules
 
 # Fragmentation/reassembly settings for passive IDS
 defrag:
